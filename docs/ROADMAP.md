@@ -587,6 +587,21 @@ Ajout d'une icône `SpinnerIcon` réutilisable (`icons.tsx`, cercle en rotation 
 
 Vérifié (Playwright) : le spinner et le texte "Chargement..." apparaissent bien dans le bouton immédiatement après le clic, sur les deux formulaires (la fenêtre réelle est trop brève en développement local pour la capturer en image, donc vérifiée par inspection directe du DOM juste après le clic plutôt que par capture d'écran) ; `npx tsc --noEmit`, `npx eslint .` et `npx next build` passent sans erreur.
 
+## Migration SQLite → Postgres (Neon), préparation du déploiement (2026-09-26)
+
+À la demande de l'utilisateur, préparation du premier vrai déploiement : hébergement gratuit et sécurisé retenu (Vercel, offre gratuite avec HTTPS/CDN natifs) associé à **Neon** (Postgres géré, offre gratuite conçue pour s'intégrer à Vercel + Prisma). Choix nécessaire en amont du reste : l'offre gratuite de Vercel est serverless, incompatible avec un fichier SQLite qui ne survit pas aux redéploiements/instances multiples (déjà anticipé dans les commentaires du schéma Prisma).
+
+**Changements** :
+- `prisma/schema.prisma` : `datasource db { provider = "postgresql" }` (au lieu de `"sqlite"`).
+- `src/lib/db/client.ts` : adaptateur `@prisma/adapter-neon` (au lieu de `@prisma/adapter-better-sqlite3`) — pilote HTTP/WebSocket de Neon, adapté à un environnement serverless (pas de pool de connexions TCP persistant par instance). Nécessite `ws` en dépendance (WebSocket côté Node.js ; le runtime Edge en a un nativement).
+- `prisma.config.ts` (utilisé par la CLI/migrations, jamais par le runtime applicatif) : bascule sur une nouvelle variable `DIRECT_URL` plutôt que `DATABASE_URL` — le pooler Neon (mode transaction, utilisé par `DATABASE_URL` pour l'application) ne supporte pas certaines commandes utilisées par `prisma migrate`. Convention retenue : `DATABASE_URL` = connexion poolée (application), `DIRECT_URL` = connexion directe (migrations uniquement). Sur un hébergement Postgres classique sans pooler, les deux valeurs peuvent être identiques.
+- `package.json` : retrait de `@prisma/adapter-better-sqlite3`/`better-sqlite3`, ajout de `@neondatabase/serverless`, `@prisma/adapter-neon`, `ws`/`@types/ws`.
+- `.env.example` : documentation des deux nouvelles variables et de leur provenance (tableau de bord Neon > Connection Details).
+
+**Vérifié** : `npx prisma generate`, `npx tsc --noEmit`, `npx eslint .` et `npx next build` passent sans erreur (31 routes générées) après la migration. Non vérifié à ce stade (nécessite un vrai projet Neon, pas encore créé) : une vraie migration (`prisma migrate deploy`) et une lecture/écriture réelle contre la base — à faire dès que les URLs Neon sont renseignées dans `.env`.
+
+**Reste à faire pour le déploiement** : créer le projet Neon, renseigner `DATABASE_URL`/`DIRECT_URL`, pousser le dépôt sur GitHub, connecter Vercel, déployer, puis utiliser l'URL publique obtenue pour finaliser la validation du compte Notch Pay en production (actuellement en sandbox, voir plus haut dans ce journal — Notch Pay exige un site déjà en ligne pour ce formulaire).
+
 ## Catalogues mobiles en sections défilables horizontalement, façon Play Store (2026-09-22)
 
 Demande de l'utilisateur, justifiée explicitement : sur mobile, les 3 catalogues denses (`/cv/[categorie]` jusqu'à 50 modèles, `/lettres-de-motivation` 100, `/bewerbungsbrief` 35) forçaient un défilement vertical interminable (une carte pleine largeur par ligne, conséquence assumée du correctif de taille de vignette du 2026-09-22 plus haut dans ce journal). L'utilisateur a proposé le modèle Play Store : regrouper les modèles en sections, chacune défilant horizontalement au doigt, la page ne défilant verticalement que pour passer d'une section à la suivante.

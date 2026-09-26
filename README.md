@@ -5,7 +5,7 @@ Plateforme de création rapide de CV et lettres de motivation pour l'Afrique.
 ## Stack technique
 
 - **Next.js 16** (App Router, TypeScript, Tailwind CSS v4)
-- **Prisma 7** + SQLite en local (driver adapter `@prisma/adapter-better-sqlite3`)
+- **Prisma 7** + Postgres (Neon — https://neon.tech, driver adapter `@prisma/adapter-neon`)
 - Authentification maison (sessions JWT signées via `jose`, mots de passe hachés avec `bcryptjs`)
 - Paiement : abstraction MTN Mobile Money / Orange Money avec un mode `mock` par défaut
 - Export **Word** via `docx`, export **PDF** via l'impression navigateur (format A4 natif)
@@ -15,7 +15,7 @@ Plateforme de création rapide de CV et lettres de motivation pour l'Afrique.
 
 ```bash
 npm install
-npx prisma migrate dev   # crée prisma/dev.db si besoin
+npx prisma migrate dev   # applique le schéma sur la base Postgres (Neon) configurée
 npm run dev
 ```
 
@@ -25,7 +25,8 @@ Le site est disponible sur http://localhost:3000 (redirige vers `/fr` ou `/en`).
 
 Copier `.env.example` vers `.env` et adapter :
 
-- `DATABASE_URL` — chemin de la base SQLite (`file:./prisma/dev.db` par défaut)
+- `DATABASE_URL` / `DIRECT_URL` — deux URLs de connexion Neon (pooled/non poolée, voir
+  commentaires dans `.env.example`)
 - `SESSION_SECRET` — clé aléatoire longue pour signer les sessions
 - `PAYMENT_MODE` — `mock` (paiement simulé, par défaut) ou `live`
 - `MTN_MOMO_*` — identifiants API MTN Mobile Money (voir https://momodeveloper.mtn.com)

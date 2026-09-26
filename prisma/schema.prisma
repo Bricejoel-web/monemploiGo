@@ -1,17 +1,14 @@
-// Base de données locale : SQLite (zéro configuration).
-// Pour la mise en production, changer "provider" en "postgresql" et
-// définir DATABASE_URL vers l'instance Postgres — le reste du schéma
-// ne change pas.
+// Base de données : Postgres (Neon). L'URL de connexion n'est pas déclarée
+// ici (Prisma 7 + adaptateurs) mais dans prisma.config.ts (CLI/migrations,
+// DIRECT_URL non poolée) et via l'adaptateur passé au PrismaClient (runtime,
+// DATABASE_URL poolée) — voir src/lib/db/client.ts.
 
 generator client {
   provider = "prisma-client-js"
 }
 
-// Prisma 7 : l'URL de connexion n'est plus déclarée ici mais dans
-// prisma.config.ts (CLI/migrations) et via l'adapter passé au PrismaClient
-// (runtime) — voir src/lib/db/client.ts.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 enum CvCategory {

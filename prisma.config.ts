@@ -13,7 +13,12 @@ export default defineConfig({
   migrations: {
     path: path.join("prisma", "migrations"),
   },
+  // Migrations passent par une connexion Postgres non poolée (Neon) : le
+  // pooler (mode transaction) ne supporte pas certaines commandes DDL/session
+  // utilisées par `prisma migrate`. Le runtime applicatif (src/lib/db/client.ts)
+  // utilise lui la connexion poolée (DATABASE_URL), adaptée au grand nombre de
+  // connexions courtes d'un environnement serverless.
   datasource: {
-    url: env("DATABASE_URL"),
+    url: env("DIRECT_URL"),
   },
 });
