@@ -6,6 +6,7 @@ import type { CvData, CvTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { CvRenderer } from "./CvRenderer";
+import { EditorA4Preview } from "./EditorA4Preview";
 import { Field } from "./FormField";
 import { saveCvDocument } from "@/lib/documents/actions";
 
@@ -512,25 +513,23 @@ export function CvEditor({
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <div className="overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-lg dark:border-white/10 dark:bg-white/[0.06]">
-          <div style={{ zoom: 0.55, width: "210mm" }}>
-            <CvRenderer
-              data={{
-                ...data,
-                experience: noExperience ? [] : data.experience,
-                skills: skillsInput.split(",").map((s) => s.trim()).filter(Boolean),
-                // La ligne "langue" vide par défaut ne doit jamais atteindre le
-                // rendu : plusieurs mises en page l'affichent en "nom (niveau)",
-                // ce qui produirait littéralement " ()" sans ce filtre.
-                languages: data.languages.filter((l) => l.name.trim()),
-              }}
-              layoutId={template.layoutId}
-              theme={template.theme}
-              includePhoto={includePhoto}
-              locale={locale}
-            />
-          </div>
-        </div>
+        <EditorA4Preview>
+          <CvRenderer
+            data={{
+              ...data,
+              experience: noExperience ? [] : data.experience,
+              skills: skillsInput.split(",").map((s) => s.trim()).filter(Boolean),
+              // La ligne "langue" vide par défaut ne doit jamais atteindre le
+              // rendu : plusieurs mises en page l'affichent en "nom (niveau)",
+              // ce qui produirait littéralement " ()" sans ce filtre.
+              languages: data.languages.filter((l) => l.name.trim()),
+            }}
+            layoutId={template.layoutId}
+            theme={template.theme}
+            includePhoto={includePhoto}
+            locale={locale}
+          />
+        </EditorA4Preview>
       </div>
       </div>
     </div>

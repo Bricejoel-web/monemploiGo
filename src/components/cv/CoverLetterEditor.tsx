@@ -6,6 +6,7 @@ import type { CoverLetterData, CoverLetterTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { CoverLetterRenderer } from "./CoverLetterRenderer";
+import { EditorA4Preview } from "./EditorA4Preview";
 import { Field } from "./FormField";
 import { saveCoverLetterDocument } from "@/lib/documents/actions";
 import { generateCoverLetterBodyAction, isAiGenerationAvailableAction } from "@/lib/documents/generate-actions";
@@ -193,11 +194,9 @@ export function CoverLetterEditor({
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <div className="overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-lg dark:border-white/10 dark:bg-white/[0.06]">
-          <div style={{ zoom: 0.55, width: "210mm" }}>
-            <CoverLetterRenderer data={data} layout={template.layout} theme={template.theme} locale={locale} />
-          </div>
-        </div>
+        <EditorA4Preview>
+          <CoverLetterRenderer data={data} layout={template.layout} theme={template.theme} locale={locale} />
+        </EditorA4Preview>
       </div>
       </div>
     </div>

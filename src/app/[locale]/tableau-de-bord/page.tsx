@@ -5,7 +5,6 @@ import { requireSession, getCurrentUser } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
 import { DashboardDocuments, type DashboardDocumentItem } from "@/components/dashboard/DashboardDocuments";
 import { DeleteAccountButton } from "@/components/dashboard/DeleteAccountButton";
-import { LogoutButton } from "@/components/auth/LogoutButton";
 import { FolderIcon, CheckIcon, ClockIcon } from "@/components/home/icons";
 import type { ComponentType } from "react";
 
@@ -27,13 +26,13 @@ function StatCard({
   }[accent];
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${accentClasses}`}>
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-[#fbfaf8] p-3 text-center shadow-sm dark:border-white/10 dark:bg-white/[0.06] sm:flex-row sm:items-center sm:gap-3 sm:p-4 sm:text-left">
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br sm:h-10 sm:w-10 ${accentClasses}`}>
         <Icon className="h-5 w-5" />
       </span>
-      <div>
+      <div className="min-w-0">
         <p className="text-xl font-bold leading-none">{value}</p>
-        <p className="mt-1 text-xs text-black/50 dark:text-white/50">{label}</p>
+        <p className="mt-1 break-words text-xs text-black/50 dark:text-white/50">{label}</p>
       </div>
     </div>
   );
@@ -78,19 +77,16 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
   return (
     <div className="bg-dot-grid relative min-h-[70vh] bg-[#efe6d8] py-12 dark:bg-white/[0.05]">
       <div className="mx-auto flex max-w-4xl flex-col gap-6 px-6">
-        <div className="animate-fade-in-up flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-          <div className="flex items-center gap-4">
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f2994a] to-[#eb5757] text-xl font-bold text-white shadow-md shadow-[#eb5757]/25">
-              {initials}
-            </span>
-            <div>
-              <h1 className="text-2xl font-bold">{dict.dashboard.title}</h1>
-              <p className="text-sm text-black/60 dark:text-white/60">
-                {dict.dashboard.welcome}, {user?.name ?? user?.email}
-              </p>
-            </div>
+        <div className="animate-fade-in-up flex flex-wrap items-center gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f2994a] to-[#eb5757] text-xl font-bold text-white shadow-md shadow-[#eb5757]/25">
+            {initials}
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold">{dict.dashboard.title}</h1>
+            <p className="text-sm text-black/60 dark:text-white/60">
+              {dict.dashboard.welcome}, {user?.name ?? user?.email}
+            </p>
           </div>
-          <LogoutButton locale={locale as Locale} label={dict.auth.logout} />
         </div>
 
         <div

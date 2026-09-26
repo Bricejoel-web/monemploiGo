@@ -6,6 +6,7 @@ import type { BewerbungsbriefData, BewerbungsbriefTemplateMeta } from "@/lib/cv/
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { BewerbungsbriefRenderer } from "./BewerbungsbriefRenderer";
+import { EditorA4Preview } from "./EditorA4Preview";
 import { Field } from "./FormField";
 import { saveBewerbungsbriefDocument } from "@/lib/documents/actions";
 import { generateBewerbungsbriefBodyAction, isAiGenerationAvailableAction } from "@/lib/documents/generate-actions";
@@ -345,11 +346,9 @@ export function BewerbungsbriefEditor({
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <div className="overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-lg dark:border-white/10 dark:bg-white/[0.06]">
-          <div style={{ zoom: 0.55, width: "210mm" }}>
-            <BewerbungsbriefRenderer data={data} layoutId={template.layoutId} theme={template.theme} locale={locale} />
-          </div>
-        </div>
+        <EditorA4Preview>
+          <BewerbungsbriefRenderer data={data} layoutId={template.layoutId} theme={template.theme} locale={locale} />
+        </EditorA4Preview>
       </div>
       </div>
     </div>

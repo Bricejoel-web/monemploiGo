@@ -19,9 +19,16 @@ export default async function DocumentPreviewPage({ params }: PageProps<"/[local
   if (!loaded) notFound();
 
   return (
-    <div className="flex justify-center bg-black/5 py-10 print:bg-white print:p-0 dark:bg-black">
+    <div className="overflow-x-auto bg-black/5 py-10 print:overflow-visible print:bg-white print:p-0 dark:bg-black">
       <PrintButton label={dict.payment.downloadPdf} />
-      <div className="a4-print-root">
+      {/* `mx-auto` (marges automatiques) plutôt que `flex justify-center` :
+          un contenu centré par flexbox qui déborde de son conteneur déborde
+          symétriquement des deux côtés, y compris vers la gauche — une zone
+          que le défilement standard ne peut pas atteindre (le défilement ne
+          va jamais en position négative). Avec des marges automatiques, un
+          débordement ne peut se produire que vers la droite, où il reste
+          normalement accessible en faisant défiler horizontalement. */}
+      <div className="a4-print-root w-fit mx-auto">
         {loaded.kind === "CV" ? (
           <CvRenderer
             data={loaded.data}
