@@ -1,7 +1,51 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
+const securityHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      // 'unsafe-eval' n'est nécessaire qu'en développement (React DevTools / Fast Refresh) ;
+      // absent en production, où React n'utilise jamais eval().
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+      "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+      "font-src 'self' fonts.gstatic.com",
+      "img-src 'self' data: blob: https://images.unsplash.com",
+      `connect-src 'self'${isDev ? " ws:" : ""}`,
+      "frame-ancestors 'none'",
+    ].join("; "),
+  },
+];
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    root: path.join(__dirname),
+  },
+  // Filet de sécurité pour la sauvegarde d'un CV avec photo : la photo est
+  // compressée côté client (voir CvEditor.tsx, handlePhotoChange) mais on
+  // relève quand même la limite par défaut (1 Mo) des Server Actions, pour
+  // qu'un cas limite n'échoue plus jamais silencieusement.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "4mb",
+    },
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

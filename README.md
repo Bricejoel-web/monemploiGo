@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# monemploigo
 
-## Getting Started
+Plateforme de création rapide de CV et lettres de motivation pour l'Afrique.
 
-First, run the development server:
+## Stack technique
+
+- **Next.js 16** (App Router, TypeScript, Tailwind CSS v4)
+- **Prisma 7** + SQLite en local (driver adapter `@prisma/adapter-better-sqlite3`)
+- Authentification maison (sessions JWT signées via `jose`, mots de passe hachés avec `bcryptjs`)
+- Paiement : abstraction MTN Mobile Money / Orange Money avec un mode `mock` par défaut
+- Export **Word** via `docx`, export **PDF** via l'impression navigateur (format A4 natif)
+- Internationalisation FR/EN native (sans librairie tierce — voir `docs/ROADMAP.md`)
+
+## Démarrage
 
 ```bash
+npm install
+npx prisma migrate dev   # crée prisma/dev.db si besoin
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Le site est disponible sur http://localhost:3000 (redirige vers `/fr` ou `/en`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables d'environnement
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copier `.env.example` vers `.env` et adapter :
 
-## Learn More
+- `DATABASE_URL` — chemin de la base SQLite (`file:./prisma/dev.db` par défaut)
+- `SESSION_SECRET` — clé aléatoire longue pour signer les sessions
+- `PAYMENT_MODE` — `mock` (paiement simulé, par défaut) ou `live`
+- `MTN_MOMO_*` — identifiants API MTN Mobile Money (voir https://momodeveloper.mtn.com)
+- `ORANGE_MONEY_*` — identifiants API Orange Money Web Payment (voir https://developer.orange.com/apis/om-webpay)
 
-To learn more about Next.js, take a look at the following resources:
+En mode `mock`, tout paiement réussit instantanément — utile pour développer et démontrer
+le parcours complet sans compte marchand actif.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Catalogue de modèles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Les modèles de CV et de lettres de motivation ne sont **pas stockés en base** : ils sont
+générés par code à partir d'archétypes de mise en page × palettes de couleurs
+(voir `src/lib/cv/layouts.ts`, `src/lib/cv/themes.ts`, `src/lib/cv/catalog.ts`). Cela permet
+de maintenir un vrai catalogue de 215 CV + 100 lettres sans dupliquer 315 composants React :
 
-## Deploy on Vercel
+| Catégorie         | Modèles | Prix     |
+| ------------------ | ------: | -------- |
+| CV Standard         |      50 | 500 FCFA |
+| CV Premium          |     100 | 1000 FCFA |
+| CV ATS              |      50 | 1000 FCFA |
+| CV Allemagne (ATS)  |      15 | 1000 FCFA |
+| Lettres de motivation |    100 | 500 FCFA |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/app/[locale]/        pages (routage FR/EN)
+src/components/          composants React (cv, dashboard, layout, auth, payment)
+src/lib/cv/              moteur de templates (layouts, thèmes, catalogue, rendu A4)
+src/lib/auth/            sessions, mots de passe, actions serveur
+src/lib/payment/         abstraction MTN / Orange Money
+src/lib/export/          génération Word (docx)
+src/lib/documents/       création de documents, paiement, chargement
+prisma/schema.prisma     modèle de données (User, Document, Payment)
+docs/ROADMAP.md          feuille de route et décisions
+```
+
+## Sécurité
+
+- Mots de passe hachés (bcrypt, coût 12), sessions JWT `httpOnly` + `secure` en production
+- Limiteur de débit en mémoire sur connexion / inscription / paiement
+- En-têtes de sécurité (CSP, HSTS, X-Frame-Options, etc.) dans `next.config.ts`
+- Vérification de propriété systématique avant tout accès à un document ou un paiement
+
+## Points connus / limites (voir `docs/ROADMAP.md`)
+
+- Prix des lettres de motivation et du nombre de modèles "Allemagne" : hypothèses à valider,
+  le cahier des charges initial ne les précisait pas.
+- Photo de profil stockée en base (data URL) — suffisant pour la V1, à migrer vers un stockage
+  objet (S3-compatible) si le volume grandit.
+- Pas de photos de personnes réelles utilisées dans les modèles (voir ROADMAP — choix
+  juridique) : illustrations vectorielles à la place, photo de l'utilisateur uploadée par
+  lui-même dans l'éditeur.

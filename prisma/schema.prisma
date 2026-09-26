@@ -1,0 +1,114 @@
+// Base de données locale : SQLite (zéro configuration).
+// Pour la mise en production, changer "provider" en "postgresql" et
+// définir DATABASE_URL vers l'instance Postgres — le reste du schéma
+// ne change pas.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7 : l'URL de connexion n'est plus déclarée ici mais dans
+// prisma.config.ts (CLI/migrations) et via l'adapter passé au PrismaClient
+// (runtime) — voir src/lib/db/client.ts.
+datasource db {
+  provider = "sqlite"
+}
+
+enum CvCategory {
+  STANDARD
+  PREMIUM
+  ATS
+  GERMAN_ATS
+}
+
+enum DocumentType {
+  CV
+  COVER_LETTER
+  BEWERBUNGSBRIEF
+}
+
+enum DocumentStatus {
+  DRAFT
+  PAID
+}
+
+enum PaymentProvider {
+  CINETPAY
+  MTN_MOMO
+  ORANGE_MONEY
+  MONETBIL
+  NOTCHPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  name              String?
+  // Consentement explicite (case décochée par défaut) pour recevoir des
+  // e-mails de conseils/offres — recueilli dès l'inscription même si
+  // l'envoi de ce type d'e-mail n'est pas encore implémenté, pour ne pas
+  // avoir à redemander ce consentement rétroactivement le jour où la
+  // fonctionnalité existera.
+  marketingConsent  Boolean   @default(false)
+  // Version des CGU (voir src/data/legal/legal-config.ts, TERMS_VERSION)
+  // acceptées à l'inscription, et date de cette acceptation — permet de
+  // savoir quelle version un utilisateur a acceptée si les CGU évoluent.
+  termsVersion      String?
+  termsAcceptedAt   DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  documents Document[]
+  payments  Payment[]
+}
+
+// Les modèles de CV et de lettres de motivation (catalogue de 215 CV et 100
+// lettres) sont des données statiques générées par code — voir
+// src/lib/cv/catalog.ts — et ne sont donc pas dupliqués en base. Chaque
+// document utilisateur référence simplement le "slug" du modèle utilisé.
+model Document {
+  id           String         @id @default(cuid())
+  userId       String
+  type         DocumentType
+  templateSlug String
+  category     CvCategory?
+  title        String
+  contentJson  String
+  includePhoto Boolean        @default(false)
+  photoDataUrl String?
+  status       DocumentStatus @default(DRAFT)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  payments Payment[]
+
+  @@index([userId])
+}
+
+model Payment {
+  id           String          @id @default(cuid())
+  userId       String
+  documentId   String
+  provider     PaymentProvider
+  amountFcfa   Int
+  status       PaymentStatus   @default(PENDING)
+  providerRef  String?
+  phoneNumber  String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([documentId])
+}

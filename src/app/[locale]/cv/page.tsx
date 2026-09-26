@@ -1,0 +1,83 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { isLocale, type Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/dictionaries";
+import { PRICE_FCFA, getCvTemplatesByCategory } from "@/lib/cv/catalog";
+import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
+import { CvRenderer } from "@/components/cv/CvRenderer";
+import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
+import { pickPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
+import { pickSamplePortrait, seedFromString } from "@/lib/photos/unsplash";
+import type { CvCategory } from "@/lib/cv/types";
+
+const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS"];
+
+export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv">) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const dict = await getDictionary(locale as Locale);
+
+  return (
+    <div className="bg-dot-grid relative bg-[#efe6d8] py-14 dark:bg-white/[0.05]">
+      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6">
+        <div className="animate-fade-in-up text-center">
+          <h1 className="text-3xl font-bold sm:text-4xl">{dict.catalog.cvTitle}</h1>
+          <span className="mx-auto mt-3 block h-1 w-16 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
+          <p className="mt-4 text-black/60 dark:text-white/60">{dict.catalog.cvSubtitle}</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {CATEGORIES.map((category, index) => {
+            const templates = getCvTemplatesByCategory(category);
+            const first = templates[0];
+            const portrait = pickSamplePortrait(seedFromString(first.slug));
+            const gender = genderOfPortraitGroup(portrait.group);
+            const ethnicity = ethnicityOfPortraitGroup(portrait.group);
+            const persona =
+              category === "GERMAN_ATS"
+                ? pickGermanPersona(first.slug, gender, ethnicity)
+                : pickPersona(locale as Locale, first.slug, gender, ethnicity);
+            return (
+              <Link
+                key={category}
+                href={`/${locale}/cv/${CATEGORY_SLUGS[category]}`}
+                className="animate-fade-in-up group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl sm:flex-row dark:border-white/10 dark:bg-white/[0.06]"
+                style={{ animationDelay: `${0.08 * index}s` }}
+              >
+                <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#f2994a] to-[#eb5757]" />
+                <div className="mx-auto shrink-0 overflow-hidden rounded-md sm:mx-0">
+                  <div className="transition-transform duration-300 ease-out group-hover:scale-105">
+                    <TemplateThumbnail>
+                      <CvRenderer
+                        data={{ ...persona, photoDataUrl: portrait.urlSmall }}
+                        layoutId={first.layoutId}
+                        theme={first.theme}
+                        includePhoto
+                        locale={locale as Locale}
+                      />
+                    </TemplateThumbnail>
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col justify-center gap-1.5">
+                  <h2 className="text-lg font-semibold">{dict.dashboard[category === "GERMAN_ATS" ? "germanAts" : (category.toLowerCase() as "standard" | "premium" | "ats")]}</h2>
+                  <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <span className="inline-flex w-fit items-center rounded-full bg-black/[0.05] px-2.5 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
+                      {dict.catalog.from} {PRICE_FCFA[category]} FCFA
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="text-sm font-medium text-[#c94f30] opacity-0 transition-opacity group-hover:opacity-100 dark:text-[#f2994a]"
+                    >
+                      →
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
