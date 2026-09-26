@@ -624,6 +624,27 @@ Premier vrai test du site sur téléphone (Android, Chrome) par l'utilisateur ju
 
 **Vérifié** : reproduction automatisée (Playwright, viewport Pixel 5) de chacun des 4 scénarios avant/après correctif, avec un compte de test créé directement en base (pour éviter le limiteur de débit d'inscription) puis supprimé après usage ; `npx tsc --noEmit`, `npx eslint .` et `npx next build` passent sans erreur après l'ensemble des correctifs.
 
+## Indicateur "tient sur 1 page" dans les éditeurs (2026-09-26)
+
+À la demande de l'utilisateur : afficher, directement dans l'éditeur, si le document tiendra sur une seule page A4 ou débordera sur une deuxième — pour éviter la mauvaise surprise de découvrir le débordement seulement après téléchargement.
+
+**Défi technique principal** : le composant d'aperçu (`EditorA4Preview.tsx`, ajouté plus tôt ce jour pour corriger le débordement mobile) applique déjà un `zoom` variable pour que la page A4 tienne dans une colonne d'aperçu étroite — un simple `scrollHeight` lu sur cet élément aurait donc reflété une hauteur déformée par ce zoom d'affichage, sans rapport avec le nombre de pages réel à l'impression. Résolu avec la même technique déjà éprouvée dans ce projet pour `useAdaptiveFill` (qui agrandit un contenu court pour remplir une page) : remettre temporairement `zoom` à `1` sur cet élément précis, lire `scrollHeight` (hauteur naturelle), puis restaurer le zoom d'affichage — sans toucher au zoom interne éventuel d'`useAdaptiveFill`, appliqué sur un élément plus profond et donc indépendant de cette mesure. Le nombre de pages est ensuite `Math.ceil(hauteurNaturelle / 1123px)` (1123px = 297mm à 96dpi), avec une petite tolérance (4px) contre les arrondis.
+
+**Réalisé** : badge au-dessus de l'aperçu (vert "Tient sur une page" / ambre "Ce document tiendra sur N pages" + indication "Réduisez le texte..."), mis à jour en direct à chaque frappe (réutilise le `ResizeObserver` déjà en place, qui se déclenche aussi bien au redimensionnement qu'à un changement de hauteur du contenu). Nouvelles clés i18n (`editor.pageCountFits/pageCountOverflow/pageCountHint`), nouvelle icône `WarningIcon` (`src/components/home/icons.tsx`). Un seul composant partagé (`EditorA4Preview`) couvre les 3 éditeurs (CV, lettres, Bewerbungsbrief) sans duplication.
+
+**Vérifié** (Playwright) : formulaire vide ou avec un résumé court → "Tient sur une page" ; après avoir rempli 6 expériences avec un texte volontairement très long → bascule correctement sur "Ce document tiendra sur 2 pages" ; `npx tsc --noEmit`, `npx eslint .` et `npx next build` passent sans erreur.
+
+## 4 nouvelles mises en page CV Premium (2026-09-26)
+
+À la demande de l'utilisateur, qui a fourni 4 images de référence (styles Canva/génériques) : 4 nouvelles mises en page CV Premium, dessinées à la main (jamais une copie conforme des références) et adaptées à la palette de marque existante — maquettes d'abord soumises à l'utilisateur via un artefact (Design canvas) pour validation avant tout code, conformément à la méthode déjà établie pour ce projet (voir plus haut : "7 mises en page CV dessinées à la main et validées une par une").
+
+- **Cercle Facettes** (inspirée de la référence 1) : photo ronde encerclée, facettes angulaires colorées en haut à droite, section Références.
+- **Bandeau Diagonal** (référence 2) : bandeau diagonal en en-tête, badges de section en pilule, chronologie à points pour l'expérience.
+- **Bannière Débutant** (référence 3) : bandeau "Premier Emploi" en haut — pensée spécifiquement pour les profils sans expérience professionnelle (met en avant Formation/Projets plutôt qu'une section Expérience vide, en cohérence avec la case "Je n'ai pas encore d'expérience" déjà existante).
+- **Vague Sidebar** (référence 4) : bandeau latéral foncé avec découpe organique en vague, nom en serif.
+
+Maquette : https://claude.ai/artifact/7wKUBfGADFzaLnyE52KbEG (couleur modifiable par maquette via l'onglet Tweaks, pour prévisualiser avec différentes teintes de la palette Premium existante).
+
 ## Catalogues mobiles en sections défilables horizontalement, façon Play Store (2026-09-22)
 
 Demande de l'utilisateur, justifiée explicitement : sur mobile, les 3 catalogues denses (`/cv/[categorie]` jusqu'à 50 modèles, `/lettres-de-motivation` 100, `/bewerbungsbrief` 35) forçaient un défilement vertical interminable (une carte pleine largeur par ligne, conséquence assumée du correctif de taille de vignette du 2026-09-22 plus haut dans ce journal). L'utilisateur a proposé le modèle Play Store : regrouper les modèles en sections, chacune défilant horizontalement au doigt, la page ne défilant verticalement que pour passer d'une section à la suivante.

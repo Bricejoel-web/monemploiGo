@@ -194,7 +194,11 @@ export function CoverLetterEditor({
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <EditorA4Preview>
+        <EditorA4Preview
+          pageFitsLabel={dict.editor.pageCountFits}
+          pageOverflowLabel={dict.editor.pageCountOverflow}
+          pageOverflowHint={dict.editor.pageCountHint}
+        >
           <CoverLetterRenderer data={data} layout={template.layout} theme={template.theme} locale={locale} />
         </EditorA4Preview>
       </div>

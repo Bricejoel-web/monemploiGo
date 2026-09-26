@@ -513,7 +513,11 @@ export function CvEditor({
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <EditorA4Preview>
+        <EditorA4Preview
+          pageFitsLabel={dict.editor.pageCountFits}
+          pageOverflowLabel={dict.editor.pageCountOverflow}
+          pageOverflowHint={dict.editor.pageCountHint}
+        >
           <CvRenderer
             data={{
               ...data,
