@@ -188,6 +188,11 @@ export function CvEditor({
     <div className="bg-dot-grid relative bg-[#efe6d8] py-10 dark:bg-white/[0.05]">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 lg:grid-cols-[1fr_auto]">
       <div className="flex flex-col gap-6">
+        {(template.category === "ATS" || isGerman) && (
+          <p className="rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sm text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100">
+            {dict.atsGuide.editorTip}
+          </p>
+        )}
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.personalInfo}</h2>
           <Field id="fullName" label={dict.editor.fullName}>

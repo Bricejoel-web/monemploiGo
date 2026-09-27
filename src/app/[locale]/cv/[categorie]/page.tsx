@@ -7,6 +7,7 @@ import { SLUG_TO_CATEGORY } from "@/lib/cv/category-routes";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { CatalogSwipeSection } from "@/components/cv/CatalogSwipeSection";
+import { AtsGuide } from "@/components/cv/AtsGuide";
 import { pickPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
 import { pickSamplePortrait, seedFromString, unsplashSiteLink } from "@/lib/photos/unsplash";
 import type { CvCategory, CvTemplateMeta } from "@/lib/cv/types";
@@ -96,6 +97,12 @@ export default async function CvCategoryPage({ params }: PageProps<"/[locale]/cv
           <span className="mt-3 block h-1 w-16 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
           <p className="mt-4 max-w-2xl text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
         </div>
+
+        {(category === "ATS" || category === "GERMAN_ATS") && (
+          <div className="animate-fade-in-up px-6" style={{ animationDelay: "0.08s" }}>
+            <AtsGuide variant={category === "ATS" ? "ats" : "german"} dict={dict} locale={locale as Locale} />
+          </div>
+        )}
 
         <div className="hidden px-6 sm:grid sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {templates.map((template, index) => (

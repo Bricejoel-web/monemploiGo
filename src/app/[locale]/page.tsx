@@ -48,8 +48,8 @@ export default async function HomePage({
   const advantages = [
     { icon: BoltIcon, title: dict.home.advantage1Title, text: dict.home.advantage1Text },
     { icon: PhoneIcon, title: dict.home.advantage2Title, text: dict.home.advantage2Text },
-    { icon: ShieldCheckIcon, title: dict.home.advantage3Title, text: dict.home.advantage3Text },
-    { icon: FlagIcon, title: dict.home.advantage4Title, text: dict.home.advantage4Text },
+    { icon: ShieldCheckIcon, title: dict.home.advantage3Title, text: dict.home.advantage3Text, href: `/${locale}/cv/${CATEGORY_SLUGS.ATS}` },
+    { icon: FlagIcon, title: dict.home.advantage4Title, text: dict.home.advantage4Text, href: `/${locale}/cv/${CATEGORY_SLUGS.GERMAN_ATS}` },
     { icon: GlobeIcon, title: dict.home.advantage5Title, text: dict.home.advantage5Text },
     { icon: LockIcon, title: dict.home.advantage6Title, text: dict.home.advantage6Text },
   ];
@@ -145,7 +145,7 @@ export default async function HomePage({
               <BrandedText text={dict.home.advantagesTitle} />
             </h2>
             <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {advantages.map(({ icon: Icon, title, text }) => (
+              {advantages.map(({ icon: Icon, title, text, href }) => (
                 <div
                   key={title}
                   className="group relative overflow-hidden rounded-2xl border border-black/[0.1] bg-[#fbfaf8] p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-black/10 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.06] dark:hover:border-white/20"
@@ -156,6 +156,11 @@ export default async function HomePage({
                   </div>
                   <h3 className="mt-4 font-semibold">{title}</h3>
                   <p className="mt-1.5 text-sm text-black/60 dark:text-white/60">{text}</p>
+                  {href && (
+                    <Link href={href} className="mt-3 inline-block text-sm font-semibold text-[#c94f30] hover:underline dark:text-[#f2994a]">
+                      {dict.atsGuide.learnMore} →
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>

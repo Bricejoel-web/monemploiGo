@@ -345,6 +345,34 @@
       { "kind": "advice", "text": "Relisez-vous avant de payer : l'aperçu en direct montre exactement le document que vous téléchargerez." }
     ]
   },
+  "atsGuide": {
+    "ats": {
+      "title": "Pourquoi choisir un CV au format ATS ?",
+      "intro": "Un ATS (« Applicant Tracking System ») est un logiciel de recrutement : il lit votre CV, en extrait vos informations et aide le recruteur à trier les candidatures. De nombreuses grandes entreprises, organisations internationales et plateformes d'emploi en ligne en utilisent. Un CV très décoré (plusieurs colonnes, icônes, graphiques) risque d'y être mal lu.",
+      "points": [
+        { "title": "Lu sans erreur", "text": "Une seule colonne, des titres de sections classiques et du vrai texte, sans icônes ni photo : le logiciel retrouve chaque information à sa place." },
+        { "title": "Repéré grâce aux mots-clés", "text": "Le logiciel compare votre CV à l'offre. Reprenez les mots exacts de l'annonce (métier, compétences, logiciels) dans votre profil et vos expériences." },
+        { "title": "Apprécié des recruteurs", "text": "Sobre et facile à parcourir, il fait aussi bonne impression quand un recruteur le lit, à l'écran comme imprimé." }
+      ],
+      "whenTitle": "Choisissez-le si vous postulez :",
+      "when": ["sur un site d'emploi ou un formulaire en ligne", "dans une grande entreprise ou une multinationale", "dans une organisation internationale ou une ONG", "à l'étranger"]
+    },
+    "german": {
+      "title": "Pourquoi un CV ATS pour l'Allemagne ?",
+      "intro": "En Allemagne, on postule le plus souvent en ligne : par e-mail ou sur le portail de candidature de l'employeur. Les grands employeurs, dont de nombreux groupes hospitaliers, trient les dossiers avec un logiciel (ATS). Et les recruteurs attendent un « Lebenslauf » : un CV clair, structuré et chronologique.",
+      "points": [
+        { "title": "Au format Lebenslauf", "text": "Titres de sections en allemand (Berufserfahrung, Ausbildung…) et données personnelles d'usage : date et lieu de naissance, nationalité. Tout reste facultatif." },
+        { "title": "Lu par les logiciels de tri", "text": "Une présentation sobre et du vrai texte : le logiciel du recruteur lit votre CV sans erreur." },
+        { "title": "Votre niveau d'allemand en évidence", "text": "Indiquez votre certificat (B1, B2, telc B2 Pflege…) : c'est la première chose que regardent les établissements pour une Ausbildung." },
+        { "title": "Photo facultative", "text": "Elle n'est plus obligatoire en Allemagne mais reste courante. Si vous en ajoutez une, choisissez une photo professionnelle." }
+      ],
+      "letterCta": "Complétez votre dossier avec un Bewerbungsbrief, la lettre de motivation allemande"
+    },
+    "learnMore": "En savoir plus",
+    "editorTip": "Conseil ATS : reprenez les mots exacts de l'annonce (métier, compétences, logiciels) dans votre profil et vos expériences. Le logiciel du recruteur compare votre CV à l'offre.",
+    "bewerbungsbriefTip": "Pour un dossier complet, associez votre lettre à un CV Allemagne (ATS) : sobre, avec des titres en allemand, et lu sans erreur par les logiciels de tri des employeurs.",
+    "bewerbungsbriefTipCta": "Voir les CV Allemagne (ATS)"
+  },
   "welcomeEmail": {
     "subject": "Bienvenue sur monemploiGo, {firstName} ! Votre compte est créé",
     "preheader": "Votre compte est prêt. Voici comment réussir votre CV.",

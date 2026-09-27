@@ -6,6 +6,8 @@ import { bewerbungsbriefCatalog, BB_LAYOUT_LABELS } from "@/lib/cv/catalog";
 import { BewerbungsbriefRenderer } from "@/components/cv/BewerbungsbriefRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { CatalogSwipeSection } from "@/components/cv/CatalogSwipeSection";
+import { FlagIcon } from "@/components/home/icons";
+import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { getSampleBewerbungsbriefData } from "@/lib/cv/sample-data";
 import type { BewerbungsbriefTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -70,6 +72,21 @@ export default async function BewerbungsbriefCatalogPage({ params }: PageProps<"
           <h1 className="text-3xl font-bold sm:text-4xl">{dict.catalog.bewerbungsbriefTitle}</h1>
           <span className="mx-auto mt-3 block h-1 w-16 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
           <p className="mt-4 text-black/60 dark:text-white/60">{dict.catalog.bewerbungsbriefSubtitle}</p>
+        </div>
+
+        <div className="animate-fade-in-up px-6" style={{ animationDelay: "0.08s" }}>
+          <div className="mx-auto flex max-w-3xl flex-col items-start gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 text-sm shadow-sm dark:border-white/10 dark:bg-white/[0.06] sm:flex-row sm:items-center sm:p-5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f2994a]/15 to-[#eb5757]/15 text-[#c94f30] dark:text-[#f2994a]">
+              <FlagIcon className="h-5 w-5" />
+            </span>
+            <p className="flex-1 text-black/70 dark:text-white/70">{dict.atsGuide.bewerbungsbriefTip}</p>
+            <Link
+              href={`/${locale}/cv/${CATEGORY_SLUGS.GERMAN_ATS}`}
+              className="shrink-0 rounded-full border border-black/15 px-4 py-2 text-xs font-semibold text-black/80 transition-colors hover:bg-black/5 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+            >
+              {dict.atsGuide.bewerbungsbriefTipCta} →
+            </Link>
+          </div>
         </div>
 
         <div className="hidden px-6 sm:grid sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">

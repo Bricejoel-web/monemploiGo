@@ -345,6 +345,34 @@
       { "kind": "advice", "text": "Proofread before paying: the live preview shows exactly the document you will download." }
     ]
   },
+  "atsGuide": {
+    "ats": {
+      "title": "Why choose an ATS resume?",
+      "intro": "An ATS (Applicant Tracking System) is recruitment software: it reads your resume, extracts your information and helps the recruiter sort applications. Many large companies, international organizations and online job platforms use one. A heavily designed resume (several columns, icons, charts) may be read incorrectly.",
+      "points": [
+        { "title": "Read without errors", "text": "A single column, standard section titles and real text, with no icons or photo: the software finds every piece of information in its place." },
+        { "title": "Found through keywords", "text": "The software compares your resume with the job offer. Reuse the exact words from the ad (job title, skills, software) in your profile and experience." },
+        { "title": "Liked by recruiters", "text": "Clean and easy to scan, it also makes a good impression when a recruiter reads it, on screen or printed." }
+      ],
+      "whenTitle": "Choose it if you are applying:",
+      "when": ["through a job website or an online form", "to a large company or a multinational", "to an international organization or an NGO", "abroad"]
+    },
+    "german": {
+      "title": "Why an ATS resume for Germany?",
+      "intro": "In Germany, most applications are sent online: by email or through the employer's application portal. Large employers, including many hospital groups, sort applications with software (ATS). And recruiters expect a \"Lebenslauf\": a clear, structured, chronological resume.",
+      "points": [
+        { "title": "Lebenslauf format", "text": "Section titles in German (Berufserfahrung, Ausbildung…) and the usual personal details: date and place of birth, nationality. Everything stays optional." },
+        { "title": "Read by screening software", "text": "A clean layout and real text: the recruiter's software reads your resume without errors." },
+        { "title": "Your German level stands out", "text": "State your certificate (B1, B2, telc B2 Pflege…): it's the first thing institutions check for an Ausbildung." },
+        { "title": "Optional photo", "text": "It is no longer mandatory in Germany but is still common. If you add one, choose a professional photo." }
+      ],
+      "letterCta": "Complete your application with a Bewerbungsbrief, the German cover letter"
+    },
+    "learnMore": "Learn more",
+    "editorTip": "ATS tip: reuse the exact words from the job ad (job title, skills, software) in your profile and experience. The recruiter's software compares your resume with the offer.",
+    "bewerbungsbriefTip": "For a complete application, pair your letter with a Germany (ATS) resume: clean, with German section titles, and read without errors by employers' screening software.",
+    "bewerbungsbriefTipCta": "See Germany (ATS) resumes"
+  },
   "welcomeEmail": {
     "subject": "Welcome to monemploiGo, {firstName}! Your account is ready",
     "preheader": "Your account is ready. Here's how to make your resume stand out.",

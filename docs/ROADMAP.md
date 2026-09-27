@@ -785,3 +785,15 @@ Suite, même jour — **e-mail de bienvenue reçu dans les spams** par l'utilisa
 Ajouté en attendant : encadré dans le tableau de bord pendant les 24 h qui suivent l'inscription, indiquant l'adresse à laquelle l'e-mail a été envoyé et invitant à vérifier le dossier spam et à cliquer « Non spam » (`dashboard.welcomeEmailSent`). Affiché **uniquement si l'envoi est configuré** (`isEmailEnabled()`), pour ne jamais annoncer un e-mail qui n'est pas parti.
 
 À noter (non corrigé, choix de marque à confirmer par l'utilisateur) : dans `icon.svg`, le rayon vertical central du logo n'est jamais affiché — c'est une ligne parfaitement verticale peinte avec un dégradé en unités `objectBoundingBox`, or une boîte englobante de largeur nulle rend ce dégradé invalide. Le logo visible depuis toujours a donc 2 rayons au lieu des 3 dessinés.
+
+## Explications sur l'intérêt du format ATS, notamment pour l'Allemagne (2026-09-28)
+
+Demande de l'utilisateur : expliquer, aux endroits appropriés, l'utilité de choisir un CV au format ATS, surtout pour les personnes intéressées par les CV allemands. Jusqu'ici, le site ne donnait qu'une phrase (« optimisés pour les logiciels de recrutement en ligne ») sans jamais dire ce qu'est un ATS ni quand le choisir.
+
+Emplacements retenus — là où la décision se prend :
+1. **Pages catalogue « CV ATS » et « CV Allemagne (ATS) »** (`AtsGuide.tsx`, en tête, avant les modèles) : ce qu'est un ATS, 3 avantages (ATS) ou 4 (Allemagne), quand le choisir, et pour l'Allemagne un lien vers le Bewerbungsbrief. Sur mobile, les avantages défilent horizontalement (même principe que les catalogues) : hauteur de l'encadré allemand ramenée d'environ 950 à 562 px, les modèles restent proches.
+2. **Éditeur des CV ATS et Allemagne** (`CvEditor.tsx`) : conseil mots-clés au moment de la rédaction. Absent des éditeurs Standard/Premium (vérifié).
+3. **Page Bewerbungsbrief** : invitation à compléter la lettre avec un CV Allemagne (ATS), avec lien.
+4. **Accueil** : lien « En savoir plus » sur les cartes « Optimisé ATS » et « CV spécial Allemagne ».
+
+Exactitude : chaque affirmation correspond au comportement réel des mises en page (ATS : une colonne, noir sur blanc, sans icône ni photo ; Allemagne : titres de sections en allemand — Lebenslauf, Persönliche Daten, Berufserfahrung, Ausbildung — vérifiés dans les 3 mises en page, données personnelles et photo facultatives). Volontairement **aucun chiffre** du type « 75 % des CV sont rejetés par les ATS » : statistique très répandue mais non sourcée (règle du projet : ne jamais présenter comme réel un chiffre non vérifié). Textes dans `atsGuide` (fr/en).
