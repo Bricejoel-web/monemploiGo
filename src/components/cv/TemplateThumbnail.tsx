@@ -7,38 +7,45 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 // sans dupliquer la mise en page pour chaque catalogue.
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
-// Agrandi (0.27 → 0.36) à la demande de l'utilisateur : les aperçus de
-// modèles restaient lisibles mais trop petits pour distinguer les détails
-// d'une mise en page depuis un téléphone. Les grilles des pages catalogue
-// passent aussi à 1 colonne sur mobile pour laisser la place à cette
-// vignette plus grande sans provoquer de débordement.
+// Taille maximale de la vignette (agrandie de 0.27 à 0.36 à la demande de
+// l'utilisateur, pour distinguer les détails depuis un téléphone). C'est un
+// plafond, pas une taille fixe : la vignette se réduit à la largeur
+// réellement disponible dans sa carte. Avec une taille fixe, la vignette
+// (286px) débordait des cartes plus étroites de la grille à 4 colonnes
+// (229px utiles) et le `overflow-hidden` de la carte en coupait ~30px de
+// chaque côté — la colonne latérale des mises en page pleine largeur
+// ("Vague Sidebar"...) devenait illisible.
 const THUMB_SCALE = 0.36;
 
 export function TemplateThumbnail({ children }: { children: ReactNode }) {
+  const frameRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(THUMB_SCALE);
+  const [baseScale, setBaseScale] = useState(THUMB_SCALE);
+  const [contentHeight, setContentHeight] = useState(A4_HEIGHT_PX);
 
   // Le contenu réel (mêmes composants que l'aperçu plein format) utilise
   // `min-height`, pas une hauteur fixe : un modèle dont le texte de
   // démonstration dépasse une page A4 pleine peut donc être plus haut que
-  // A4_HEIGHT_PX. Sans cette mesure, l'excédent était simplement rogné par
-  // le `overflow-hidden` du cadre — un CV coupé en bas dans le catalogue.
-  // On mesure la hauteur réelle (non réduite) et on réduit l'échelle en
-  // conséquence pour que le document tienne toujours entièrement dans la
-  // vignette, quitte à afficher un peu de marge sur les côtés.
-  // `useLayoutEffect` (et non `useEffect`) : ce composant s'appuie sur
-  // `useAdaptiveFill` (qui agrandit un contenu trop court via `zoom`,
-  // *avant* peinture, dans son propre `useLayoutEffect`) — mesurer dans la
-  // même phase synchrone garantit qu'on lit toujours la hauteur finale
-  // déjà ajustée, sans décalage d'une image affichée dès le premier rendu.
+  // A4_HEIGHT_PX. On mesure cette hauteur réelle (non réduite — `transform`
+  // n'affecte pas `scrollHeight`) pour réduire l'échelle en conséquence :
+  // le document tient toujours entièrement dans la vignette, quitte à
+  // afficher un peu de marge sur les côtés, plutôt que d'être coupé en bas.
+  // `useLayoutEffect` (et non `useEffect`) : `useAdaptiveFill` agrandit un
+  // contenu trop court dans son propre `useLayoutEffect`, avant peinture —
+  // mesurer dans la même phase synchrone garantit de lire la hauteur finale.
   useLayoutEffect(() => {
+    const frame = frameRef.current;
     const el = contentRef.current;
-    if (!el) return;
+    if (!frame || !el) return;
 
     const measure = () => {
-      const actualHeight = el.scrollHeight;
-      const fitScale = actualHeight > A4_HEIGHT_PX ? (A4_HEIGHT_PX / actualHeight) * THUMB_SCALE : THUMB_SCALE;
-      setScale((prev) => (Math.abs(prev - fitScale) > 0.001 ? fitScale : prev));
+      const availableWidth = frame.clientWidth;
+      if (availableWidth > 0) {
+        const next = Math.min(THUMB_SCALE, availableWidth / A4_WIDTH_PX);
+        setBaseScale((prev) => (Math.abs(prev - next) > 0.001 ? next : prev));
+      }
+      const height = el.scrollHeight;
+      setContentHeight((prev) => (prev === height ? prev : height));
     };
 
     measure();
@@ -50,23 +57,27 @@ export function TemplateThumbnail({ children }: { children: ReactNode }) {
     // ci-dessus reste faite ; seul le réajustement dynamique est perdu.
     if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
+    observer.observe(frame);
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const offsetX = (A4_WIDTH_PX * THUMB_SCALE - A4_WIDTH_PX * scale) / 2;
+  const scale = contentHeight > A4_HEIGHT_PX ? (A4_HEIGHT_PX / contentHeight) * baseScale : baseScale;
+  const offsetX = (A4_WIDTH_PX * baseScale - A4_WIDTH_PX * scale) / 2;
 
   return (
-    <div
-      className="relative overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-black/10"
-      style={{ width: A4_WIDTH_PX * THUMB_SCALE, height: A4_HEIGHT_PX * THUMB_SCALE }}
-    >
+    <div ref={frameRef} className="w-full">
       <div
-        ref={contentRef}
-        className="absolute top-0 left-0"
-        style={{ width: A4_WIDTH_PX, transform: `translateX(${offsetX}px) scale(${scale})`, transformOrigin: "top left" }}
+        className="relative mx-auto overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-black/10"
+        style={{ width: A4_WIDTH_PX * baseScale, height: A4_HEIGHT_PX * baseScale }}
       >
-        {children}
+        <div
+          ref={contentRef}
+          className="absolute top-0 left-0"
+          style={{ width: A4_WIDTH_PX, transform: `translateX(${offsetX}px) scale(${scale})`, transformOrigin: "top left" }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

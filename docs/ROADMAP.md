@@ -691,6 +691,17 @@ Signalé par l'utilisateur avec deux captures d'écran réelles (bureau, catalog
 
 **Décision explicite de l'utilisateur** : voir le site à l'avance (déploiement de prévisualisation Vercel, jamais promu en production) avant tout nouveau déploiement réel, le temps de confirmer que tout fonctionne bien.
 
+## Vignettes coupées sur les bords dans les grilles de catalogue (2026-09-27)
+
+Signalé par l'utilisateur (captures des vignettes "Vague Sidebar") : texte de la colonne latérale difficilement lisible. **Cause réelle** : la vignette avait une largeur fixe de 286 px (`THUMB_SCALE` 0.36), alors que dans la grille à 4 colonnes chaque carte ne fait que 261 px (229 px utiles après marges intérieures) — la vignette débordait, et le `overflow-hidden` de la carte en coupait ~30 px de chaque côté. Invisible sur les modèles à marges blanches, mais flagrant sur les mises en page pleine largeur, dont la colonne de gauche était rognée. Même problème sur mobile (cartes défilables de 256 px).
+
+**Corrigé** :
+- `TemplateThumbnail` mesure la largeur réellement disponible dans sa carte (`ResizeObserver`, toujours protégé pour les vieux navigateurs) et ne dépasse jamais cette largeur ; 0.36 devient un plafond et non une taille fixe.
+- Grilles des 3 catalogues (`cv/[categorie]`, `lettres-de-motivation`, `bewerbungsbrief`) : 3 colonnes maximum au lieu de 4, pour que la vignette garde sa pleine taille (0.36) sur ordinateur au lieu d'être rétrécie ; cartes mobiles élargies (`w-64` → `w-72`).
+- `PremVagueLaterale` : texte de la colonne latérale légèrement agrandi (10 → 10.5 px) et sans transparence, pour un meilleur contraste.
+
+**Vérifié** (build de production, polices chargées) : contrôle automatique des 318 vignettes des 7 pages catalogue à 4 largeurs d'écran (1280, 1024, 768, 390 px) — **0 vignette coupée** ; échelle 0.36 sur ordinateur/tablette, 0.35 à 1024 px, 0.32 sur mobile. Capture confirmant que la colonne latérale de "Vague Sidebar" s'affiche désormais en entier.
+
 ## Vignettes de catalogue "flottantes au milieu du cadre" (2026-09-27)
 
 Signalé par l'utilisateur (capture à l'appui) : certaines vignettes de CV du catalogue affichent un contenu rétréci et centré, avec des bords vides de chaque côté — impression d'un CV "trop long pour un format A4".

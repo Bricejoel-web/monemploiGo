@@ -23,15 +23,15 @@ export function PremVagueLaterale({ data, theme, includePhoto, locale = "fr" }: 
           )}
           <div>
             <div style={{ fontFamily: "'Fraunces', serif", fontStyle: "italic", fontSize: 20, fontWeight: 600, lineHeight: 1.2 }}>{data.fullName || t.namePlaceholder}</div>
-            <div style={{ fontSize: 10.5, letterSpacing: ".04em", opacity: 0.9, marginTop: 5, textTransform: "uppercase" }}>{data.jobTitle || t.jobTitlePlaceholder}</div>
+            <div style={{ fontSize: 11, letterSpacing: ".04em", marginTop: 5, textTransform: "uppercase" }}>{data.jobTitle || t.jobTitlePlaceholder}</div>
           </div>
 
           {(data.phone || data.email || data.address) && (
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", opacity: 0.85, marginBottom: 7, borderBottom: "1px solid rgba(255,255,255,.3)", paddingBottom: 5 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 7, borderBottom: "1px solid rgba(255,255,255,.4)", paddingBottom: 5 }}>
                 {locale === "en" ? "Contact" : "Contact"}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 10, opacity: 0.95 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 10.5 }}>
                 {data.phone && <div>{data.phone}</div>}
                 {data.email && <div>{data.email}</div>}
                 {data.address && <div>{data.address}</div>}
@@ -41,10 +41,10 @@ export function PremVagueLaterale({ data, theme, includePhoto, locale = "fr" }: 
 
           {data.languages.length > 0 && (
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", opacity: 0.85, marginBottom: 7, borderBottom: "1px solid rgba(255,255,255,.3)", paddingBottom: 5 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 7, borderBottom: "1px solid rgba(255,255,255,.4)", paddingBottom: 5 }}>
                 {t.languages}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 10, opacity: 0.95 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 10.5 }}>
                 {data.languages.map((l) => (
                   <div key={l.name}>{l.name} — {l.level}</div>
                 ))}
@@ -54,10 +54,10 @@ export function PremVagueLaterale({ data, theme, includePhoto, locale = "fr" }: 
 
           {data.skills.length > 0 && (
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", opacity: 0.85, marginBottom: 7, borderBottom: "1px solid rgba(255,255,255,.3)", paddingBottom: 5 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 7, borderBottom: "1px solid rgba(255,255,255,.4)", paddingBottom: 5 }}>
                 {t.skills}
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 10, opacity: 0.95 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 10.5 }}>
                 {data.skills.map((skill) => (
                   <div key={skill}>{skill}</div>
                 ))}

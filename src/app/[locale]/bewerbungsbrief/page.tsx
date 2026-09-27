@@ -29,12 +29,12 @@ function TemplateCard({
     <Link
       href={`/${locale}/bewerbungsbrief/modele/${template.slug}`}
       className={`animate-fade-in-up group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/[0.06] ${
-        mode === "scroll" ? "w-64 shrink-0 snap-start" : "w-full"
+        mode === "scroll" ? "w-72 shrink-0 snap-start" : "w-full"
       }`}
       style={{ animationDelay: `${Math.min(index * 0.02, 0.4)}s` }}
     >
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
-      <div className="overflow-hidden rounded-md">
+      <div className="w-full overflow-hidden rounded-md">
         <div className="transition-transform duration-300 ease-out group-hover:scale-105">
           <TemplateThumbnail>
             <BewerbungsbriefRenderer data={sample} layoutId={template.layoutId} theme={template.theme} locale={locale} />
@@ -72,7 +72,7 @@ export default async function BewerbungsbriefCatalogPage({ params }: PageProps<"
           <p className="mt-4 text-black/60 dark:text-white/60">{dict.catalog.bewerbungsbriefSubtitle}</p>
         </div>
 
-        <div className="hidden px-6 sm:grid sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+        <div className="hidden px-6 sm:grid sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {bewerbungsbriefCatalog.map((template, index) => (
             <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} mode="grid" />
           ))}
