@@ -10,6 +10,7 @@ import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
 import { daysUntil, formatLongDate } from "@/lib/format-date";
 import { isEmailEnabled } from "@/lib/email/mailer";
 import { MailIcon } from "@/components/home/icons";
+import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 import type { ComponentType } from "react";
 
 function StatCard({
@@ -110,6 +111,15 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
   const showWelcomeEmailHint =
     isEmailEnabled() && user !== null && now.getTime() - user.createdAt.getTime() < 24 * 60 * 60 * 1000;
 
+  // Un seul avis par client : on le demande tant qu'il n'a pas été donné,
+  // à propos du document payé le plus récent.
+  const existingReview = await prisma.review.findUnique({ where: { userId: session.userId }, select: { id: true } });
+  const latestPaid = existingReview
+    ? undefined
+    : liveDocuments
+        .filter((doc) => doc.status === "PAID")
+        .sort((a, b) => (b.paidAt?.getTime() ?? 0) - (a.paidAt?.getTime() ?? 0))[0];
+
   const paidCount = items.filter((d) => d.status === "PAID").length;
   const draftCount = items.length - paidCount;
   const initials = (user?.name ?? user?.email ?? "?").trim().charAt(0).toUpperCase();
@@ -144,6 +154,17 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
           <StatCard icon={CheckIcon} value={paidCount} label={dict.dashboard.statPaid} accent="green" />
           <StatCard icon={ClockIcon} value={draftCount} label={dict.dashboard.statDraft} accent="amber" />
         </div>
+
+        {latestPaid && (
+          <div className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            <ReviewPrompt
+              documentId={latestPaid.id}
+              labels={dict.review}
+              locale={locale as Locale}
+              subtitle={dict.review.dashboardSubtitle.replace("{title}", latestPaid.title)}
+            />
+          </div>
+        )}
 
         <section
           aria-labelledby="retention-notice-title"

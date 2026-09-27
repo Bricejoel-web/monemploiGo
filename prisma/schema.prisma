@@ -44,26 +44,53 @@ enum PaymentStatus {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  passwordHash      String
-  name              String?
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  name             String?
   // Consentement explicite (case décochée par défaut) pour recevoir des
   // e-mails de conseils/offres — recueilli dès l'inscription même si
   // l'envoi de ce type d'e-mail n'est pas encore implémenté, pour ne pas
   // avoir à redemander ce consentement rétroactivement le jour où la
   // fonctionnalité existera.
-  marketingConsent  Boolean   @default(false)
+  marketingConsent Boolean   @default(false)
   // Version des CGU (voir src/data/legal/legal-config.ts, TERMS_VERSION)
   // acceptées à l'inscription, et date de cette acceptation — permet de
   // savoir quelle version un utilisateur a acceptée si les CGU évoluent.
-  termsVersion      String?
-  termsAcceptedAt   DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  termsVersion     String?
+  termsAcceptedAt  DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   documents Document[]
   payments  Payment[]
+  review    Review?
+}
+
+// Avis d'un client sur le service (1 à 5 étoiles + commentaire facultatif).
+// UN SEUL avis par client, pour le service en général : le demander à
+// chaque document agacerait ceux qui en créent souvent. Il est demandé
+// après le premier document payé et reste modifiable. Le document à
+// l'origine de l'avis est gardé pour le contexte (type, catégorie et
+// modèle recopiés : le document lui-même est supprimé au bout de 3
+// semaines, voir retention.ts). Supprimer son compte supprime son avis.
+model Review {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  documentId   String?
+  rating       Int
+  comment      String?
+  documentType DocumentType
+  category     CvCategory?
+  templateSlug String
+  locale       String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
 }
 
 // Les modèles de CV et de lettres de motivation (catalogue de 215 CV et 100
@@ -91,6 +118,7 @@ model Document {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   payments Payment[]
+  reviews  Review[]
 
   @@index([userId])
   @@index([status, paidAt])
@@ -102,18 +130,18 @@ model Document {
 // référence prestataire, utilisateur) est conservée pour la comptabilité et
 // les éventuels litiges, sans garder le contenu du document lui-même.
 model Payment {
-  id           String          @id @default(cuid())
-  userId       String
-  documentId   String?
-  provider     PaymentProvider
-  amountFcfa   Int
-  status       PaymentStatus   @default(PENDING)
-  providerRef  String?
-  phoneNumber  String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  userId      String
+  documentId  String?
+  provider    PaymentProvider
+  amountFcfa  Int
+  status      PaymentStatus   @default(PENDING)
+  providerRef String?
+  phoneNumber String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
 
   @@index([userId])

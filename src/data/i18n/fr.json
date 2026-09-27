@@ -74,7 +74,7 @@
       "title": "Politique de confidentialité",
       "intro": "Cette politique explique quelles données nous collectons, pourquoi, et comment vous pouvez les contrôler.",
       "dataTitle": "Données collectées",
-      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur. Votre adresse e-mail sert aussi à vous envoyer les messages liés à votre compte, comme l'e-mail de bienvenue après l'inscription ; ces messages sont envoyés via le service Gmail de Google. Durée de conservation : un document payé est supprimé automatiquement 3 semaines après le paiement, et un brouillon 3 semaines après sa dernière modification (photo comprise). Seul l'historique des paiements (montant, date, statut), sans le contenu du document, est conservé pour la comptabilité.",
+      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur. Votre adresse e-mail sert aussi à vous envoyer les messages liés à votre compte, comme l'e-mail de bienvenue après l'inscription ; ces messages sont envoyés via le service Gmail de Google. Si vous nous donnez votre avis (note et commentaire), il sert uniquement à améliorer le service ; il n'est pas publié sur le site et il est supprimé avec votre compte. Durée de conservation : un document payé est supprimé automatiquement 3 semaines après le paiement, et un brouillon 3 semaines après sa dernière modification (photo comprise). Seul l'historique des paiements (montant, date, statut), sans le contenu du document, est conservé pour la comptabilité.",
       "paymentTitle": "Paiement",
       "paymentContent": "Les paiements sont traités par nos partenaires MTN Mobile Money et Orange Money. Nous ne stockons jamais vos identifiants ou codes de paiement mobile.",
       "cookiesTitle": "Cookies",
@@ -372,6 +372,29 @@
     "editorTip": "Conseil ATS : reprenez les mots exacts de l'annonce (métier, compétences, logiciels) dans votre profil et vos expériences. Le logiciel du recruteur compare votre CV à l'offre.",
     "bewerbungsbriefTip": "Pour un dossier complet, associez votre lettre à un CV Allemagne (ATS) : sobre, avec des titres en allemand, et lu sans erreur par les logiciels de tri des employeurs.",
     "bewerbungsbriefTipCta": "Voir les CV Allemagne (ATS)"
+  },
+  "review": {
+    "title": "Votre avis compte",
+    "subtitle": "Comment s'est passée la création de votre document sur monemploiGo ?",
+    "dashboardSubtitle": "Vous avez créé « {title} ». Comment s'est passée votre expérience sur monemploiGo ?",
+    "ratingLegend": "Votre note, de 1 à 5 étoiles",
+    "starLabel": "{n} sur 5",
+    "levels": ["Décevant", "Moyen", "Bien", "Très bien", "Excellent"],
+    "commentLow": "Qu'est-ce qui pourrait être amélioré ?",
+    "commentHigh": "Qu'avez-vous le plus apprécié ?",
+    "optional": "facultatif",
+    "commentPlaceholder": "Votre commentaire nous aide à améliorer le site.",
+    "submit": "Envoyer mon avis",
+    "sending": "Envoi…",
+    "later": "Plus tard",
+    "thanks": "Merci pour votre avis ! Il nous aide à améliorer monemploiGo.",
+    "errors": {
+      "session": "Votre session a expiré : reconnectez-vous pour envoyer votre avis.",
+      "invalid": "Choisissez une note de 1 à 5 étoiles.",
+      "rateLimited": "Trop de tentatives. Réessayez dans quelques minutes.",
+      "notEligible": "Vous pourrez donner votre avis après avoir payé un document.",
+      "unknown": "Une erreur est survenue. Réessayez."
+    }
   },
   "welcomeEmail": {
     "subject": "Bienvenue sur monemploiGo, {firstName} ! Votre compte est créé",

@@ -7,6 +7,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { ClockIcon } from "@/components/home/icons";
 import { formatLongDate } from "@/lib/format-date";
+import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 
 type Status = "idle" | "pending" | "success" | "failed";
 
@@ -17,6 +18,7 @@ export function PaymentForm({
   locale,
   initiallyPaid = false,
   expiresAtIso,
+  askForReview,
 }: {
   documentId: string;
   amountFcfa: number;
@@ -24,6 +26,8 @@ export function PaymentForm({
   locale: Locale;
   initiallyPaid?: boolean;
   expiresAtIso: string;
+  /** Faux si le client a déjà donné son avis (un seul par client). */
+  askForReview: boolean;
 }) {
   const [status, setStatus] = useState<Status>(initiallyPaid ? "success" : "idle");
   const [message, setMessage] = useState<string | undefined>();
@@ -69,6 +73,7 @@ export function PaymentForm({
 
   if (status === "success") {
     return (
+      <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 rounded-lg border border-green-200 bg-green-50 p-6 text-green-900 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200">
         <p>{dict.payment.success}</p>
         <div className="flex gap-3">
@@ -81,6 +86,10 @@ export function PaymentForm({
           {dict.retention.afterPayment.replace("{date}", formatLongDate(expiresAtIso, locale))}
         </p>
         <p className="text-xs text-green-800/80 dark:text-green-300/70">{dict.payment.wordHint}</p>
+      </div>
+      {askForReview && (
+        <ReviewPrompt documentId={documentId} labels={dict.review} locale={locale} subtitle={dict.review.subtitle} />
+      )}
       </div>
     );
   }

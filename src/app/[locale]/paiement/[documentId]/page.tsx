@@ -22,6 +22,7 @@ export default async function PaymentPage({ params }: PageProps<"/[locale]/paiem
   }
 
   const dict = await getDictionary(locale as Locale);
+  const existingReview = await prisma.review.findUnique({ where: { userId: session.userId }, select: { id: true } });
   const amount =
     document.type === "COVER_LETTER"
       ? COVER_LETTER_PRICE_FCFA
@@ -45,6 +46,7 @@ export default async function PaymentPage({ params }: PageProps<"/[locale]/paiem
         // Si le paiement vient d'être confirmé sur cette page, la date de
         // paiement enregistrée est "maintenant" : même échéance au jour près.
         expiresAtIso={expiresAt(document.paidAt ?? new Date()).toISOString()}
+        askForReview={!existingReview}
       />
     </div>
   );

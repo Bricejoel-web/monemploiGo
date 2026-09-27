@@ -17,6 +17,8 @@ export interface OutgoingEmail {
   subject: string;
   html: string;
   text: string;
+  /** Adresse utilisée quand on clique sur "Répondre". */
+  replyTo?: string;
 }
 
 /** Vrai si l'envoi d'e-mails est configuré (sinon, aucun e-mail ne part). */
@@ -55,6 +57,7 @@ export async function sendEmail(email: OutgoingEmail): Promise<boolean> {
       subject: email.subject,
       html: email.html,
       text: email.text,
+      replyTo: email.replyTo,
     });
     return true;
   } catch (error) {

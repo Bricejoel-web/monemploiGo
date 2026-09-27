@@ -797,3 +797,18 @@ Emplacements retenus — là où la décision se prend :
 4. **Accueil** : lien « En savoir plus » sur les cartes « Optimisé ATS » et « CV spécial Allemagne ».
 
 Exactitude : chaque affirmation correspond au comportement réel des mises en page (ATS : une colonne, noir sur blanc, sans icône ni photo ; Allemagne : titres de sections en allemand — Lebenslauf, Persönliche Daten, Berufserfahrung, Ausbildung — vérifiés dans les 3 mises en page, données personnelles et photo facultatives). Volontairement **aucun chiffre** du type « 75 % des CV sont rejetés par les ATS » : statistique très répandue mais non sourcée (règle du projet : ne jamais présenter comme réel un chiffre non vérifié). Textes dans `atsGuide` (fr/en).
+
+## Avis des clients (2026-09-28)
+
+Demande de l'utilisateur : permettre aux clients de noter le service après la création d'un document, de façon professionnelle.
+
+**Décisions de l'utilisateur** (après une première proposition) : **pas** de case « j'accepte que mon avis soit publié » (jugée peu professionnelle) ; **un seul avis par client**, pas un par document (le redemander à chaque document agacerait ceux qui en créent souvent). Conséquence à garder en tête : les avis ne sont pas publiables en l'état ; pour afficher un jour des témoignages, il faudra demander l'accord des clients concernés à ce moment-là.
+
+- Modèle `Review` (migrations `document_reviews` puis `one_review_per_user`, appliquées sur Neon — nouvelle table, rétrocompatible) : `userId` unique, note, commentaire facultatif, document d'origine (`SetNull` à sa suppression) avec type/catégorie/modèle recopiés pour garder le contexte après la purge des 3 semaines. Contrainte SQL `CHECK (rating BETWEEN 1 AND 5)` en plus de la validation serveur. Supprimer son compte supprime son avis (cascade).
+- `submitReviewAction` : client connecté, ayant **payé** le document concerné (avis sur une expérience réelle), limitation de fréquence, validation zod (1–5, commentaire ≤ 1000 caractères), `upsert` (avis modifiable).
+- `ReviewPrompt` : 5 étoiles en vrais boutons radio (souris, doigt, flèches du clavier, lecteurs d'écran « 4 sur 5 »), libellé par niveau (Décevant → Excellent), question du commentaire adaptée à la note (≤ 3 : « Qu'est-ce qui pourrait être amélioré ? », sinon « Qu'avez-vous le plus apprécié ? »), bouton « Plus tard » qui masque la demande 30 jours sur l'appareil (localStorage via `useSyncExternalStore`).
+- Emplacements : sous la confirmation de paiement (le PDF s'ouvre dans un nouvel onglet ; au retour, la demande est là) et dans le tableau de bord (document payé le plus récent), tant que le client n'a pas donné son avis.
+- Chaque avis est envoyé par e-mail à la boîte Gmail du site (`notifyNewReview`, `replyTo` = client : « Répondre » lui écrit directement) — pas besoin de page d'administration.
+- Politique de confidentialité : usage des avis (amélioration du service uniquement, non publiés, supprimés avec le compte).
+
+Vérifié (build de production, comptes de test jetables supprimés ensuite) : 18/18 — pas de demande pour un client sans document payé, demande sur le bon document, erreur claire sans étoile, libellés et questions selon la note, navigation au clavier, enregistrement exact en base, plus de demande après l'avis (tableau de bord et paiement), « Plus tard » persistant, version anglaise, aucun débordement à 360 px, note de 6 refusée par la base, aucune erreur JavaScript, notification e-mail envoyée sans erreur.

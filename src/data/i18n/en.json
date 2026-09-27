@@ -74,7 +74,7 @@
       "title": "Privacy policy",
       "intro": "This policy explains what data we collect, why, and how you can control it.",
       "dataTitle": "Data we collect",
-      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user. Your email address is also used to send you messages related to your account, such as the welcome email after registration; these messages are sent through Google's Gmail service. Retention period: a paid document is deleted automatically 3 weeks after payment, and a draft 3 weeks after its last edit (photo included). Only the payment history (amount, date, status), without the document's content, is kept for accounting purposes.",
+      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user. Your email address is also used to send you messages related to your account, such as the welcome email after registration; these messages are sent through Google's Gmail service. If you give us your review (rating and comment), it is used only to improve the service; it is not published on the site and it is deleted with your account. Retention period: a paid document is deleted automatically 3 weeks after payment, and a draft 3 weeks after its last edit (photo included). Only the payment history (amount, date, status), without the document's content, is kept for accounting purposes.",
       "paymentTitle": "Payment",
       "paymentContent": "Payments are processed by our partners MTN Mobile Money and Orange Money. We never store your mobile payment credentials or codes.",
       "cookiesTitle": "Cookies",
@@ -372,6 +372,29 @@
     "editorTip": "ATS tip: reuse the exact words from the job ad (job title, skills, software) in your profile and experience. The recruiter's software compares your resume with the offer.",
     "bewerbungsbriefTip": "For a complete application, pair your letter with a Germany (ATS) resume: clean, with German section titles, and read without errors by employers' screening software.",
     "bewerbungsbriefTipCta": "See Germany (ATS) resumes"
+  },
+  "review": {
+    "title": "Your opinion matters",
+    "subtitle": "How was creating your document on monemploiGo?",
+    "dashboardSubtitle": "You created “{title}”. How was your experience on monemploiGo?",
+    "ratingLegend": "Your rating, from 1 to 5 stars",
+    "starLabel": "{n} out of 5",
+    "levels": ["Disappointing", "Average", "Good", "Very good", "Excellent"],
+    "commentLow": "What could be improved?",
+    "commentHigh": "What did you like most?",
+    "optional": "optional",
+    "commentPlaceholder": "Your comment helps us improve the site.",
+    "submit": "Send my review",
+    "sending": "Sending…",
+    "later": "Later",
+    "thanks": "Thank you for your review! It helps us improve monemploiGo.",
+    "errors": {
+      "session": "Your session has expired: log in again to send your review.",
+      "invalid": "Choose a rating from 1 to 5 stars.",
+      "rateLimited": "Too many attempts. Try again in a few minutes.",
+      "notEligible": "You can leave a review after paying for a document.",
+      "unknown": "Something went wrong. Please try again."
+    }
   },
   "welcomeEmail": {
     "subject": "Welcome to monemploiGo, {firstName}! Your account is ready",
