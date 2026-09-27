@@ -8,6 +8,8 @@ import { DeleteAccountButton } from "@/components/dashboard/DeleteAccountButton"
 import { FolderIcon, CheckIcon, ClockIcon } from "@/components/home/icons";
 import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
 import { daysUntil, formatLongDate } from "@/lib/format-date";
+import { isEmailEnabled } from "@/lib/email/mailer";
+import { MailIcon } from "@/components/home/icons";
 import type { ComponentType } from "react";
 
 function StatCard({
@@ -101,6 +103,13 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
     };
   });
 
+  // Un compte Gmail récent n'a pas encore de réputation auprès des
+  // messageries : l'e-mail de bienvenue peut atterrir dans les spams. On le
+  // signale pendant les 24 h qui suivent l'inscription — seulement si l'envoi
+  // est réellement configuré, pour ne jamais annoncer un e-mail jamais parti.
+  const showWelcomeEmailHint =
+    isEmailEnabled() && user !== null && now.getTime() - user.createdAt.getTime() < 24 * 60 * 60 * 1000;
+
   const paidCount = items.filter((d) => d.status === "PAID").length;
   const draftCount = items.length - paidCount;
   const initials = (user?.name ?? user?.email ?? "?").trim().charAt(0).toUpperCase();
@@ -119,6 +128,13 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
             </p>
           </div>
         </div>
+
+        {showWelcomeEmailHint && (
+          <p className="animate-fade-in-up flex items-start gap-3 rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 text-sm text-emerald-950 shadow-sm dark:border-emerald-700/50 dark:bg-emerald-950/30 dark:text-emerald-100">
+            <MailIcon className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" />
+            <span>{dict.dashboard.welcomeEmailSent.replace("{email}", user?.email ?? "")}</span>
+          </p>
+        )}
 
         <div
           className="animate-fade-in-up grid grid-cols-3 gap-4"

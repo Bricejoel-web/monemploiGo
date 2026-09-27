@@ -176,7 +176,8 @@
     "statPaid": "Payées",
     "statDraft": "Brouillons",
     "dangerZoneTitle": "Zone sensible",
-    "dangerZoneText": "La suppression de votre compte est définitive et effacera toutes vos créations, payées ou non."
+    "dangerZoneText": "La suppression de votre compte est définitive et effacera toutes vos créations, payées ou non.",
+    "welcomeEmailSent": "Nous vous avons envoyé un e-mail de bienvenue à {email}. Vous ne le trouvez pas ? Regardez dans le dossier « Spam » ou « Courrier indésirable », puis cliquez sur « Non spam » : vous recevrez ainsi nos prochains messages normalement."
   },
   "catalog": {
     "cvTitle": "Modèles de CV",

@@ -176,7 +176,8 @@
     "statPaid": "Paid",
     "statDraft": "Drafts",
     "dangerZoneTitle": "Danger zone",
-    "dangerZoneText": "Deleting your account is permanent and will erase all your creations, paid or not."
+    "dangerZoneText": "Deleting your account is permanent and will erase all your creations, paid or not.",
+    "welcomeEmailSent": "We sent a welcome email to {email}. Can't find it? Check your “Spam” or “Junk” folder, then click “Not spam” so you receive our next messages normally."
   },
   "catalog": {
     "cvTitle": "Resume templates",

@@ -19,6 +19,11 @@ export interface OutgoingEmail {
   text: string;
 }
 
+/** Vrai si l'envoi d'e-mails est configuré (sinon, aucun e-mail ne part). */
+export function isEmailEnabled(): boolean {
+  return Boolean(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
+}
+
 let transporter: Transporter | null = null;
 
 function getTransporter(): Transporter | null {
