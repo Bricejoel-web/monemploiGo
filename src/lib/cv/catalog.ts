@@ -41,6 +41,10 @@ export const LAYOUT_LABELS: Record<CvLayoutId, string> = {
   "prem-triangles": "Sidebar triangles",
   "prem-vagues": "Vagues organiques",
   "prem-pilules": "Sidebar pilules",
+  "prem-facettes": "Cercle facettes",
+  "prem-diagonale": "Bandeau diagonal",
+  "prem-banniere": "Bannière débutant",
+  "prem-vague-laterale": "Vague latérale",
   "ats-executif": "Exécutif clean",
   "ats-minimal": "Minimaliste",
   "ats-compact": "Compact",
@@ -107,7 +111,7 @@ function buildCategory(
 // 3 mises en page × 17 thèmes, plafonné à 50 modèles
 export const standardCvCatalog = buildCategory("STANDARD", standardLayouts, themes, "CV Standard", 50);
 
-// 4 mises en page × 8 thèmes = 32 modèles (voir docs/ROADMAP.md : on limite
+// 8 mises en page × 8 thèmes = 64 modèles (voir docs/ROADMAP.md : on limite
 // volontairement le nombre de couleurs par mise en page pour que la
 // répétition d'une même structure recolorée reste peu visible — préférer
 // ajouter de nouvelles mises en page plutôt que multiplier les couleurs).

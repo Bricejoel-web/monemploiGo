@@ -7,6 +7,10 @@ import { PremCercles } from "./layouts/PremCercles";
 import { PremTriangles } from "./layouts/PremTriangles";
 import { PremVagues } from "./layouts/PremVagues";
 import { PremPilules } from "./layouts/PremPilules";
+import { PremFacettes } from "./layouts/PremFacettes";
+import { PremDiagonale } from "./layouts/PremDiagonale";
+import { PremBanniere } from "./layouts/PremBanniere";
+import { PremVagueLaterale } from "./layouts/PremVagueLaterale";
 import { AtsExecutif } from "./layouts/AtsExecutif";
 import { AtsMinimal } from "./layouts/AtsMinimal";
 import { AtsCompact } from "./layouts/AtsCompact";
@@ -30,6 +34,10 @@ const LAYOUT_COMPONENTS = {
   "prem-triangles": PremTriangles,
   "prem-vagues": PremVagues,
   "prem-pilules": PremPilules,
+  "prem-facettes": PremFacettes,
+  "prem-diagonale": PremDiagonale,
+  "prem-banniere": PremBanniere,
+  "prem-vague-laterale": PremVagueLaterale,
   "ats-executif": AtsExecutif,
   "ats-minimal": AtsMinimal,
   "ats-compact": AtsCompact,

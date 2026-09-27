@@ -494,6 +494,32 @@ export function CvEditor({
           </button>
         </section>
 
+        <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          <h2 className="text-base font-semibold tracking-tight">{dict.editor.extraSectionHeading}</h2>
+          <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.extraSectionHint}</p>
+          <Field id="extraTitle" label={dict.editor.extraSectionTitle} optionalLabel={dict.editor.optional}>
+            <input
+              id="extraTitle"
+              value={data.extras?.[0]?.title ?? ""}
+              onChange={(e) =>
+                update("extras", e.target.value ? [{ title: e.target.value, content: data.extras?.[0]?.content ?? "" }] : [])
+              }
+              className="input"
+              placeholder={dict.editor.extraSectionTitlePlaceholder}
+            />
+          </Field>
+          {(data.extras?.[0]?.title ?? "") && (
+            <Field id="extraContent" label={dict.editor.extraSectionContent} optionalLabel={dict.editor.optional}>
+              <textarea
+                id="extraContent"
+                value={data.extras?.[0]?.content ?? ""}
+                onChange={(e) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: e.target.value }])}
+                className="input min-h-24"
+              />
+            </Field>
+          )}
+        </section>
+
         <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm">

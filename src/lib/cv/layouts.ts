@@ -4,7 +4,16 @@ import type { CvLayoutId, CoverLetterLayoutConfig, BewerbungsbriefLayoutId } fro
 export const standardLayouts: CvLayoutId[] = ["std-classique", "std-deux-colonnes", "std-bandeau"];
 
 // 4 mises en page Premium — validées avec l'utilisateur
-export const premiumLayouts: CvLayoutId[] = ["prem-cercles", "prem-triangles", "prem-vagues", "prem-pilules"];
+export const premiumLayouts: CvLayoutId[] = [
+  "prem-cercles",
+  "prem-triangles",
+  "prem-vagues",
+  "prem-pilules",
+  "prem-facettes",
+  "prem-diagonale",
+  "prem-banniere",
+  "prem-vague-laterale",
+];
 
 // 3 mises en page ATS — toutes en une seule colonne, noir sur blanc, sans
 // icône ni couleur d'accent (voir docs/ROADMAP.md, décision "CV ATS

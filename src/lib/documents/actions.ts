@@ -42,6 +42,9 @@ export async function saveCvDocument(
     ),
     education: data.education.filter((ed) => ed.degree.trim() || ed.school.trim()),
     languages: data.languages.filter((l) => l.name.trim()),
+    extras: data.extras?.[0]?.title.trim()
+      ? [{ title: data.extras[0].title, content: await correctSpelling(data.extras[0].content, spellLocale) }]
+      : [],
   };
 
   const fields = {
