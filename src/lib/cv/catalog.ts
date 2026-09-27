@@ -17,17 +17,17 @@ import type {
 } from "./types";
 
 export const PRICE_FCFA: Record<CvCategory, number> = {
-  STANDARD: 500,
-  PREMIUM: 1000,
+  STANDARD: 1000,
+  PREMIUM: 2000,
   ATS: 1000,
-  GERMAN_ATS: 1000,
+  GERMAN_ATS: 1500,
 };
 
-export const COVER_LETTER_PRICE_FCFA = 500;
+export const COVER_LETTER_PRICE_FCFA = 1500;
 
 // Aligné sur le prix des CV Allemagne (ATS) : même public (candidatures
 // Ausbildung/Pflege), même niveau de spécialisation du document.
-export const BEWERBUNGSBRIEF_PRICE_FCFA = 1000;
+export const BEWERBUNGSBRIEF_PRICE_FCFA = 1500;
 
 // Exportés (et non plus seulement locaux à ce fichier) pour être réutilisés
 // comme titres de section dans le défilement horizontal mobile des pages
