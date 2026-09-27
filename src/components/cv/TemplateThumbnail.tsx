@@ -42,6 +42,13 @@ export function TemplateThumbnail({ children }: { children: ReactNode }) {
     };
 
     measure();
+    // `ResizeObserver` est absent des très vieux navigateurs (WebView Android
+    // anciens, fréquents sur les téléphones d'entrée de gamme) — sans ce
+    // filet, l'appel plantait immédiatement dans cet effet, et sans page
+    // d'erreur personnalisée (voir error.tsx), Next.js repliait toute la page
+    // sur son HTML de secours minimal, non stylé. La mesure initiale
+    // ci-dessus reste faite ; seul le réajustement dynamique est perdu.
+    if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();

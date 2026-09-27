@@ -71,6 +71,12 @@ export function EditorA4Preview({
     };
 
     measure();
+    // `ResizeObserver` est absent des très vieux navigateurs (WebView Android
+    // anciens) — sans ce filet, l'appel plantait immédiatement dans cet
+    // effet, et sans page d'erreur personnalisée (voir error.tsx), Next.js
+    // repliait toute la page sur son HTML de secours minimal, non stylé. La
+    // mesure initiale ci-dessus reste faite (zoom bureau par défaut, 1 page).
+    if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     observer.observe(container);
     return () => observer.disconnect();
