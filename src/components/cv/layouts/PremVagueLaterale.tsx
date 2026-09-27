@@ -70,7 +70,15 @@ export function PremVagueLaterale({ data, theme, includePhoto, locale = "fr" }: 
           </svg>
         </div>
 
-        <AdaptiveZone targetHeight={679 - 56} deps={[data]} style={{ flexGrow: 1, minWidth: 0, padding: "32px 28px", display: "flex", flexDirection: "column", gap: 18 }}>
+        {/* Le conteneur de ligne (sidebar + colonne principale) n'a pas
+            `alignItems` défini, donc `stretch` par défaut : sans cet
+            enrobage, `AdaptiveZone` serait lui-même étiré à la hauteur de la
+            barre latérale, faussant sa propre mesure de hauteur naturelle —
+            même défaut déjà rencontré et corrigé une fois sur ce projet
+            (mise en page "Deux colonnes sobres"). En isolant `AdaptiveZone`
+            dans un bloc non étiré, seule sa propre mesure de contenu compte. */}
+        <div style={{ flexGrow: 1, minWidth: 0 }}>
+        <AdaptiveZone targetHeight={679 - 56} deps={[data]} style={{ padding: "32px 28px", display: "flex", flexDirection: "column", gap: 18 }}>
           {data.summary && (
             <div>
               <div style={headStyle}>{t.profile}</div>
@@ -116,6 +124,7 @@ export function PremVagueLaterale({ data, theme, includePhoto, locale = "fr" }: 
             </div>
           )}
         </AdaptiveZone>
+        </div>
       </div>
     </CvPageFrame>
   );
