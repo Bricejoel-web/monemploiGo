@@ -17,6 +17,7 @@ import {
   PlayIcon,
 } from "@/components/home/icons";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA } from "@/lib/cv/catalog";
+import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
 import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { verifySession } from "@/lib/auth/dal";
 import { getPortraitById, unsplashProfileLink } from "@/lib/photos/unsplash";
@@ -209,9 +210,7 @@ export default async function HomePage({
                     </span>
                     <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
                     <div className="mt-2 flex items-center justify-between">
-                      <span className="inline-flex w-fit items-center rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
-                        {dict.catalog.from} {PRICE_FCFA[category]} FCFA
-                      </span>
+                      <FlatPriceBadge label={dict.catalog.allTemplatesAt} priceFcfa={PRICE_FCFA[category]} />
                       <span
                         aria-hidden="true"
                         className="text-sm font-medium text-[#c94f30] opacity-0 transition-opacity group-hover:opacity-100 dark:text-[#f2994a]"
@@ -233,9 +232,7 @@ export default async function HomePage({
                 <span className="mt-2 font-semibold">{dict.dashboard.coverLetters}</span>
                 <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.letterSubtitle}</p>
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="inline-flex w-fit items-center rounded-full bg-black/[0.04] px-2.5 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
-                    {dict.catalog.from} {COVER_LETTER_PRICE_FCFA} FCFA
-                  </span>
+                  <FlatPriceBadge label={dict.catalog.allLettersAt} priceFcfa={COVER_LETTER_PRICE_FCFA} />
                   <span
                     aria-hidden="true"
                     className="text-sm font-medium text-[#c94f30] opacity-0 transition-opacity group-hover:opacity-100 dark:text-[#f2994a]"

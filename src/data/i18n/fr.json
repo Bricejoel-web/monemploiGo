@@ -185,7 +185,8 @@
     "letterSubtitle": "Modèles personnalisables, prêts à recevoir votre texte.",
     "bewerbungsbriefTitle": "Bewerbungsbrief (Allemagne)",
     "bewerbungsbriefSubtitle": "Lettres de motivation allemandes, format ATS, générées automatiquement à partir de vos attestations de formation, pour vos candidatures Ausbildung en Allemagne.",
-    "from": "à partir de",
+    "allTemplatesAt": "Tous les modèles à {price}",
+    "allLettersAt": "Toutes les lettres à {price}",
     "customize": "Personnaliser",
     "backToCategories": "Retour aux catégories",
     "categoryDescriptions": {

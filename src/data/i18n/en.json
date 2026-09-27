@@ -185,7 +185,8 @@
     "letterSubtitle": "Customizable templates, ready for your text.",
     "bewerbungsbriefTitle": "Bewerbungsbrief (Germany)",
     "bewerbungsbriefSubtitle": "German cover letter templates, ATS format, generated automatically from your training certificates, for your Ausbildung applications in Germany.",
-    "from": "from",
+    "allTemplatesAt": "Every template: {price}",
+    "allLettersAt": "Every letter: {price}",
     "customize": "Customize",
     "backToCategories": "Back to categories",
     "categoryDescriptions": {

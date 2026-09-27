@@ -6,6 +6,7 @@ import { PRICE_FCFA, getCvTemplatesByCategory } from "@/lib/cv/catalog";
 import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
+import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
 import { pickPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
 import { pickSamplePortrait, seedFromString } from "@/lib/photos/unsplash";
 import type { CvCategory } from "@/lib/cv/types";
@@ -62,9 +63,7 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
                   <h2 className="text-lg font-semibold">{dict.dashboard[category === "GERMAN_ATS" ? "germanAts" : (category.toLowerCase() as "standard" | "premium" | "ats")]}</h2>
                   <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
                   <div className="mt-2 flex items-center justify-between gap-2">
-                    <span className="inline-flex w-fit items-center rounded-full bg-black/[0.05] px-2.5 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
-                      {dict.catalog.from} {PRICE_FCFA[category]} FCFA
-                    </span>
+                    <FlatPriceBadge label={dict.catalog.allTemplatesAt} priceFcfa={PRICE_FCFA[category]} />
                     <span
                       aria-hidden="true"
                       className="text-sm font-medium text-[#c94f30] opacity-0 transition-opacity group-hover:opacity-100 dark:text-[#f2994a]"
