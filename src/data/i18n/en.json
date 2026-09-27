@@ -74,7 +74,7 @@
       "title": "Privacy policy",
       "intro": "This policy explains what data we collect, why, and how you can control it.",
       "dataTitle": "Data we collect",
-      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user. Retention period: a paid document is deleted automatically 3 weeks after payment, and a draft 3 weeks after its last edit (photo included). Only the payment history (amount, date, status), without the document's content, is kept for accounting purposes.",
+      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user. Your email address is also used to send you messages related to your account, such as the welcome email after registration; these messages are sent through Google's Gmail service. Retention period: a paid document is deleted automatically 3 weeks after payment, and a draft 3 weeks after its last edit (photo included). Only the payment history (amount, date, status), without the document's content, is kept for accounting purposes.",
       "paymentTitle": "Payment",
       "paymentContent": "Payments are processed by our partners MTN Mobile Money and Orange Money. We never store your mobile payment credentials or codes.",
       "cookiesTitle": "Cookies",
@@ -343,5 +343,30 @@
       { "kind": "tip", "text": "CV photo: recent, facing the camera, neutral background and professional outfit." },
       { "kind": "advice", "text": "Proofread before paying: the live preview shows exactly the document you will download." }
     ]
+  },
+  "welcomeEmail": {
+    "subject": "Welcome to monemploiGo, {firstName}! Your account is ready",
+    "preheader": "Your account is ready. Here's how to make your resume stand out.",
+    "greeting": "Hello {firstName},",
+    "confirmed": "Your registration is confirmed: your monemploiGo account has been created with the address {email}. You can start creating your resume or cover letter right away.",
+    "stepsTitle": "How it works",
+    "steps": [
+      "Choose a resume or cover letter template.",
+      "Fill in your details: the preview updates live.",
+      "Pay with Mobile Money (MTN, Orange) and download your document as a PDF."
+    ],
+    "cta": "Create my resume",
+    "tipsTitle": "Our tips for a resume that stands out",
+    "tips": [
+      "Aim for a single page: the editor's indicator tells you live whether your resume fits on one A4 page.",
+      "Tailor your resume to each job offer by reusing the keywords from the ad.",
+      "Applying to a large company or in Germany? Choose an ATS resume: these clean resumes are read without errors by the software that screens applications.",
+      "Photo: recent, facing the camera, neutral background and professional outfit.",
+      "Need a Word file? Open your PDF with Microsoft Word (File > Open) to make it editable."
+    ],
+    "retention": "Good to know: after payment, your document can be downloaded again for free from your dashboard for 3 weeks, then it is deleted automatically. Remember to keep a copy of your PDF.",
+    "signoff": "See you soon,",
+    "team": "The monemploiGo team",
+    "footer": "You are receiving this email because an account was just created on monemploiGo with this address. If this wasn't you, simply reply to this email to let us know."
   }
 }

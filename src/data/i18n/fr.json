@@ -74,7 +74,7 @@
       "title": "Politique de confidentialité",
       "intro": "Cette politique explique quelles données nous collectons, pourquoi, et comment vous pouvez les contrôler.",
       "dataTitle": "Données collectées",
-      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur. Durée de conservation : un document payé est supprimé automatiquement 3 semaines après le paiement, et un brouillon 3 semaines après sa dernière modification (photo comprise). Seul l'historique des paiements (montant, date, statut), sans le contenu du document, est conservé pour la comptabilité.",
+      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur. Votre adresse e-mail sert aussi à vous envoyer les messages liés à votre compte, comme l'e-mail de bienvenue après l'inscription ; ces messages sont envoyés via le service Gmail de Google. Durée de conservation : un document payé est supprimé automatiquement 3 semaines après le paiement, et un brouillon 3 semaines après sa dernière modification (photo comprise). Seul l'historique des paiements (montant, date, statut), sans le contenu du document, est conservé pour la comptabilité.",
       "paymentTitle": "Paiement",
       "paymentContent": "Les paiements sont traités par nos partenaires MTN Mobile Money et Orange Money. Nous ne stockons jamais vos identifiants ou codes de paiement mobile.",
       "cookiesTitle": "Cookies",
@@ -343,5 +343,30 @@
       { "kind": "tip", "text": "Photo de CV : récente, de face, sur fond neutre et en tenue professionnelle." },
       { "kind": "advice", "text": "Relisez-vous avant de payer : l'aperçu en direct montre exactement le document que vous téléchargerez." }
     ]
+  },
+  "welcomeEmail": {
+    "subject": "Bienvenue sur monemploiGo, {firstName} ! Votre compte est créé",
+    "preheader": "Votre compte est prêt. Voici comment réussir votre CV.",
+    "greeting": "Bonjour {firstName},",
+    "confirmed": "Votre inscription est confirmée : votre compte monemploiGo a bien été créé avec l'adresse {email}. Vous pouvez dès maintenant créer votre CV ou votre lettre de motivation.",
+    "stepsTitle": "Comment ça marche",
+    "steps": [
+      "Choisissez un modèle de CV ou de lettre de motivation.",
+      "Remplissez vos informations : l'aperçu se met à jour en direct.",
+      "Payez par Mobile Money (MTN, Orange) et téléchargez votre document en PDF."
+    ],
+    "cta": "Créer mon CV",
+    "tipsTitle": "Nos conseils pour un CV qui fait la différence",
+    "tips": [
+      "Visez une seule page : l'indicateur de l'éditeur vous dit en direct si votre CV tient sur une page A4.",
+      "Adaptez votre CV à chaque offre en reprenant les mots-clés de l'annonce.",
+      "Vous postulez dans une grande entreprise ou en Allemagne ? Choisissez un CV au format ATS : ces CV sobres sont lus sans erreur par les logiciels qui trient les candidatures.",
+      "Photo : récente, de face, sur fond neutre et en tenue professionnelle.",
+      "Besoin d'un fichier Word ? Ouvrez votre PDF avec Microsoft Word (Fichier > Ouvrir) pour le rendre modifiable."
+    ],
+    "retention": "Bon à savoir : après paiement, votre document reste retéléchargeable gratuitement pendant 3 semaines depuis votre tableau de bord, puis il est supprimé automatiquement. Pensez à garder une copie de votre PDF.",
+    "signoff": "À très vite,",
+    "team": "L'équipe monemploiGo",
+    "footer": "Vous recevez cet e-mail parce qu'un compte vient d'être créé sur monemploiGo avec cette adresse. Si ce n'est pas vous, répondez simplement à cet e-mail pour nous le signaler."
   }
 }

@@ -9,6 +9,9 @@ import { createSession, deleteSession } from "./session";
 import { verifySession } from "./dal";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { TERMS_VERSION } from "@/data/legal/legal-config";
+import { after } from "next/server";
+import { defaultLocale, isLocale } from "@/i18n/config";
+import { sendWelcomeEmail } from "@/lib/email/welcome-email";
 
 export type AuthFormState =
   | {
@@ -110,6 +113,11 @@ export async function signup(locale: string, _state: AuthFormState, formData: Fo
   });
 
   await createSession(user.id);
+  // Envoyé après la réponse : l'inscription n'attend jamais le serveur de
+  // messagerie, et un échec d'envoi ne la fait jamais échouer.
+  after(() =>
+    sendWelcomeEmail({ to: email, firstName, locale: isLocale(locale) ? locale : defaultLocale }),
+  );
   redirect(`/${locale}/tableau-de-bord`);
 }
 
