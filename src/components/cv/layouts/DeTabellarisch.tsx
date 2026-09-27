@@ -6,7 +6,7 @@ import { CvPageFrame, PhotoCircle, AdaptiveZone } from "./shared";
 // docs/ROADMAP.md, décision "CV Allemagne").
 function Row({ label, children, muted }: { label: string; children: React.ReactNode; muted: string }) {
   return (
-    <div style={{ display: "flex", gap: 16, marginBottom: 10 }}>
+    <div style={{ display: "flex", gap: 16, marginBottom: 7 }}>
       <div style={{ width: 100, flexShrink: 0, fontSize: 11, color: muted, fontWeight: 500, paddingTop: 1 }}>{label}</div>
       <div style={{ fontSize: 11, flex: 1 }}>{children}</div>
     </div>
@@ -61,7 +61,7 @@ export function DeTabellarisch({ data, theme, includePhoto }: CvLayoutProps) {
                 <Row muted={theme.textMuted} key={i} label={exp.start || exp.end ? `${exp.start} – ${exp.end}` : ""}>
                   <div style={{ fontSize: 12.5, fontWeight: 600 }}>{exp.role}</div>
                   <div style={{ fontSize: 11.5, color: theme.accent, marginTop: 1 }}>{exp.company}</div>
-                  <p style={{ fontSize: 11, lineHeight: 1.5, margin: "2px 0 0" }}>{exp.description}</p>
+                  {exp.description && <p style={{ fontSize: 11, lineHeight: 1.5, margin: "2px 0 0" }}>{exp.description}</p>}
                 </Row>
               ))}
             </div>

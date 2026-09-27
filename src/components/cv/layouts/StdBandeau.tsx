@@ -40,7 +40,7 @@ export function StdBandeau({ data, theme, includePhoto, locale = "fr" }: CvLayou
                     {(exp.start || exp.end) && <span style={{ fontSize: 11, color: "#8a8580" }}>{exp.start} – {exp.end}</span>}
                   </div>
                   <div style={{ fontSize: 11.5, color: theme.accent, margin: "1px 0 4px" }}>{exp.company}</div>
-                  <p style={{ fontSize: 11.5, lineHeight: 1.55, color: "#4a453f", margin: 0 }}>{exp.description}</p>
+                  {exp.description && <p style={{ fontSize: 11.5, lineHeight: 1.55, color: "#4a453f", margin: 0 }}>{exp.description}</p>}
                 </div>
               ))}
             </div>

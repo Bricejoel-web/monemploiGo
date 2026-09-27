@@ -691,6 +691,24 @@ Signalé par l'utilisateur avec deux captures d'écran réelles (bureau, catalog
 
 **Décision explicite de l'utilisateur** : voir le site à l'avance (déploiement de prévisualisation Vercel, jamais promu en production) avant tout nouveau déploiement réel, le temps de confirmer que tout fonctionne bien.
 
+## Vignettes de catalogue "flottantes au milieu du cadre" (2026-09-27)
+
+Signalé par l'utilisateur (capture à l'appui) : certaines vignettes de CV du catalogue affichent un contenu rétréci et centré, avec des bords vides de chaque côté — impression d'un CV "trop long pour un format A4".
+
+**Mécanisme identifié** : ce n'est pas un bug de rendu mais le filet de sécurité volontaire de `TemplateThumbnail` (voir l'entrée "vignettes de modèles rognées" plus haut) : quand le contenu de démonstration dépasse une page A4 (1123 px), la vignette le réduit uniformément pour ne jamais le couper, ce qui laisse forcément des marges latérales. Mesuré précisément (matrice `transform` réelle lue dans le navigateur) : pour un modèle à 1561 px de haut, échelle 0,259 au lieu de 0,36, soit ~40 px de vide de chaque côté d'une vignette de 285 px. La vraie cause est donc la **longueur du contenu de démonstration** par rapport à la densité de certaines mises en page.
+
+**Leçon de méthode importante (à retenir pour toute mesure future)** : les premières mesures automatisées étaient **instables d'un essai à l'autre** (le même modèle mesuré 1123 px puis 1561 px sur le même serveur). Cause : le script mesurait avant que les polices Google Fonts aient fini de charger — la police de repli, plus étroite, donnait une hauteur plus faible. Toute mesure de hauteur de CV doit attendre `document.fonts.ready`. Sans cela, plusieurs conclusions intermédiaires de cette session étaient fausses (dont un faux "0 débordement" sur les nouvelles mises en page Premium au moment de leur création). Également : `next dev` (Turbopack) a donné des résultats incohérents après modification de fichiers de données (rechargement à chaud partiel) — mesurer sur un vrai build (`next build && next start`) après suppression de `.next`.
+
+**Fausse piste, annulée** : une hypothèse de décalage d'unités entre le `zoom` de `CvPageFrame` et la mesure de `useAdaptiveFill` a conduit à multiplier `targetHeight` par l'échelle réelle dans `AdaptiveZone`. Mesure fiable à l'appui, cette modification a **aggravé** le débordement sur presque tous les modèles (contenu agrandi à tort) : elle a été entièrement retirée, `shared.tsx` et `AdaptiveZone.tsx` sont revenus exactement à leur état antérieur.
+
+**Corrections conservées** :
+- `personas.ts` : textes de démonstration resserrés (résumés et descriptions plus courts), et la deuxième expérience de chaque profil n'a plus de description — convention courante d'un vrai CV, qui ne détaille que le poste le plus récent.
+- **Bug réel corrigé sur 8 mises en page** (`StdClassique`, `StdBandeau`, `StdDeuxColonnes`, `PremCercles`, `PremPilules`, `PremTriangles`, `PremVagues`, `AtsExecutif`, plus `DeTabellarisch`) : la description d'une expérience était affichée même vide, laissant une ligne blanche — désormais conditionnelle, comme le reste des sections du site.
+- `DeTabellarisch` : espacement entre lignes du tableau réduit (10 → 7 px).
+- `PremFacettes`, `PremDiagonale`, `PremBanniere` : marges et espacements resserrés (excès réduit par exemple de 438 à 283 px pour Cercle Facettes, de 438 à 276 px pour Bandeau Diagonal, de 165 à 67 px pour Bannière Débutant).
+
+**État mesuré de façon fiable après correctifs** (build de production, polices chargées) : sur 179 modèles, 146 dépassent encore une page A4 pour leur contenu de démonstration, avec des excès allant de 5 à ~366 px. Les plus concernés : `StdClassique`, `StdDeuxColonnes`, `StdBandeau`, les 3 mises en page ATS, `DeTabellarisch`, `PremFacettes`, `PremDiagonale`. **Non traité à ce stade** : resserrer l'espacement de ces mises en page plus anciennes (StdClassique, StdBandeau, StdDeuxColonnes, AtsExecutif/Minimal/Compact) comme cela a été fait pour les 3 nouvelles — c'est la prochaine étape pour éliminer complètement l'effet "vignette réduite avec marges". Rien n'est coupé ni caché pour autant : le filet de sécurité de `TemplateThumbnail` affiche toujours le document en entier.
+
 ## Catalogues mobiles en sections défilables horizontalement, façon Play Store (2026-09-22)
 
 Demande de l'utilisateur, justifiée explicitement : sur mobile, les 3 catalogues denses (`/cv/[categorie]` jusqu'à 50 modèles, `/lettres-de-motivation` 100, `/bewerbungsbrief` 35) forçaient un défilement vertical interminable (une carte pleine largeur par ligne, conséquence assumée du correctif de taille de vignette du 2026-09-22 plus haut dans ce journal). L'utilisateur a proposé le modèle Play Store : regrouper les modèles en sections, chacune défilant horizontalement au doigt, la page ne défilant verticalement que pour passer d'une section à la suivante.

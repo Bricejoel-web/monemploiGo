@@ -4,6 +4,7 @@ import { cvLabels } from "@/lib/cv/labels";
 
 function DescriptionBlock({ text }: { text: string }) {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return null;
   if (lines.length > 1) {
     return (
       <ul style={{ margin: "4px 0 0 0", paddingLeft: 16, fontSize: 11.5, lineHeight: 1.55 }}>

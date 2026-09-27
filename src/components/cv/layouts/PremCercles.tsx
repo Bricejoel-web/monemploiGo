@@ -48,7 +48,7 @@ export function PremCercles({ data, theme, includePhoto, locale = "fr" }: CvLayo
                       {(exp.start || exp.end) && <span style={{ fontSize: 11, color: "#8a8580" }}>{exp.start}–{exp.end}</span>}
                     </div>
                     <div style={{ fontSize: 11, color: theme.accent }}>{exp.company}</div>
-                    <p style={{ fontSize: 11, lineHeight: 1.5, color: "#4a453f", margin: "2px 0 0" }}>{exp.description}</p>
+                    {exp.description && <p style={{ fontSize: 11, lineHeight: 1.5, color: "#4a453f", margin: "2px 0 0" }}>{exp.description}</p>}
                   </div>
                 ))}
               </div>

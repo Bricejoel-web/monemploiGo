@@ -71,7 +71,7 @@ export function StdDeuxColonnes({ data, theme, includePhoto, locale = "fr" }: Cv
                   <div key={i} style={{ marginBottom: i === data.experience.length - 1 ? 0 : 14 }}>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{exp.role}</div>
                     <div style={{ fontSize: 11.5, color: theme.accent, margin: "1px 0 4px" }}>{exp.company}{exp.location ? ` · ${exp.location}` : ""}{(exp.start || exp.end) ? ` · ${exp.start} – ${exp.end}` : ""}</div>
-                    <p style={{ fontSize: 11.5, lineHeight: 1.55, color: "#4a453f", margin: 0 }}>{exp.description}</p>
+                    {exp.description && <p style={{ fontSize: 11.5, lineHeight: 1.55, color: "#4a453f", margin: 0 }}>{exp.description}</p>}
                   </div>
                 ))}
               </div>

@@ -13,7 +13,7 @@ export function PremBanniere({ data, theme, includePhoto, locale = "fr" }: CvLay
     color: theme.accent,
     textTransform: "uppercase",
     letterSpacing: ".04em",
-    marginBottom: 8,
+    marginBottom: 5,
   };
 
   return (
@@ -23,7 +23,7 @@ export function PremBanniere({ data, theme, includePhoto, locale = "fr" }: CvLay
           {BANNER_LABEL[locale] ?? BANNER_LABEL.fr}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "20px 32px 16px 32px", borderBottom: `3px solid ${theme.accent}`, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 32px 12px 32px", borderBottom: `3px solid ${theme.accent}`, flexShrink: 0 }}>
           {includePhoto && <PhotoCircle photoDataUrl={data.photoDataUrl} size={78 * (data.photoScale ?? 1)} ringColor={theme.accent} ringWidth={3} bg="#efece6" iconColor={theme.accent} />}
           <div>
             <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 21, fontWeight: 700, lineHeight: 1.15 }}>{data.fullName || t.namePlaceholder}</div>
@@ -32,7 +32,7 @@ export function PremBanniere({ data, theme, includePhoto, locale = "fr" }: CvLay
         </div>
 
         <AdaptiveZone targetHeight={679 - 100} deps={[data]} style={{ display: "flex" }}>
-          <div style={{ width: 150, flexShrink: 0, background: "#faf9f7", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ width: 150, flexShrink: 0, background: "#faf9f7", padding: "14px 22px", display: "flex", flexDirection: "column", gap: 12 }}>
             {(data.phone || data.email || data.address) && (
               <div>
                 <div style={{ ...headStyle, color: "#20242c" }}>{locale === "en" ? "Contact" : "Contact"}</div>
@@ -65,7 +65,7 @@ export function PremBanniere({ data, theme, includePhoto, locale = "fr" }: CvLay
             )}
           </div>
 
-          <div style={{ flexGrow: 1, minWidth: 0, padding: "20px 26px", display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ flexGrow: 1, minWidth: 0, padding: "14px 26px", display: "flex", flexDirection: "column", gap: 11 }}>
             {data.summary && (
               <div>
                 <div style={headStyle}>{t.profile}</div>

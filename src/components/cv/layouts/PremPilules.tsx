@@ -104,7 +104,7 @@ export function PremPilules({ data, theme, includePhoto, locale = "fr" }: CvLayo
                   <div>
                     <div style={{ fontSize: 12.5, fontWeight: 700 }}>{exp.role}</div>
                     <div style={{ fontSize: 11, fontStyle: "italic", color: "#8a8580" }}>{exp.company}</div>
-                    <p style={{ fontSize: 11, lineHeight: 1.5, margin: "3px 0 0", color: "#4a453f" }}>{exp.description}</p>
+                    {exp.description && <p style={{ fontSize: 11, lineHeight: 1.5, margin: "3px 0 0", color: "#4a453f" }}>{exp.description}</p>}
                   </div>
                 </div>
               ))}

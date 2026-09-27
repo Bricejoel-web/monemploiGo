@@ -12,13 +12,13 @@ export function PremFacettes({ data, theme, includePhoto, locale = "fr" }: CvLay
     letterSpacing: ".06em",
     textTransform: "uppercase",
     color: theme.accent,
-    marginBottom: 9,
+    marginBottom: 6,
   };
 
   return (
     <CvPageFrame>
       <div style={{ width: 480, minHeight: 679, background: "#fff", display: "flex", flexDirection: "column", overflow: "hidden", fontFamily: "'Manrope', sans-serif", color: "#20242c" }}>
-        <div style={{ position: "relative", padding: "30px 32px 0 32px", display: "flex", alignItems: "flex-start", gap: 16, overflow: "hidden" }}>
+        <div style={{ position: "relative", padding: "22px 32px 0 32px", display: "flex", alignItems: "flex-start", gap: 16, overflow: "hidden" }}>
           <svg width="220" height="130" style={{ position: "absolute", top: 0, right: 0 }} viewBox="0 0 220 130" preserveAspectRatio="none">
             <polygon points="70,0 220,0 220,130 150,130" fill={theme.accent} />
             <polygon points="120,0 165,0 100,130 55,130" fill="#8a8580" opacity="0.35" />
@@ -35,8 +35,8 @@ export function PremFacettes({ data, theme, includePhoto, locale = "fr" }: CvLay
           </div>
         </div>
 
-        <AdaptiveZone targetHeight={679 - 108} deps={[data]} style={{ padding: "20px 32px 30px 32px", display: "flex", gap: 24 }}>
-          <div style={{ width: 138, flexShrink: 0, display: "flex", flexDirection: "column", gap: 20 }}>
+        <AdaptiveZone targetHeight={679 - 108} deps={[data]} style={{ padding: "16px 32px 22px 32px", display: "flex", gap: 24 }}>
+          <div style={{ width: 138, flexShrink: 0, display: "flex", flexDirection: "column", gap: 14 }}>
             {(data.phone || data.email || data.address) && (
               <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                 <div style={headStyle}>{locale === "en" ? "Contact" : "Contact"}</div>
@@ -73,11 +73,11 @@ export function PremFacettes({ data, theme, includePhoto, locale = "fr" }: CvLay
             )}
           </div>
 
-          <div style={{ flexGrow: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ flexGrow: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 11 }}>
             {data.summary && (
               <div>
                 <div style={headStyle}>{t.profile}</div>
-                <p style={{ fontSize: 11.5, lineHeight: 1.55, color: "#4a453f", margin: 0 }}>{data.summary}</p>
+                <p style={{ fontSize: 11, lineHeight: 1.45, color: "#4a453f", margin: 0 }}>{data.summary}</p>
               </div>
             )}
 
@@ -86,7 +86,7 @@ export function PremFacettes({ data, theme, includePhoto, locale = "fr" }: CvLay
                 <div style={headStyle}>{t.experience}</div>
                 <div style={{ position: "relative", paddingLeft: 16, borderLeft: `2px solid ${theme.accentSoft}` }}>
                   {data.experience.map((exp, i) => (
-                    <div key={i} style={{ position: "relative", paddingBottom: i === data.experience.length - 1 ? 0 : 14 }}>
+                    <div key={i} style={{ position: "relative", paddingBottom: i === data.experience.length - 1 ? 0 : 9 }}>
                       <span style={{ position: "absolute", left: -21, top: 2, width: 9, height: 9, borderRadius: "50%", background: theme.accent, border: "2px solid #fff" }} />
                       <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap" }}>
                         <span style={{ fontSize: 12.5, fontWeight: 700 }}>{exp.role}</span>

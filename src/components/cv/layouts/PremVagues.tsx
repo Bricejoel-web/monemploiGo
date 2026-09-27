@@ -110,9 +110,11 @@ export function PremVagues({ data, theme, includePhoto, locale = "fr" }: CvLayou
                   </div>
                   {(exp.start || exp.end) && <div style={{ fontSize: 11, color: "#8a8580" }}>{exp.start} – {exp.end}</div>}
                   <div style={{ fontSize: 11.5, fontStyle: "italic", marginTop: 2 }}>{exp.role}</div>
-                  <ul style={{ margin: "4px 0 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5, color: "#4a453f" }}>
-                    <li>{exp.description}</li>
-                  </ul>
+                  {exp.description && (
+                    <ul style={{ margin: "4px 0 0 0", paddingLeft: 16, fontSize: 11, lineHeight: 1.5, color: "#4a453f" }}>
+                      <li>{exp.description}</li>
+                    </ul>
+                  )}
                 </div>
               ))}
             </div>

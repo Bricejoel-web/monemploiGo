@@ -16,7 +16,7 @@ export function PremDiagonale({ data, theme, includePhoto, locale = "fr" }: CvLa
         textTransform: "uppercase",
         padding: "4px 11px",
         borderRadius: 999,
-        marginBottom: 9,
+        marginBottom: 6,
       }}
     >
       {label}
@@ -26,7 +26,7 @@ export function PremDiagonale({ data, theme, includePhoto, locale = "fr" }: CvLa
   return (
     <CvPageFrame>
       <div style={{ width: 480, minHeight: 679, background: "#fff", display: "flex", flexDirection: "column", overflow: "hidden", fontFamily: "'Manrope', sans-serif", color: "#20242c" }}>
-        <div style={{ position: "relative", height: 118, flexShrink: 0, overflow: "hidden" }}>
+        <div style={{ position: "relative", height: 96, flexShrink: 0, overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, background: theme.accent, clipPath: "polygon(0 0, 100% 0, 100% 68%, 0 100%)" }} />
           <div style={{ position: "relative", height: "100%", padding: "0 30px", display: "flex", alignItems: "center", gap: 16 }}>
             {includePhoto && (
@@ -41,8 +41,8 @@ export function PremDiagonale({ data, theme, includePhoto, locale = "fr" }: CvLa
           </div>
         </div>
 
-        <AdaptiveZone targetHeight={679 - 118} deps={[data]} style={{ padding: "26px 30px 30px 30px", display: "flex", gap: 22 }}>
-          <div style={{ width: 130, flexShrink: 0, display: "flex", flexDirection: "column", gap: 18 }}>
+        <AdaptiveZone targetHeight={679 - 96} deps={[data]} style={{ padding: "16px 30px 20px 30px", display: "flex", gap: 22 }}>
+          <div style={{ width: 130, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12 }}>
             {(data.phone || data.email || data.address) && (
               <div>
                 {pill(locale === "en" ? "Contact" : "Contact")}
@@ -75,11 +75,11 @@ export function PremDiagonale({ data, theme, includePhoto, locale = "fr" }: CvLa
             )}
           </div>
 
-          <div style={{ flexGrow: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 18 }}>
+          <div style={{ flexGrow: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}>
             {data.summary && (
               <div>
                 {pill(t.profile)}
-                <p style={{ fontSize: 11.5, lineHeight: 1.55, color: "#4a453f", margin: 0 }}>{data.summary}</p>
+                <p style={{ fontSize: 11, lineHeight: 1.45, color: "#4a453f", margin: 0 }}>{data.summary}</p>
               </div>
             )}
 
@@ -93,7 +93,7 @@ export function PremDiagonale({ data, theme, includePhoto, locale = "fr" }: CvLa
                         <span style={{ width: 10, height: 10, borderRadius: "50%", background: theme.accent, flexShrink: 0 }} />
                         {i !== data.experience.length - 1 && <span style={{ width: 2, flexGrow: 1, background: theme.accentSoft, marginTop: 2 }} />}
                       </div>
-                      <div style={{ paddingBottom: i === data.experience.length - 1 ? 0 : 14 }}>
+                      <div style={{ paddingBottom: i === data.experience.length - 1 ? 0 : 8 }}>
                         {(exp.start || exp.end) && <div style={{ fontSize: 10.5, color: theme.accent, fontWeight: 700 }}>{exp.start} — {exp.end}</div>}
                         <div style={{ fontSize: 12.5, fontWeight: 700, marginTop: 1 }}>{exp.role}{exp.company ? ` — ${exp.company}` : ""}</div>
                         {exp.description && <p style={{ fontSize: 11, color: "#4a453f", margin: "2px 0 0", lineHeight: 1.45 }}>{exp.description}</p>}
