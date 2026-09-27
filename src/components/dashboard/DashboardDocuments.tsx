@@ -19,7 +19,10 @@ export interface DashboardDocumentItem {
   title: string;
   category: Exclude<DashboardCategory, "ALL">;
   status: "DRAFT" | "PAID";
-  createdAt: string;
+  /** Date de création, déjà formatée côté serveur. */
+  createdOn: string;
+  /** Échéance de conservation, déjà formulée côté serveur. */
+  retentionNote: { text: string; urgent: boolean };
   type: "CV" | "COVER_LETTER" | "BEWERBUNGSBRIEF";
   templateSlug: string;
 }
@@ -124,7 +127,17 @@ export function DashboardDocuments({
                     <div className="min-w-0">
                       <p className="truncate font-medium">{doc.title}</p>
                       <p className="text-xs text-black/50 dark:text-white/50">
-                        {dict.dashboard.createdOn} {new Date(doc.createdAt).toLocaleDateString(locale)}
+                        {dict.dashboard.createdOn} {doc.createdOn}
+                      </p>
+                      <p
+                        className={`mt-0.5 flex items-center gap-1 text-xs ${
+                          doc.retentionNote.urgent
+                            ? "font-semibold text-red-700 dark:text-red-400"
+                            : "text-black/50 dark:text-white/50"
+                        }`}
+                      >
+                        <ClockIcon className="h-3 w-3 shrink-0" />
+                        {doc.retentionNote.text}
                       </p>
                     </div>
                   </div>

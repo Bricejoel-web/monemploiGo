@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { getGateway } from "@/lib/payment";
+import { markDocumentPaid } from "@/lib/documents/retention";
 
 /**
  * Notification serveur-à-serveur CinetPay. Par mesure de sécurité (recommandé
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
   if (result.status === "success") {
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS" } }),
-      prisma.document.update({ where: { id: payment.documentId }, data: { status: "PAID" } }),
+      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
     ]);
   } else if (result.status === "failed") {
     await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });

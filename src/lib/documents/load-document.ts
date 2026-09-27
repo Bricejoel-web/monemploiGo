@@ -2,10 +2,14 @@ import "server-only";
 import { prisma } from "@/lib/db/client";
 import { getCvTemplateBySlug, getCoverLetterBySlug, getBewerbungsbriefBySlug } from "@/lib/cv/catalog";
 import type { CvData, CoverLetterData, BewerbungsbriefData } from "@/lib/cv/types";
+import { retentionCutoff } from "./retention";
 
+// La date limite est appliquée ici, à la lecture, et pas seulement par la
+// purge quotidienne : un document expiré n'est plus servi même si la purge
+// n'est pas encore passée.
 export async function loadOwnedPaidDocument(documentId: string, userId: string) {
   const document = await prisma.document.findFirst({
-    where: { id: documentId, userId, status: "PAID" },
+    where: { id: documentId, userId, status: "PAID", paidAt: { gte: retentionCutoff() } },
   });
   if (!document) return null;
 

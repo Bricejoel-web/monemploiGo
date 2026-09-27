@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db/client";
 import { DashboardDocuments, type DashboardDocumentItem } from "@/components/dashboard/DashboardDocuments";
 import { DeleteAccountButton } from "@/components/dashboard/DeleteAccountButton";
 import { FolderIcon, CheckIcon, ClockIcon } from "@/components/home/icons";
+import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
+import { daysUntil, formatLongDate } from "@/lib/format-date";
 import type { ComponentType } from "react";
 
 function StatCard({
@@ -57,18 +59,47 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
       createdAt: true,
       category: true,
       templateSlug: true,
+      paidAt: true,
+      updatedAt: true,
     },
   });
 
-  const items: DashboardDocumentItem[] = documents.map((doc) => ({
-    id: doc.id,
-    title: doc.title,
-    status: doc.status,
-    createdAt: doc.createdAt.toISOString(),
-    category: doc.type === "COVER_LETTER" ? "COVER_LETTER" : doc.type === "BEWERBUNGSBRIEF" ? "BEWERBUNGSBRIEF" : doc.category ?? "STANDARD",
-    type: doc.type,
-    templateSlug: doc.templateSlug,
-  }));
+  // Les documents arrivés à échéance ne sont supprimés qu'au passage de la
+  // purge quotidienne : d'ici là, ils ne doivent déjà plus apparaître.
+  const cutoff = retentionCutoff();
+  const liveDocuments = documents.filter((doc) =>
+    doc.status === "PAID" ? !doc.paidAt || doc.paidAt >= cutoff : doc.updatedAt >= cutoff,
+  );
+
+  const now = new Date();
+  const items: DashboardDocumentItem[] = liveDocuments.map((doc) => {
+    const isPaid = doc.status === "PAID";
+    const deadline = expiresAt(isPaid ? (doc.paidAt ?? now) : doc.updatedAt);
+    const daysLeft = daysUntil(deadline, now);
+    const date = formatLongDate(deadline, locale as Locale);
+    // Textes calculés côté serveur : le composant client affiche exactement
+    // la même chose au rendu serveur et à l'hydratation (pas d'écart de fuseau).
+    const retentionNote = !isPaid
+      ? { text: dict.retention.draftKeptUntil.replace("{date}", date), urgent: false }
+      : daysLeft <= 0
+        ? { text: dict.retention.expiresToday, urgent: true }
+        : daysLeft === 1
+          ? { text: dict.retention.expiresTomorrow, urgent: true }
+          : daysLeft <= 3
+            ? { text: dict.retention.expiresInDays.replace("{days}", String(daysLeft)), urgent: true }
+            : { text: dict.retention.availableUntil.replace("{date}", date), urgent: false };
+
+    return {
+      id: doc.id,
+      title: doc.title,
+      status: doc.status,
+      createdOn: formatLongDate(doc.createdAt, locale as Locale),
+      retentionNote,
+      category: doc.type === "COVER_LETTER" ? "COVER_LETTER" : doc.type === "BEWERBUNGSBRIEF" ? "BEWERBUNGSBRIEF" : doc.category ?? "STANDARD",
+      type: doc.type,
+      templateSlug: doc.templateSlug,
+    };
+  });
 
   const paidCount = items.filter((d) => d.status === "PAID").length;
   const draftCount = items.length - paidCount;
@@ -97,6 +128,21 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
           <StatCard icon={CheckIcon} value={paidCount} label={dict.dashboard.statPaid} accent="green" />
           <StatCard icon={ClockIcon} value={draftCount} label={dict.dashboard.statDraft} accent="amber" />
         </div>
+
+        <section
+          aria-labelledby="retention-notice-title"
+          className="animate-fade-in-up flex gap-3 rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sky-950 shadow-sm dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100 sm:p-5"
+          style={{ animationDelay: "0.12s" }}
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-300">
+            <ClockIcon className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 text-sm">
+            <h2 id="retention-notice-title" className="font-semibold">{dict.retention.noticeTitle}</h2>
+            <p className="mt-1 text-sky-900/80 dark:text-sky-100/80">{dict.retention.noticePaid}</p>
+            <p className="mt-1 text-sky-900/80 dark:text-sky-100/80">{dict.retention.noticeDraft}</p>
+          </div>
+        </section>
 
         <div
           className="animate-fade-in-up rounded-2xl border border-black/10 bg-[#fbfaf8] p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"

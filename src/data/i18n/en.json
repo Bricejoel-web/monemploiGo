@@ -74,7 +74,7 @@
       "title": "Privacy policy",
       "intro": "This policy explains what data we collect, why, and how you can control it.",
       "dataTitle": "Data we collect",
-      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user.",
+      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user. Retention period: a paid document is deleted automatically 3 weeks after payment, and a draft 3 weeks after its last edit (photo included). Only the payment history (amount, date, status), without the document's content, is kept for accounting purposes.",
       "paymentTitle": "Payment",
       "paymentContent": "Payments are processed by our partners MTN Mobile Money and Orange Money. We never store your mobile payment credentials or codes.",
       "cookiesTitle": "Cookies",
@@ -302,5 +302,45 @@
     "downloadPdf": "Download as PDF",
     "wordHint": "Tip: to get a Word version that faithfully matches the well-filled PDF layout, open the downloaded PDF with Microsoft Word (File > Open) — Word will offer to convert it into an editable document automatically.",
     "termsPrefix": "By paying, you accept our"
+  },
+  "retention": {
+    "noticeTitle": "How long your documents are kept",
+    "noticePaid": "After payment, you can download your document again for free, as many times as you like, for 3 weeks. It is then deleted automatically, so keep a copy of your PDF.",
+    "noticeDraft": "Drafts that are not edited for 3 weeks are also deleted automatically.",
+    "availableUntil": "Downloadable until {date}",
+    "expiresToday": "Expires today — download it now",
+    "expiresTomorrow": "Expires tomorrow — download it now",
+    "expiresInDays": "Expires in {days} days — remember to download it",
+    "draftKeptUntil": "Draft kept until {date}",
+    "beforePayment": "After payment: free, unlimited downloads for 3 weeks, then the document is deleted automatically.",
+    "afterPayment": "You can download it again for free from your dashboard until {date}. After that, it will be deleted automatically, so keep a copy of your PDF.",
+    "previewBanner": "This document can be downloaded for free until {date}, then it will be deleted automatically. Remember to keep a copy.",
+    "unavailableTitle": "This document is no longer available",
+    "unavailableText": "Paid documents can be downloaded for free for 3 weeks after payment, then they are deleted automatically.",
+    "backToDashboard": "Back to dashboard",
+    "editorDraftHint": "Your draft is kept for 3 weeks after its last edit."
+  },
+  "ticker": {
+    "label": "News & tips",
+    "regionLabel": "Important information, advice and tips",
+    "pause": "Pause the banner",
+    "play": "Resume the banner",
+    "close": "Hide the banner for this visit",
+    "kinds": {
+      "info": "Info",
+      "tip": "Tip",
+      "advice": "Advice"
+    },
+    "items": [
+      { "kind": "info", "text": "Paid documents: free re-download for 3 weeks, then automatic deletion. Keep a copy of your PDF." },
+      { "kind": "advice", "text": "Aim for one page: the editor's indicator tells you live whether your CV fits on one A4 page." },
+      { "kind": "tip", "text": "Need a Word file? Open your PDF with Microsoft Word (File > Open) to make it editable." },
+      { "kind": "advice", "text": "Tailor your CV to each job by reusing the keywords from the ad, especially for an ATS CV." },
+      { "kind": "info", "text": "Drafts: deleted automatically after 3 weeks without edits." },
+      { "kind": "tip", "text": "No experience yet? Tick \"I don't have work experience yet\" and highlight internships, projects and education." },
+      { "kind": "advice", "text": "Applying in Germany: state your certified German level (B1, B2, telc…), it's the first thing recruiters check." },
+      { "kind": "tip", "text": "CV photo: recent, facing the camera, neutral background and professional outfit." },
+      { "kind": "advice", "text": "Proofread before paying: the live preview shows exactly the document you will download." }
+    ]
   }
 }

@@ -81,6 +81,10 @@ model Document {
   includePhoto Boolean        @default(false)
   photoDataUrl String?
   status       DocumentStatus @default(DRAFT)
+  // Date de confirmation du paiement : le document reste retéléchargeable
+  // gratuitement pendant 3 semaines à partir d'ici, puis est supprimé
+  // automatiquement (voir src/lib/documents/retention.ts).
+  paidAt       DateTime?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
@@ -89,12 +93,18 @@ model Document {
   payments Payment[]
 
   @@index([userId])
+  @@index([status, paidAt])
+  @@index([status, updatedAt])
 }
 
+// `documentId` devient nul quand le document est supprimé automatiquement
+// après sa période de conservation : la trace du paiement (montant, date,
+// référence prestataire, utilisateur) est conservée pour la comptabilité et
+// les éventuels litiges, sans garder le contenu du document lui-même.
 model Payment {
   id           String          @id @default(cuid())
   userId       String
-  documentId   String
+  documentId   String?
   provider     PaymentProvider
   amountFcfa   Int
   status       PaymentStatus   @default(PENDING)
@@ -104,7 +114,7 @@ model Payment {
   updatedAt    DateTime        @updatedAt
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([documentId])

@@ -74,7 +74,7 @@
       "title": "Politique de confidentialité",
       "intro": "Cette politique explique quelles données nous collectons, pourquoi, et comment vous pouvez les contrôler.",
       "dataTitle": "Données collectées",
-      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur.",
+      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur. Durée de conservation : un document payé est supprimé automatiquement 3 semaines après le paiement, et un brouillon 3 semaines après sa dernière modification (photo comprise). Seul l'historique des paiements (montant, date, statut), sans le contenu du document, est conservé pour la comptabilité.",
       "paymentTitle": "Paiement",
       "paymentContent": "Les paiements sont traités par nos partenaires MTN Mobile Money et Orange Money. Nous ne stockons jamais vos identifiants ou codes de paiement mobile.",
       "cookiesTitle": "Cookies",
@@ -302,5 +302,45 @@
     "downloadPdf": "Télécharger en PDF",
     "wordHint": "Astuce : pour obtenir une version Word qui reprend fidèlement la mise en page bien remplie du PDF, ouvrez le PDF téléchargé avec Microsoft Word (Fichier > Ouvrir) — Word proposera de le convertir automatiquement en document modifiable.",
     "termsPrefix": "En payant, vous acceptez nos"
+  },
+  "retention": {
+    "noticeTitle": "Durée de conservation de vos documents",
+    "noticePaid": "Après paiement, vous pouvez retélécharger votre document gratuitement, autant de fois que vous le souhaitez, pendant 3 semaines. Il est ensuite supprimé automatiquement : pensez à garder une copie de votre PDF.",
+    "noticeDraft": "Les brouillons non modifiés pendant 3 semaines sont eux aussi supprimés automatiquement.",
+    "availableUntil": "Téléchargeable jusqu'au {date}",
+    "expiresToday": "Expire aujourd'hui — téléchargez-le maintenant",
+    "expiresTomorrow": "Expire demain — téléchargez-le maintenant",
+    "expiresInDays": "Expire dans {days} jours — pensez à le télécharger",
+    "draftKeptUntil": "Brouillon conservé jusqu'au {date}",
+    "beforePayment": "Après paiement : téléchargement gratuit et illimité pendant 3 semaines, puis suppression automatique du document.",
+    "afterPayment": "Vous pouvez le retélécharger gratuitement depuis votre tableau de bord jusqu'au {date}. Ensuite, il sera supprimé automatiquement : gardez une copie de votre PDF.",
+    "previewBanner": "Ce document reste téléchargeable gratuitement jusqu'au {date}, puis sera supprimé automatiquement. Pensez à en garder une copie.",
+    "unavailableTitle": "Ce document n'est plus disponible",
+    "unavailableText": "Les documents payés restent téléchargeables gratuitement pendant 3 semaines après le paiement, puis sont supprimés automatiquement.",
+    "backToDashboard": "Retour au tableau de bord",
+    "editorDraftHint": "Votre brouillon est conservé 3 semaines après sa dernière modification."
+  },
+  "ticker": {
+    "label": "Infos & conseils",
+    "regionLabel": "Informations importantes, conseils et astuces",
+    "pause": "Mettre la bande en pause",
+    "play": "Relancer la bande",
+    "close": "Masquer la bande pour cette visite",
+    "kinds": {
+      "info": "Info",
+      "tip": "Astuce",
+      "advice": "Conseil"
+    },
+    "items": [
+      { "kind": "info", "text": "Documents payés : retéléchargement gratuit pendant 3 semaines, puis suppression automatique. Gardez une copie de votre PDF." },
+      { "kind": "advice", "text": "Visez une seule page : l'indicateur de l'éditeur vous dit en direct si votre CV tient sur une page A4." },
+      { "kind": "tip", "text": "Besoin d'un fichier Word ? Ouvrez votre PDF avec Microsoft Word (Fichier > Ouvrir) pour le rendre modifiable." },
+      { "kind": "advice", "text": "Adaptez votre CV à chaque offre en reprenant les mots-clés de l'annonce, surtout pour un CV ATS." },
+      { "kind": "info", "text": "Brouillons : supprimés automatiquement après 3 semaines sans modification." },
+      { "kind": "tip", "text": "Pas encore d'expérience ? Cochez « Je n'ai pas encore d'expérience professionnelle » et mettez en avant stages, projets et formations." },
+      { "kind": "advice", "text": "Candidature en Allemagne : indiquez votre niveau d'allemand certifié (B1, B2, telc…), c'est la première chose que regardent les recruteurs." },
+      { "kind": "tip", "text": "Photo de CV : récente, de face, sur fond neutre et en tenue professionnelle." },
+      { "kind": "advice", "text": "Relisez-vous avant de payer : l'aperçu en direct montre exactement le document que vous téléchargerez." }
+    ]
   }
 }

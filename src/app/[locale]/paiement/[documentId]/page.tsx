@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { requireSession } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { PaymentForm } from "@/components/payment/PaymentForm";
+import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
 
 export default async function PaymentPage({ params }: PageProps<"/[locale]/paiement/[documentId]">) {
   const { locale, documentId } = await params;
@@ -16,6 +17,9 @@ export default async function PaymentPage({ params }: PageProps<"/[locale]/paiem
     where: { id: documentId, userId: session.userId },
   });
   if (!document) notFound();
+  if (document.status === "PAID" && document.paidAt && document.paidAt < retentionCutoff()) {
+    redirect(`/${locale}/document/${document.id}/apercu`);
+  }
 
   const dict = await getDictionary(locale as Locale);
   const amount =
@@ -38,6 +42,9 @@ export default async function PaymentPage({ params }: PageProps<"/[locale]/paiem
         dict={dict}
         locale={locale as Locale}
         initiallyPaid={document.status === "PAID"}
+        // Si le paiement vient d'être confirmé sur cette page, la date de
+        // paiement enregistrée est "maintenant" : même échéance au jour près.
+        expiresAtIso={expiresAt(document.paidAt ?? new Date()).toISOString()}
       />
     </div>
   );

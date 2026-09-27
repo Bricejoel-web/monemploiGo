@@ -720,6 +720,33 @@ Signalé par l'utilisateur (capture à l'appui) : certaines vignettes de CV du c
 
 **État mesuré de façon fiable après correctifs** (build de production, polices chargées) : sur 179 modèles, 146 dépassent encore une page A4 pour leur contenu de démonstration, avec des excès allant de 5 à ~366 px. Les plus concernés : `StdClassique`, `StdDeuxColonnes`, `StdBandeau`, les 3 mises en page ATS, `DeTabellarisch`, `PremFacettes`, `PremDiagonale`. **Non traité à ce stade** : resserrer l'espacement de ces mises en page plus anciennes (StdClassique, StdBandeau, StdDeuxColonnes, AtsExecutif/Minimal/Compact) comme cela a été fait pour les 3 nouvelles — c'est la prochaine étape pour éliminer complètement l'effet "vignette réduite avec marges". Rien n'est coupé ni caché pour autant : le filet de sécurité de `TemplateThumbnail` affiche toujours le document en entier.
 
+## Conservation limitée des documents (3 semaines) + bande défilante d'informations (2026-09-27)
+
+Demande de l'utilisateur : après paiement, le document doit rester retéléchargeable gratuitement, puis disparaître automatiquement au bout de 3 semaines pour ne pas surcharger la base. Choix de l'utilisateur : délai compté **à partir du paiement** ; brouillons **supprimés aussi** après 3 semaines sans modification. Exigence explicite : l'utilisateur doit être « parfaitement au courant », via notamment une bande défilante regroupant informations importantes, conseils et astuces.
+
+**Modèle de données** (migration `20260927174815_document_retention`, appliquée sur Neon, rétrocompatible avec le code déjà en production) :
+- `Document.paidAt` : date de confirmation du paiement, point de départ du délai. Les documents déjà payés ont été initialisés à la date de la migration (personne ne perd un document à cause de ce changement).
+- `Payment.documentId` devient facultatif, `onDelete: SetNull` : supprimer un document **ne supprime jamais l'historique des paiements** (comptabilité, litiges) — seul le lien vers le contenu disparaît.
+- Index `(status, paidAt)` et `(status, updatedAt)` pour que la purge reste rapide.
+
+**Logique** (`src/lib/documents/retention.ts`, source unique de vérité — `RETENTION_DAYS = 21`) :
+- `markDocumentPaid()` remplace les 6 endroits qui passaient un document à `PAID` (3 webhooks, page de retour, vérification de statut, mode simulation) : impossible d'oublier `paidAt` à l'avenir.
+- **Échéance appliquée à la lecture**, pas seulement par la purge : `loadOwnedPaidDocument` et le tableau de bord ignorent déjà un document expiré. Un cron manqué ou en retard ne rend donc jamais un document expiré accessible ; la purge ne fait que libérer la place.
+- Purge quotidienne : `GET /api/cron/purge-documents`, déclarée dans `vercel.json` (tous les jours à 3 h UTC). Protégée par `CRON_SECRET` (Vercel envoie automatiquement `Authorization: Bearer <secret>`), comparaison en temps constant ; **sans secret configuré, la route refuse de tourner** (une URL publique ne doit jamais pouvoir déclencher des suppressions). Un brouillon lié à un paiement `PENDING` ou `SUCCESS` n'est jamais purgé (paiement en cours de confirmation).
+
+**Information de l'utilisateur** — à chaque étape où la règle compte :
+- Éditeurs (CV, lettre, Bewerbungsbrief) : durée de conservation d'un brouillon, sous le bouton « Enregistrer et payer ».
+- Page de paiement : avertissement **avant** de payer ; date exacte de fin après paiement.
+- Tableau de bord : encadré explicatif permanent, date limite sous chaque document, alerte rouge à 3 jours ou moins (« Expire dans 2 jours — pensez à le télécharger »). Les dates sont calculées **côté serveur** et transmises sous forme de texte au composant client, pour éviter tout écart d'hydratation dû au fuseau horaire du téléphone.
+- Page de téléchargement : bandeau avec la date (masqué à l'impression, donc jamais dans le PDF). Un ancien lien vers un document expiré affiche un message explicatif et un retour au tableau de bord au lieu d'une erreur 404 ; un brouillon renvoie vers le paiement.
+- CGU (section 10) et politique de confidentialité mises à jour, `LEGAL_CONFIG.lastUpdated` → 27 septembre 2026.
+
+**Bande défilante** (`InfoTicker.tsx`, sous l'en-tête sur toutes les pages) : textes dans `fr.json`/`en.json` (`ticker.items`, chaque message typé `info` / `tip` / `advice` avec sa propre pastille de couleur). Les astuces citent les libellés exacts de l'interface. Accessibilité : pause au survol, au focus clavier et via un bouton dédié (`aria-pressed`) ; la copie dupliquée qui rend la boucle continue est `aria-hidden` ; avec `prefers-reduced-motion`, aucune animation, défilement manuel. Fermeture possible **pour la visite en cours seulement** (sessionStorage, lu via `useSyncExternalStore`) : l'information sur la suppression des documents doit réapparaître à la visite suivante. Vitesse constante quel que soit le nombre de messages (durée proportionnelle à la longueur du texte). Sens de défilement : droite → gauche, sens naturel de lecture.
+
+**Non fait, volontairement** : rappel par e-mail avant suppression — le site n'a pas encore de système d'envoi d'e-mails.
+
+Vérifié (build de production, base réelle, compte de test jetable supprimé ensuite — aucun document réel n'était concerné par la purge au moment du test) : 26/27 vérifications automatiques réussies du premier coup, la 27e était une erreur dans le texte attendu par le test lui-même (texte anglais correct) — tableau de bord (documents expirés masqués, statistiques justes, alertes), pages de paiement et de téléchargement FR/EN, redirections, bande (animation, pause, fermeture persistante, mouvements réduits), aucune erreur d'hydratation, aucun débordement à 360 px, purge refusée sans secret ou avec un mauvais secret (401), purge autorisée supprimant exactement le payé expiré et le brouillon ancien sans paiement, en conservant le brouillon ancien à paiement en cours et le paiement du document supprimé (`documentId` à `null`).
+
 ## Catalogues mobiles en sections défilables horizontalement, façon Play Store (2026-09-22)
 
 Demande de l'utilisateur, justifiée explicitement : sur mobile, les 3 catalogues denses (`/cv/[categorie]` jusqu'à 50 modèles, `/lettres-de-motivation` 100, `/bewerbungsbrief` 35) forçaient un défilement vertical interminable (une carte pleine largeur par ligne, conséquence assumée du correctif de taille de vignette du 2026-09-22 plus haut dans ce journal). L'utilisateur a proposé le modèle Play Store : regrouper les modèles en sections, chacune défilant horizontalement au doigt, la page ne défilant verticalement que pour passer d'une section à la suivante.

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { verifyMonetbilSignature } from "@/lib/payment";
+import { markDocumentPaid } from "@/lib/documents/retention";
 
 /**
  * Notification serveur-à-serveur Monetbil (notify_url). Contrairement à
@@ -69,7 +70,7 @@ async function handleNotification(request: Request) {
   if (status === "success") {
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS", providerRef } }),
-      prisma.document.update({ where: { id: payment.documentId }, data: { status: "PAID" } }),
+      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
     ]);
   } else {
     await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED", providerRef } });

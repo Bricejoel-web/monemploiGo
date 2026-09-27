@@ -170,6 +170,8 @@ export const TERMS_CONTENT: Record<"fr" | "en", TermsContent> = {
         blocks: [
           p("Les services proposés par MonEmploiGo sont principalement numériques."),
           p("Après confirmation du paiement, l'utilisateur peut accéder au document acheté ou aux fonctionnalités correspondant à sa commande, selon le service concerné."),
+          p("Après confirmation du paiement, le document peut être retéléchargé gratuitement et sans limite depuis le tableau de bord pendant 3 semaines (21 jours). À l'issue de ce délai, il est supprimé automatiquement et définitivement de nos serveurs. Il appartient à l'utilisateur de conserver une copie du fichier téléchargé."),
+          p("Les brouillons (documents non payés) sont également supprimés automatiquement lorsqu'ils n'ont pas été modifiés pendant 3 semaines."),
           p("L'utilisateur doit vérifier son document avant de le télécharger, l'imprimer ou l'envoyer à un employeur."),
           p("MonEmploiGo ne peut être tenu responsable d'une candidature envoyée avec un document contenant des informations incorrectes saisies par l'utilisateur."),
         ],
@@ -525,6 +527,8 @@ export const TERMS_CONTENT: Record<"fr" | "en", TermsContent> = {
         blocks: [
           p("The services offered by MonEmploiGo are mainly digital."),
           p("After payment confirmation, the user can access the purchased document or the features corresponding to their order, depending on the service concerned."),
+          p("After payment confirmation, the document can be downloaded again free of charge and without limit from the dashboard for 3 weeks (21 days). After that period, it is automatically and permanently deleted from our servers. The user is responsible for keeping a copy of the downloaded file."),
+          p("Drafts (unpaid documents) are also deleted automatically when they have not been edited for 3 weeks."),
           p("The user must review their document before downloading, printing, or sending it to an employer."),
           p("MonEmploiGo cannot be held liable for an application sent with a document containing incorrect information entered by the user."),
         ],

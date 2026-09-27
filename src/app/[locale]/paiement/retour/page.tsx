@@ -3,6 +3,7 @@ import { isLocale } from "@/i18n/config";
 import { requireSession } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
 import { getGateway } from "@/lib/payment";
+import { markDocumentPaid } from "@/lib/documents/retention";
 
 // Page de retour après paiement CinetPay (return_url). CinetPay redirige ici
 // que le paiement ait réussi ou non ; on vérifie le vrai statut auprès de
@@ -30,12 +31,12 @@ export default async function PaymentReturnPage({
     if (result.status === "success") {
       await prisma.$transaction([
         prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS" } }),
-        prisma.document.update({ where: { id: payment.documentId }, data: { status: "PAID" } }),
+        ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
       ]);
     } else if (result.status === "failed") {
       await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
     }
   }
 
-  redirect(`/${locale}/paiement/${payment.documentId}`);
+  redirect(payment.documentId ? `/${locale}/paiement/${payment.documentId}` : `/${locale}/tableau-de-bord`);
 }

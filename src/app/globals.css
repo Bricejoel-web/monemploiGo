@@ -92,6 +92,67 @@ body {
   }
 }
 
+/* Bande d'annonces défilante (InfoTicker.tsx). La piste contient deux
+   copies identiques du contenu : la décaler de -50% ramène exactement la
+   2e copie à la place de la 1re, d'où une boucle sans à-coup. Animation sur
+   `transform` uniquement (composée par le GPU, légère sur téléphone
+   modeste). Elle s'arrête au survol, au focus clavier et sur demande
+   (bouton pause) — obligatoire pour un contenu qui défile (WCAG 2.2.2). */
+@keyframes tickerScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: tickerScroll var(--ticker-duration, 80s) linear infinite;
+  will-change: transform;
+}
+
+.ticker-viewport:hover .ticker-track,
+.ticker-viewport:focus-within .ticker-track,
+.ticker-paused .ticker-track {
+  animation-play-state: paused;
+}
+
+/* `display`/`overflow` gérés ici et jamais via des classes Tailwind : ces
+   dernières, renforcées par l'aplatissement des calques de cascade (voir
+   postcss.config.mjs), l'emporteraient sur la règle "mouvement réduit". */
+.ticker-viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+}
+
+.ticker-copy {
+  display: flex;
+  align-items: center;
+}
+
+.ticker-pause-button {
+  display: inline-flex;
+}
+
+/* Mouvement réduit demandé par le système : pas de défilement automatique,
+   le contenu se lit en glissant horizontalement. */
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+  .ticker-viewport {
+    overflow-x: auto;
+  }
+  .ticker-copy-duplicate,
+  .ticker-pause-button {
+    display: none;
+  }
+}
+
 /* Trame de points discrète pour éviter les aplats de blanc trop nus sur les
    zones de contenu marketing — isolée dans un pseudo-élément (jamais sur
    `color` directement) pour ne pas se répercuter sur le texte des enfants. */

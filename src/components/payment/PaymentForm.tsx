@@ -5,6 +5,8 @@ import Link from "next/link";
 import { initiatePaymentAction, checkPaymentStatusAction } from "@/lib/documents/payment-actions";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
+import { ClockIcon } from "@/components/home/icons";
+import { formatLongDate } from "@/lib/format-date";
 
 type Status = "idle" | "pending" | "success" | "failed";
 
@@ -14,12 +16,14 @@ export function PaymentForm({
   dict,
   locale,
   initiallyPaid = false,
+  expiresAtIso,
 }: {
   documentId: string;
   amountFcfa: number;
   dict: Dictionary;
   locale: Locale;
   initiallyPaid?: boolean;
+  expiresAtIso: string;
 }) {
   const [status, setStatus] = useState<Status>(initiallyPaid ? "success" : "idle");
   const [message, setMessage] = useState<string | undefined>();
@@ -72,6 +76,10 @@ export function PaymentForm({
             {dict.payment.downloadPdf}
           </Link>
         </div>
+        <p className="flex items-start gap-2 rounded-md bg-white/70 p-3 text-sm font-medium dark:bg-black/20">
+          <ClockIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          {dict.retention.afterPayment.replace("{date}", formatLongDate(expiresAtIso, locale))}
+        </p>
         <p className="text-xs text-green-800/80 dark:text-green-300/70">{dict.payment.wordHint}</p>
       </div>
     );
@@ -85,6 +93,11 @@ export function PaymentForm({
 
       {status === "pending" && <p className="text-sm text-amber-700 dark:text-amber-400">{message ?? dict.payment.pendingUssd}</p>}
       {status === "failed" && <p className="text-sm text-red-600">{message ?? dict.payment.failed}</p>}
+
+      <p className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-200">
+        <ClockIcon className="mt-0.5 h-4 w-4 shrink-0" />
+        {dict.retention.beforePayment}
+      </p>
 
       <button
         type="button"

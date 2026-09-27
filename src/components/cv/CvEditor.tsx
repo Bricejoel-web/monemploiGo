@@ -535,6 +535,7 @@ export function CvEditor({
             </button>
           </div>
           {saveError && <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>}
+          <p className="text-xs text-black/50 dark:text-white/50">{dict.retention.editorDraftHint}</p>
         </div>
       </div>
 

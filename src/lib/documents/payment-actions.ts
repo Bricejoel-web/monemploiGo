@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/client";
 import { getGateway } from "@/lib/payment";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { rateLimit } from "@/lib/security/rate-limit";
+import { markDocumentPaid } from "@/lib/documents/retention";
 
 export interface PaymentActionResult {
   status: "success" | "pending" | "failed";
@@ -68,7 +69,7 @@ export async function initiatePaymentAction(documentId: string): Promise<Payment
   if (result.status === "success") {
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS", providerRef: result.providerRef } }),
-      prisma.document.update({ where: { id: document.id }, data: { status: "PAID" } }),
+      markDocumentPaid(document.id),
     ]);
     return { status: "success", paymentId: payment.id };
   }
@@ -98,7 +99,7 @@ export async function checkPaymentStatusAction(paymentId: string): Promise<Payme
   if (result.status === "success") {
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS" } }),
-      prisma.document.update({ where: { id: payment.documentId }, data: { status: "PAID" } }),
+      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
     ]);
   } else if (result.status === "failed") {
     await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });

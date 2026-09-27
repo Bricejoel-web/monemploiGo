@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { verifyNotchPaySignature } from "@/lib/payment";
+import { markDocumentPaid } from "@/lib/documents/retention";
 
 /**
  * Notification serveur-à-serveur Notch Pay. D'après leur documentation
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
   if (event.type === "payment.complete" && status === "complete") {
     await prisma.$transaction([
       prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS", providerRef: notchReference ?? payment.providerRef } }),
-      prisma.document.update({ where: { id: payment.documentId }, data: { status: "PAID" } }),
+      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
     ]);
     console.log("[notchpay-webhook] paiement confirmé", ourReference);
   } else if (
