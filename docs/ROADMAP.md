@@ -839,11 +839,8 @@ Signalé par l'utilisateur : le bouton d'ajout de photo des CV est difficile à 
 
 Vérifié : 17/17 (bouton visible, plus de case, fichier illisible → message, vraie photo → miniature + aperçu, taille, retrait, enregistrement et réouverture avec photo, ATS sans bouton, Allemagne avec bouton, anglais, mouvements réduits, aucun débordement à 360 px, aucune erreur JavaScript).
 
-## Logo dans l'e-mail de bienvenue (2026-09-28)
+## Logo dans l'e-mail de bienvenue : essayé puis abandonné (2026-09-28)
 
-Signalé par l'utilisateur : la photo de profil du compte Gmail du site (visibilité « Tout le monde », vérifiée par l'utilisateur) n'apparaît pas chez les destinataires. L'affichage de cet avatar est décidé par Gmail seul (délai de propagation, dossier spam, expéditeur inconnu du destinataire) et n'existe pas dans les autres messageries ; la norme qui permet d'imposer un logo (BIMI) exige un domaine propre et un certificat payant. Solution sous notre contrôle : le logo est désormais **dans l'e-mail**, en haut à gauche de « monemploiGo ».
+Tentative d'ajouter le logo en haut de l'e-mail de bienvenue (la photo de profil du compte Gmail du site n'apparaît pas chez les destinataires ; son affichage dépend de Gmail seul). Structure MIME vérifiée correcte (multipart/related, `Content-ID` cohérent, image identique à l'original, 10/10 sur mail-tester). Pourtant, dans le Gmail de l'utilisateur, **aucune** des trois méthodes testées dans un même e-mail ne s'affichait : image intégrée (CID) avec l'identifiant d'origine, image intégrée avec un identifiant au format adresse complète, et image hébergée en HTTPS. Le blocage vient donc de l'affichage des images côté Gmail (réglage de l'appareil ou méfiance envers ce nouvel expéditeur), pas de l'e-mail.
 
-- Image **intégrée (CID)** plutôt qu'un lien vers le site : une image distante est bloquée par défaut dans plusieurs messageries (Outlook), une image intégrée s'affiche partout.
-- PNG 96 × 96 transparent (3 Ko, affiché à 40 px pour rester net) encodé en base64 dans `src/lib/email/logo.ts` : un fichier lu à l'envoi risquerait de ne pas être inclus dans la fonction serverless Vercel.
-- `mailer.ts` accepte des images intégrées (`inlineImages`).
-- Vérifié : toujours **10/10 sur mail-tester** (image reconnue comme intégrée, pas comme pièce jointe), rendu contrôlé, e-mail réel envoyé à l'utilisateur.
+**Décision de l'utilisateur : abandonner, ne rien ajouter.** Les deux commits ont été annulés (retour à l'e-mail en production). Piste non explorée, si le sujet revient : dessiner le logo en HTML/CSS (aucune image, donc jamais d'icône cassée), après avoir d'abord confirmé si les images sont bloquées pour tous les destinataires ou seulement sur l'appareil de l'utilisateur.

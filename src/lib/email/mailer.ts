@@ -19,8 +19,6 @@ export interface OutgoingEmail {
   text: string;
   /** Adresse utilisée quand on clique sur "Répondre". */
   replyTo?: string;
-  /** Images intégrées, référencées dans le HTML par `cid:<cid>`. */
-  inlineImages?: { filename: string; content: Buffer; contentType: string; cid: string }[];
 }
 
 /** Vrai si l'envoi d'e-mails est configuré (sinon, aucun e-mail ne part). */
@@ -60,7 +58,6 @@ export async function sendEmail(email: OutgoingEmail): Promise<boolean> {
       html: email.html,
       text: email.text,
       replyTo: email.replyTo,
-      attachments: email.inlineImages?.map((image) => ({ ...image, contentDisposition: "inline" as const })),
     });
     return true;
   } catch (error) {
