@@ -60,9 +60,8 @@
     "rightsReserved": "Tous droits réservés."
   },
   "cookies": {
-    "message": "Nous utilisons des cookies pour assurer le bon fonctionnement du site, mémoriser vos préférences et améliorer votre expérience.",
-    "accept": "Accepter",
-    "decline": "Refuser",
+    "message": "Ce site utilise uniquement des cookies nécessaires à son fonctionnement (connexion et langue). Aucun cookie publicitaire ni de mesure d'audience.",
+    "acknowledge": "Compris",
     "learnMore": "En savoir plus"
   },
   "legal": {
@@ -70,25 +69,23 @@
       "title": "Mentions légales",
       "content": "monemploiGo est une plateforme en ligne de création de CV et de lettres de motivation, destinée en priorité aux utilisateurs situés en Afrique francophone et anglophone. Les prix affichés sont exprimés en francs CFA (FCFA). Pour toute question, vous pouvez nous contacter via l'adresse indiquée sur le site."
     },
-    "privacy": {
-      "title": "Politique de confidentialité",
-      "intro": "Cette politique explique quelles données nous collectons, pourquoi, et comment vous pouvez les contrôler.",
-      "dataTitle": "Données collectées",
-      "dataContent": "Nous collectons votre nom, votre adresse e-mail et votre mot de passe (chiffré) lors de la création de compte, ainsi que le contenu des CV et lettres que vous créez (y compris une photo, si vous choisissez d'en ajouter une). Ces informations restent la propriété de l'utilisateur. Votre adresse e-mail sert aussi à vous envoyer les messages liés à votre compte, comme l'e-mail de bienvenue après l'inscription ; ces messages sont envoyés via le service Gmail de Google. Si vous nous donnez votre avis (note et commentaire), il sert uniquement à améliorer le service ; il n'est pas publié sur le site et il est supprimé avec votre compte. Durée de conservation : un document payé est supprimé automatiquement 3 semaines après le paiement, et un brouillon 3 semaines après sa dernière modification (photo comprise). Seul l'historique des paiements (montant, date, statut), sans le contenu du document, est conservé pour la comptabilité.",
-      "paymentTitle": "Paiement",
-      "paymentContent": "Les paiements sont traités par nos partenaires MTN Mobile Money et Orange Money. Nous ne stockons jamais vos identifiants ou codes de paiement mobile.",
-      "cookiesTitle": "Cookies",
-      "cookiesContent": "Nous utilisons des cookies essentiels (session de connexion, préférence de langue) et, avec votre accord, des cookies de mesure d'audience. Voir notre politique de cookies pour plus de détails.",
-      "rightsTitle": "Vos droits",
-      "rightsContent": "Vous pouvez à tout moment consulter, modifier ou supprimer vos données depuis votre tableau de bord, y compris supprimer définitivement votre compte."
-    },
     "terms": {
       "title": "Conditions d'utilisation",
       "content": "En créant un compte sur monemploiGo, vous acceptez d'utiliser le service de manière loyale, de fournir des informations exactes, et de ne pas tenter de porter atteinte à la sécurité du site. Les documents achetés sont destinés à un usage personnel. Toute tentative de piratage, d'intrusion ou d'usage frauduleux du service entraînera la suspension du compte concerné."
     },
     "cookiePolicy": {
       "title": "Politique de cookies",
-      "content": "Les cookies essentiels permettent de vous garder connecté et de mémoriser votre langue préférée. Ils sont nécessaires au fonctionnement du site et ne peuvent pas être désactivés. Vous pouvez gérer les cookies non essentiels via la bannière affichée lors de votre première visite."
+      "intro": "MonEmploiGo utilise uniquement des cookies strictement nécessaires au fonctionnement du site :",
+      "items": [
+        "« monemploigo_session » : vous garde connecté à votre compte de façon sécurisée (30 jours) ;",
+        "« NEXT_LOCALE » : mémorise la langue choisie, français ou anglais (1 an)."
+      ],
+      "paragraphs": [
+        "Ces cookies sont indispensables : sans eux, vous ne pourriez pas rester connecté. Ils ne servent ni à la publicité ni à la mesure d'audience.",
+        "Le site mémorise aussi dans votre navigateur (stockage local) quelques préférences, sans les transmettre à MonEmploiGo : la lecture de la bannière d'information sur les cookies, le report de la demande d'avis (« Plus tard », 30 jours) et le masquage de la bande d'informations pendant votre visite.",
+        "Aucun cookie publicitaire ni outil de mesure d'audience n'est utilisé.",
+        "Les polices de caractères (Google Fonts) et les photos d'exemple des modèles (Unsplash) sont chargées depuis les serveurs de ces services : votre navigateur leur transmet votre adresse IP. Pour en savoir plus, consultez notre Politique de confidentialité."
+      ]
     }
   },
   "common": {

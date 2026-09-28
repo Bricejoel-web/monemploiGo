@@ -18,6 +18,15 @@ export interface PaymentActionResult {
   processing?: boolean;
 }
 
+const SERVICE_LABELS = {
+  STANDARD: "CV Standard",
+  PREMIUM: "CV Premium",
+  ATS: "CV ATS",
+  GERMAN_ATS: "CV Allemagne (ATS)",
+  COVER_LETTER: "Lettre de motivation",
+  BEWERBUNGSBRIEF: "Bewerbungsbrief",
+} as const;
+
 async function getDocumentAmount(documentId: string, userId: string) {
   const document = await prisma.document.findFirst({
     where: { id: documentId, userId },
@@ -73,7 +82,10 @@ export async function initiatePaymentAction(documentId: string): Promise<Payment
     provider: "NOTCHPAY",
     amountFcfa: amount,
     reference: payment.id,
-    description: `monemploiGo — ${document.title}`,
+    // Nature du service uniquement : le titre du document contient le nom
+    // complet du client, inutile au paiement (minimisation des données
+    // transmises à Notch Pay, voir la politique de confidentialité §9).
+    description: `monemploiGo — ${SERVICE_LABELS[document.type === "CV" ? (document.category ?? "STANDARD") : document.type]}`,
     userId: session.userId,
     email: user.email,
   });

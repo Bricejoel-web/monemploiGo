@@ -868,3 +868,19 @@ L'utilisateur a fourni une nouvelle version complète des CGU (27 sections, dat�
 `legal-config.ts` : `lastUpdated` → 29 septembre 2026 (sert aussi de `TERMS_VERSION` enregistrée à l'inscription), `contactEmail` → `monemploigo.contact@gmail.com` (vérifié identique au compte Gmail qui envoie les e-mails du site), nouveau `siteUrl`, et `lastUpdatedEn` pour que la version anglaise n'affiche plus la date en français. Téléphone et adresse restent des placeholders, désormais non affichés.
 
 Vérifié : 27 sections en FR et en EN, date, contact et lien du site présents, aucun reste de l'ancienne version, aucun débordement à 390 px.
+
+## Politique de confidentialité : audit puis intégration (2026-09-29)
+
+L'utilisateur a fourni une nouvelle politique de confidentialité (29 septembre 2026) en demandant de **ne pas la copier telle quelle** : chaque affirmation a été confrontée au fonctionnement réel (base Neon — pas de Firebase —, stockage des documents, cookies, journaux, services tiers, Notch Pay), les écarts signalés, puis corrigés avec son accord.
+
+**Constats de l'audit** : aucune revente ni outil de mesure d'audience ; mots de passe hachés (bcrypt) ; règles des 21 jours réellement appliquées ; aucun code PIN ni numéro Mobile Money stocké (saisi chez Notch Pay) ; OpenAI désactivé en production (pas de clé) ; **toutes les données hébergées aux États-Unis** (Neon AWS us-east-2 / Ohio, fonctions Vercel iad1 / Washington, vérifié par l'en-tête `x-vercel-id`) ; Google Fonts et Unsplash chargés par le navigateur (IP transmise) ; aucune fonction « mot de passe oublié » ni modification du profil.
+
+**Corrections du texte** (détaillées en tête de `privacy-content.ts`) : note interne « À compléter… » non publiée, reste « PRC » retiré, formulations de consignes internes rendues factuelles, avis des utilisateurs ajoutés (nouvelle §8, sections renumérotées → 29), champs du CV Allemagne, données réellement transmises à Notch Pay, prestataires nommés, hébergement aux États-Unis, « surveillance » remplacée par la limitation des tentatives, suppression de compte décrite telle qu'elle est.
+
+**Décisions de l'utilisateur** : (1) supprimer un compte efface **aussi l'historique des paiements** (comportement actuel conservé ; texte §17-18 aligné, **réserve légale de conservation gardée**) ; (2) bannière « Accepter / Refuser » remplacée par une **simple information** (« Compris ») — le site ne dépose que des cookies strictement nécessaires (`monemploigo_session`, `NEXT_LOCALE`) ; page « Politique de cookies » réécrite en conséquence ; (3) **libellé du paiement Notch Pay sans le nom du client** (« monemploiGo — CV Premium ») : le titre du document, qui contient le nom complet, était transmis ; (4) note du §1 non publiée.
+
+Code : format commun des documents juridiques (`document-types.ts`, `LegalDocumentView`, sous-titres `h3`) utilisé par les CGU et la confidentialité ; date propre à la politique (`privacyLastUpdated`) ; ancien texte `legal.privacy` retiré des dictionnaires ; journal d'e-mail désactivé sans le prénom.
+
+Vérifié : 15/15 (29 sections FR/EN, corrections présentes et passages retirés absents, CGU toujours 27 sections, cookies réels listés, bannière « Compris » qui ne revient pas, seul `NEXT_LOCALE` déposé pour un visiteur, Notch Pay reçoit « monemploiGo — CV Premium », aucun téléphone stocké, suppression de compte → compte, documents, paiements et avis effacés).
+
+**⚠️ Reste hors code, signalé à l'utilisateur** : identité juridique de l'exploitant à publier ; loi n°2024/017 (délai de mise en conformité échu le 23 juin 2026, autorisation préalable des traitements et des transferts hors du Cameroun, autorité de protection signalée comme non encore créée en juillet 2025) — avis d'un juriste recommandé ; fonction « mot de passe oublié » à prévoir.

@@ -6,7 +6,10 @@ import { prisma } from "@/lib/db/client";
 // - document payé : retéléchargeable gratuitement pendant 3 semaines à
 //   partir du paiement, puis supprimé ;
 // - brouillon : supprimé après 3 semaines sans modification.
-// Les paiements eux-mêmes ne sont jamais supprimés (voir schema.prisma).
+// Les paiements survivent à la suppression automatique de leur document
+// (lien simplement vidé, voir schema.prisma), mais sont supprimés avec le
+// compte de l'utilisateur (choix de l'utilisateur du 2026-09-29, politique
+// de confidentialité §17-18).
 export const RETENTION_DAYS = 21;
 const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
 

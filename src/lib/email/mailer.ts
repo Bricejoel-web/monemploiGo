@@ -47,7 +47,8 @@ function getTransporter(): Transporter | null {
 export async function sendEmail(email: OutgoingEmail): Promise<boolean> {
   const transport = getTransporter();
   if (!transport) {
-    console.info("[email] envoi désactivé (GMAIL_USER / GMAIL_APP_PASSWORD absents) :", email.subject);
+    // Sans le sujet : il peut contenir le prénom du destinataire.
+    console.info("[email] envoi désactivé (GMAIL_USER / GMAIL_APP_PASSWORD absents)");
     return false;
   }
   try {

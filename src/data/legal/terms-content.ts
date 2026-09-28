@@ -1,4 +1,5 @@
 import { LEGAL_CONFIG } from "./legal-config";
+import { list, p, type LegalDocument } from "./document-types";
 
 /**
  * Contenu complet des Conditions Générales d'Utilisation (CGU), fourni tel
@@ -13,23 +14,8 @@ import { LEGAL_CONFIG } from "./legal-config";
  * français prévaut (précisé dans l'introduction de la version EN).
  */
 
-export type TermsBlock = { type: "p"; text: string } | { type: "list"; items: string[] };
-export interface TermsSection {
-  heading: string;
-  blocks: TermsBlock[];
-}
-export interface TermsContent {
-  title: string;
-  lastUpdatedLabel: string;
-  intro: TermsBlock[];
-  sections: TermsSection[];
-  closing: string;
-}
 
-const p = (text: string): TermsBlock => ({ type: "p", text });
-const list = (items: string[]): TermsBlock => ({ type: "list", items });
-
-export const TERMS_CONTENT: Record<"fr" | "en", TermsContent> = {
+export const TERMS_CONTENT: Record<"fr" | "en", LegalDocument> = {
   fr: {
     title: "Conditions générales d'utilisation — MonEmploiGo",
     lastUpdatedLabel: `Dernière mise à jour : ${LEGAL_CONFIG.lastUpdated}`,

@@ -60,9 +60,8 @@
     "rightsReserved": "All rights reserved."
   },
   "cookies": {
-    "message": "We use cookies to keep the site running, remember your preferences and improve your experience.",
-    "accept": "Accept",
-    "decline": "Decline",
+    "message": "This site only uses cookies necessary for it to work (login and language). No advertising or audience measurement cookies.",
+    "acknowledge": "Got it",
     "learnMore": "Learn more"
   },
   "legal": {
@@ -70,25 +69,23 @@
       "title": "Legal notice",
       "content": "monemploiGo is an online platform for building resumes and cover letters, primarily aimed at users across French- and English-speaking Africa. Prices are shown in CFA francs (FCFA). For any question, you can contact us via the address listed on the site."
     },
-    "privacy": {
-      "title": "Privacy policy",
-      "intro": "This policy explains what data we collect, why, and how you can control it.",
-      "dataTitle": "Data we collect",
-      "dataContent": "We collect your name, email address and password (encrypted) when you create an account, as well as the content of the resumes and letters you create (including a photo, if you choose to add one). This information remains the property of the user. Your email address is also used to send you messages related to your account, such as the welcome email after registration; these messages are sent through Google's Gmail service. If you give us your review (rating and comment), it is used only to improve the service; it is not published on the site and it is deleted with your account. Retention period: a paid document is deleted automatically 3 weeks after payment, and a draft 3 weeks after its last edit (photo included). Only the payment history (amount, date, status), without the document's content, is kept for accounting purposes.",
-      "paymentTitle": "Payment",
-      "paymentContent": "Payments are processed by our partners MTN Mobile Money and Orange Money. We never store your mobile payment credentials or codes.",
-      "cookiesTitle": "Cookies",
-      "cookiesContent": "We use essential cookies (login session, language preference) and, with your consent, audience-measurement cookies. See our cookie policy for details.",
-      "rightsTitle": "Your rights",
-      "rightsContent": "You can view, change or delete your data at any time from your dashboard, including permanently deleting your account."
-    },
     "terms": {
       "title": "Terms of use",
       "content": "By creating an account on monemploiGo, you agree to use the service fairly, provide accurate information, and not attempt to compromise the site's security. Purchased documents are for personal use. Any attempt to hack, intrude on, or fraudulently use the service will result in the account being suspended."
     },
     "cookiePolicy": {
       "title": "Cookie policy",
-      "content": "Essential cookies keep you logged in and remember your preferred language. They are required for the site to work and cannot be disabled. You can manage non-essential cookies via the banner shown on your first visit."
+      "intro": "MonEmploiGo only uses cookies that are strictly necessary for the site to work:",
+      "items": [
+        "\"monemploigo_session\": keeps you securely logged in to your account (30 days);",
+        "\"NEXT_LOCALE\": remembers the language you chose, French or English (1 year)."
+      ],
+      "paragraphs": [
+        "These cookies are essential: without them, you could not stay logged in. They are not used for advertising or audience measurement.",
+        "The site also remembers a few preferences in your browser (local storage), without sending them to MonEmploiGo: that you have read the cookie information banner, the postponed review request (\"Later\", 30 days), and hiding the information ticker during your visit.",
+        "No advertising cookies or audience measurement tools are used.",
+        "The fonts (Google Fonts) and the sample photos in the templates (Unsplash) are loaded from these services' servers: your browser sends them your IP address. To learn more, see our Privacy Policy."
+      ]
     }
   },
   "common": {

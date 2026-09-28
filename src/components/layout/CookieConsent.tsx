@@ -20,9 +20,15 @@ export function CookieConsent({ locale, dict }: { locale: Locale; dict: Dictiona
     });
   }, []);
 
-  const respond = (value: "accepted" | "declined") => {
+  // Simple information : le site ne dépose que des cookies strictement
+  // nécessaires (connexion, langue), il n'y a donc aucun consentement à
+  // recueillir. L'ancienne bannière « Accepter / Refuser » demandait un
+  // accord pour des cookies non essentiels qui n'existaient pas. Si un outil
+  // de mesure d'audience est ajouté un jour, il faudra revenir à un vrai
+  // choix, et ne charger cet outil qu'après acceptation.
+  const acknowledge = () => {
     try {
-      localStorage.setItem(STORAGE_KEY, value);
+      localStorage.setItem(STORAGE_KEY, "acknowledged");
     } catch {
       // ignore
     }
@@ -40,22 +46,13 @@ export function CookieConsent({ locale, dict }: { locale: Locale; dict: Dictiona
             {dict.cookies.learnMore}
           </Link>
         </p>
-        <div className="flex shrink-0 gap-2">
-          <button
-            type="button"
-            onClick={() => respond("declined")}
-            className="rounded-full border border-black/15 px-4 py-2 text-xs font-semibold dark:border-white/20"
-          >
-            {dict.cookies.decline}
-          </button>
-          <button
-            type="button"
-            onClick={() => respond("accepted")}
-            className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background"
-          >
-            {dict.cookies.accept}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={acknowledge}
+          className="shrink-0 rounded-full bg-foreground px-5 py-2 text-xs font-semibold text-background"
+        >
+          {dict.cookies.acknowledge}
+        </button>
       </div>
     </div>
   );

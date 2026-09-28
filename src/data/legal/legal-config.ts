@@ -16,6 +16,10 @@ export const LEGAL_CONFIG = {
   lastUpdated: "29 septembre 2026",
   // Même date, pour la version anglaise des CGU (affichage uniquement).
   lastUpdatedEn: "September 29, 2026",
+  // Politique de confidentialité : date propre, indépendante de la version
+  // des CGU enregistrée à l'inscription.
+  privacyLastUpdated: "29 septembre 2026",
+  privacyLastUpdatedEn: "September 29, 2026",
   contactEmail: "monemploigo.contact@gmail.com",
   siteUrl: "https://monemploigo.vercel.app",
   contactPhone: "[numéro à compléter]",
