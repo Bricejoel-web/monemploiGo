@@ -860,3 +860,11 @@ Tentative d'ajouter le logo en haut de l'e-mail de bienvenue (la photo de profil
 Point unique de validation : `src/lib/payment/settle.ts`. Vérifié : 40/40 en sandbox (MTN, Orange, échec, annulation, expiration, abandon, retour sans session, onglet resté ouvert, montant faux, webhook signé/faux/montant/devise/rejoué, validations simultanées, purge), FR/EN, 390 px.
 
 **Restant côté Notch Pay / utilisateur avant la production** : clés de production (le site est encore en sandbox), enregistrement du webhook de production (aucun n'est enregistré), et revérifier en réel le cas « fonds insuffisants » (le numéro de test sandbox renvoie « complete »).
+
+## Nouvelles CGU (2026-09-29)
+
+L'utilisateur a fourni une nouvelle version complète des CGU (27 sections, datée du 29 septembre 2026) : reprise **mot pour mot** en français dans `terms-content.ts`, et traduite en anglais pour la version EN (le français prévaut, rappelé dans l'introduction EN). Principaux changements de fond : service **destiné au Cameroun** (nouvelle section 2 « Territoire et public concerné » : prix en XAF, moyens de paiement camerounais, candidatures à l'étranger toujours possibles), droit camerounais explicitement applicable, section « Confirmation du paiement » cohérente avec la validation côté serveur (voir l'audit du paiement), contact réduit à l'e-mail et au site.
+
+`legal-config.ts` : `lastUpdated` → 29 septembre 2026 (sert aussi de `TERMS_VERSION` enregistrée à l'inscription), `contactEmail` → `monemploigo.contact@gmail.com` (vérifié identique au compte Gmail qui envoie les e-mails du site), nouveau `siteUrl`, et `lastUpdatedEn` pour que la version anglaise n'affiche plus la date en français. Téléphone et adresse restent des placeholders, désormais non affichés.
+
+Vérifié : 27 sections en FR et en EN, date, contact et lien du site présents, aucun reste de l'ancienne version, aucun débordement à 390 px.
