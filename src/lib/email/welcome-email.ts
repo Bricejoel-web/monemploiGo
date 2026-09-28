@@ -2,6 +2,7 @@ import "server-only";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { sendEmail, type OutgoingEmail } from "./mailer";
+import { EMAIL_LOGO_CID, emailLogoAttachment } from "./logo";
 
 const NAVY = "#16324f";
 const BRAND = "#eb5757";
@@ -81,7 +82,12 @@ export async function buildWelcomeEmail({
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;">
         <tr>
           <td style="background:${NAVY};padding:22px 28px;border-bottom:4px solid ${BRAND};">
-            <span style="font-size:22px;font-weight:bold;color:#ffffff;">monemploi</span><span style="font-size:22px;font-weight:bold;color:${BRAND};">Go</span>
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td valign="middle" style="padding-right:10px;"><img src="cid:${EMAIL_LOGO_CID}" width="40" height="40" alt="" style="display:block;width:40px;height:40px;border:0;"></td>
+                <td valign="middle"><span style="font-size:22px;font-weight:bold;color:#ffffff;">monemploi</span><span style="font-size:22px;font-weight:bold;color:${BRAND};">Go</span></td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr>
@@ -153,7 +159,7 @@ export async function buildWelcomeEmail({
     t.footer,
   ].join("\n");
 
-  return { to, subject, html, text };
+  return { to, subject, html, text, inlineImages: [emailLogoAttachment] };
 }
 
 export async function sendWelcomeEmail(params: { to: string; firstName: string; locale: Locale }): Promise<boolean> {

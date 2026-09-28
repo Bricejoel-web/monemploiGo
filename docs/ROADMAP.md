@@ -838,3 +838,12 @@ Signalé par l'utilisateur : le bouton d'ajout de photo des CV est difficile à 
 **Défaut découvert en vérifiant (déjà en production)** : sur ordinateur, l'aperçu A4 des **trois éditeurs** rétrécissait en quelques secondes jusqu'à ~150 px de large. Cause racine : colonne de grille `auto` (largeur = contenu) + `EditorA4Preview` qui calcule son zoom depuis la largeur de cette colonne avec une marge de 2 % → boucle de rétroaction (chaque mesure réduisait la largeur, ce qui relançait une mesure). Correction : colonne d'aperçu de largeur fixe sur bureau (`lg:grid-cols-[minmax(0,1fr)_480px]`, soit le zoom 0.55 d'origine), commentaire d'avertissement dans `EditorA4Preview`. Mesuré avant/après à 0,3 s, 1,5 s et 4 s : avant 329 → 226 → 150 px (1920 px) ; après 480 px stables à 1024, 1280 et 1920 px sur les 3 éditeurs, mobile inchangé (pleine largeur).
 
 Vérifié : 17/17 (bouton visible, plus de case, fichier illisible → message, vraie photo → miniature + aperçu, taille, retrait, enregistrement et réouverture avec photo, ATS sans bouton, Allemagne avec bouton, anglais, mouvements réduits, aucun débordement à 360 px, aucune erreur JavaScript).
+
+## Logo dans l'e-mail de bienvenue (2026-09-28)
+
+Signalé par l'utilisateur : la photo de profil du compte Gmail du site (visibilité « Tout le monde », vérifiée par l'utilisateur) n'apparaît pas chez les destinataires. L'affichage de cet avatar est décidé par Gmail seul (délai de propagation, dossier spam, expéditeur inconnu du destinataire) et n'existe pas dans les autres messageries ; la norme qui permet d'imposer un logo (BIMI) exige un domaine propre et un certificat payant. Solution sous notre contrôle : le logo est désormais **dans l'e-mail**, en haut à gauche de « monemploiGo ».
+
+- Image **intégrée (CID)** plutôt qu'un lien vers le site : une image distante est bloquée par défaut dans plusieurs messageries (Outlook), une image intégrée s'affiche partout.
+- PNG 96 × 96 transparent (3 Ko, affiché à 40 px pour rester net) encodé en base64 dans `src/lib/email/logo.ts` : un fichier lu à l'envoi risquerait de ne pas être inclus dans la fonction serverless Vercel.
+- `mailer.ts` accepte des images intégrées (`inlineImages`).
+- Vérifié : toujours **10/10 sur mail-tester** (image reconnue comme intégrée, pas comme pièce jointe), rendu contrôlé, e-mail réel envoyé à l'utilisateur.
