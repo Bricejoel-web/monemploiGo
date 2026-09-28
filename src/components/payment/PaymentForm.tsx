@@ -72,7 +72,7 @@ export function PaymentForm({
   const handlePay = () => {
     startTransition(async () => {
       const result = await initiatePaymentAction(documentId);
-      setMessage(result.message);
+      setMessage(result.processing ? dict.payment.processing : result.message);
       if (result.status === "success") {
         setStatus("success");
       } else if (result.status === "pending") {

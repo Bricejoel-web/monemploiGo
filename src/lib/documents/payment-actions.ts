@@ -6,7 +6,7 @@ import { getGateway } from "@/lib/payment";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { markDocumentPaid } from "@/lib/documents/retention";
-import { settlePayment } from "@/lib/payment/settle";
+import { refreshPendingPayments, settlePayment } from "@/lib/payment/settle";
 
 export interface PaymentActionResult {
   status: "success" | "pending" | "failed";
@@ -14,6 +14,8 @@ export interface PaymentActionResult {
   paymentId?: string;
   /** Présent quand le client doit être redirigé vers une page de paiement externe (CinetPay). */
   redirectUrl?: string;
+  /** Un paiement précédent est en cours de confirmation chez l'opérateur. */
+  processing?: boolean;
 }
 
 async function getDocumentAmount(documentId: string, userId: string) {
@@ -43,6 +45,15 @@ export async function initiatePaymentAction(documentId: string): Promise<Payment
   }
 
   const { document, amount } = await getDocumentAmount(documentId, session.userId);
+
+  // Jamais de second paiement pour un même document : un onglet resté
+  // ouvert sur la page de paiement proposait encore « Payer » après un
+  // paiement réussi ailleurs, et créait un nouveau paiement. On règle
+  // d'abord les paiements en attente de ce document auprès de Notch Pay.
+  const { processingPaymentId } = await refreshPendingPayments({ userId: session.userId, documentId: document.id });
+  const current = await prisma.document.findUnique({ where: { id: document.id }, select: { status: true } });
+  if (current?.status === "PAID") return { status: "success" };
+  if (processingPaymentId) return { status: "pending", paymentId: processingPaymentId, processing: true };
 
   const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { email: true } });
   if (!user) return { status: "failed", message: "Session expirée, reconnectez-vous." };
