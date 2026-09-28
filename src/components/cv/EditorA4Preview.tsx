@@ -11,6 +11,14 @@ import { CheckIcon, WarningIcon } from "@/components/home/icons";
 // reste). On mesure la largeur réellement disponible et on calcule un zoom
 // qui fait toujours tenir la page entière, plafonné à 0.55 pour ne rien
 // changer au rendu bureau existant.
+//
+// IMPORTANT : le conteneur mesuré ne doit jamais avoir une largeur qui
+// dépend de ce contenu. Les éditeurs utilisaient une colonne `auto` (taille
+// = contenu) : zoom calculé depuis la largeur, largeur issue du zoom, avec
+// la marge de 2 % ci-dessous, chaque mesure rétrécissait l'aperçu, ce qui
+// relançait une mesure — jusqu'à ~150 px en quelques secondes sur bureau.
+// Les éditeurs donnent donc à cette colonne une largeur fixe sur bureau
+// (`lg:grid-cols-[minmax(0,1fr)_480px]` : 480 − cadre ≈ 446 px → zoom 0.55).
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
 // Petite tolérance (arrondis/anti-aliasing) avant de considérer qu'une

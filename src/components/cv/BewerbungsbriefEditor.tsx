@@ -131,7 +131,7 @@ export function BewerbungsbriefEditor({
 
   return (
     <div className="bg-dot-grid relative bg-[#efe6d8] py-10 dark:bg-white/[0.05]">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 lg:grid-cols-[1fr_auto]">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 lg:grid-cols-[minmax(0,1fr)_480px]">
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.personalInfo}</h2>

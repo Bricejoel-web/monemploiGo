@@ -7,6 +7,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { CvRenderer } from "./CvRenderer";
 import { EditorA4Preview } from "./EditorA4Preview";
+import { PhotoPicker } from "./PhotoPicker";
 import { Field } from "./FormField";
 import { saveCvDocument } from "@/lib/documents/actions";
 
@@ -139,11 +140,31 @@ export function CvEditor({
   // au clic sur Enregistrer et payer). On redimensionne donc et recompresse
   // la photo côté client avant de la stocker — largement suffisant pour une
   // photo de CV, et qui tient toujours sous la limite.
-  const handlePhotoChange = (file: File | null) => {
-    if (!file) return update("photoDataUrl", null);
+  // Une photo présente est une photo affichée : choisir une photo l'ajoute au
+  // CV, la retirer l'enlève (plus de case "Inclure ma photo" séparée, que les
+  // utilisateurs ne remarquaient pas — voir PhotoPicker).
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const setPhoto = (dataUrl: string) => {
+    update("photoDataUrl", dataUrl);
+    setIncludePhoto(true);
+    setPhotoError(null);
+  };
+  const removePhoto = () => {
+    update("photoDataUrl", null);
+    setIncludePhoto(false);
+    setPhotoError(null);
+  };
+  const handlePhotoChange = (file: File) => {
+    // Sans ce message, un format que le navigateur ne sait pas décoder (HEIC
+    // de certains téléphones, fichier qui n'est pas une image) ne produisait
+    // strictement aucun effet.
+    const fail = () => setPhotoError(dict.editor.photoError);
+    if (!file.type.startsWith("image/")) return fail();
     const reader = new FileReader();
+    reader.onerror = fail;
     reader.onload = () => {
       const img = new window.Image();
+      img.onerror = fail;
       img.onload = () => {
         const maxDim = 500;
         const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
@@ -151,9 +172,9 @@ export function CvEditor({
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext("2d");
-        if (!ctx) return update("photoDataUrl", reader.result as string);
+        if (!ctx) return setPhoto(reader.result as string);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        update("photoDataUrl", canvas.toDataURL("image/jpeg", 0.85));
+        setPhoto(canvas.toDataURL("image/jpeg", 0.85));
       };
       img.src = reader.result as string;
     };
@@ -186,7 +207,7 @@ export function CvEditor({
 
   return (
     <div className="bg-dot-grid relative bg-[#efe6d8] py-10 dark:bg-white/[0.05]">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 lg:grid-cols-[1fr_auto]">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 lg:grid-cols-[minmax(0,1fr)_480px]">
       <div className="flex flex-col gap-6">
         {(template.category === "ATS" || isGerman) && (
           <p className="rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sm text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100">
@@ -241,38 +262,25 @@ export function CvEditor({
           </section>
         )}
 
-        <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-          <h2 className="text-base font-semibold tracking-tight">{dict.editor.photo}</h2>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={includePhoto} onChange={(e) => setIncludePhoto(e.target.checked)} />
-            {dict.editor.includePhoto}
-          </label>
-          {includePhoto && (
-            <>
-              <Field id="photoUpload" label={dict.editor.uploadPhoto}>
-                <input id="photoUpload" type="file" accept="image/*" onChange={(e) => handlePhotoChange(e.target.files?.[0] ?? null)} className="text-sm" />
-              </Field>
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="photoScale" className="text-xs font-semibold tracking-wide text-black/55 uppercase dark:text-white/55">
-                    {dict.editor.photoSize}
-                  </label>
-                  <span className="text-xs font-medium text-black/60 dark:text-white/60">{Math.round((data.photoScale ?? 1) * 100)}%</span>
-                </div>
-                <input
-                  id="photoScale"
-                  type="range"
-                  min={0.7}
-                  max={1.6}
-                  step={0.05}
-                  value={data.photoScale ?? 1}
-                  onChange={(e) => update("photoScale", parseFloat(e.target.value))}
-                  className="w-full"
-                />
-              </div>
-            </>
-          )}
-        </section>
+        {template.category === "ATS" ? (
+          // Les mises en page ATS n'ont aucun emplacement photo (voir
+          // AtsMinimal/AtsExecutif/AtsCompact) : proposer d'en ajouter une
+          // serait un bouton sans effet.
+          <section className="flex flex-col gap-2 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+            <h2 className="text-base font-semibold tracking-tight">{dict.editor.photo}</h2>
+            <p className="text-sm text-black/60 dark:text-white/60">{dict.editor.atsNoPhoto}</p>
+          </section>
+        ) : (
+          <PhotoPicker
+            photoDataUrl={includePhoto ? data.photoDataUrl : null}
+            photoScale={data.photoScale ?? 1}
+            error={photoError}
+            onFile={handlePhotoChange}
+            onRemove={removePhoto}
+            onScaleChange={(scale) => update("photoScale", scale)}
+            labels={dict.editor}
+          />
+        )}
 
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.experience}</h2>
