@@ -2,10 +2,10 @@
   "site": {
     "name": "monemploiGo",
     "tagline": "Build your resume and cover letter in minutes",
-    "description": "monemploiGo helps African talent create professional resumes (standard, premium, ATS) and personalized cover letters, ready to download in PDF (convertible to Word)."
+    "description": "monemploiGo helps job seekers in Cameroon create professional resumes (standard, premium, ATS) and personalized cover letters, ready to download in PDF (convertible to Word)."
   },
   "home": {
-    "heroKicker": "Built for African talent",
+    "heroKicker": "Built for talent in Cameroon",
     "heroTitle": "A professional resume, ready in minutes",
     "heroSubtitle": "Create, personalize and download your resume and cover letter. Pay easily with MTN Mobile Money or Orange Money.",
     "heroCtaPrimary": "Create my free account",
@@ -17,7 +17,7 @@
     "advantagesTitle": "Why choose monemploiGo?",
     "advantage1Title": "Fast and simple",
     "advantage1Text": "Pick a template, fill in your details, download. No design software needed.",
-    "advantage2Title": "Built for Africa",
+    "advantage2Title": "Built for Cameroon",
     "advantage2Text": "Pay with MTN Mobile Money and Orange Money, no bank card required. Prices in CFA francs.",
     "advantage3Title": "ATS optimized",
     "advantage3Text": "Templates designed to pass applicant tracking systems and online job platforms.",
@@ -50,7 +50,7 @@
     "logout": "Log out"
   },
   "footer": {
-    "tagline": "The resume and cover letter platform built for Africa.",
+    "tagline": "The resume and cover letter platform built for Cameroon.",
     "navigationTitle": "Navigation",
     "legalTitle": "Legal",
     "legalNotice": "Legal notice",
@@ -67,7 +67,7 @@
   "legal": {
     "notice": {
       "title": "Legal notice",
-      "content": "monemploiGo is an online platform for building resumes and cover letters, primarily aimed at users across French- and English-speaking Africa. Prices are shown in CFA francs (FCFA). For any question, you can contact us via the address listed on the site."
+      "content": "monemploiGo is an online platform for building resumes and cover letters, aimed at users located in Cameroon. Prices are shown in CFA francs (XAF). For any question, you can contact us via the address listed on the site."
     },
     "terms": {
       "title": "Terms of use",
@@ -130,9 +130,9 @@
     "goToLogin": "Log in",
     "goToSignup": "Create one",
     "logout": "Log out",
-    "heroKicker": "Built for African talent",
+    "heroKicker": "Built for talent in Cameroon",
     "signupHeroTitle": "Join monemploiGo and give your career a new boost",
-    "signupHeroSubtitle": "Create, personalize and download your resume and cover letter in minutes. Professional templates, built for the African job market.",
+    "signupHeroSubtitle": "Create, personalize and download your resume and cover letter in minutes. Professional templates, built for the Cameroonian job market.",
     "loginHeroTitle": "Welcome back",
     "loginHeroSubtitle": "Log in to keep personalizing your resumes and cover letters.",
     "feature1Title": "Access to every template",

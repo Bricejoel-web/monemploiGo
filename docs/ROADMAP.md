@@ -884,3 +884,14 @@ Code : format commun des documents juridiques (`document-types.ts`, `LegalDocume
 Vérifié : 15/15 (29 sections FR/EN, corrections présentes et passages retirés absents, CGU toujours 27 sections, cookies réels listés, bannière « Compris » qui ne revient pas, seul `NEXT_LOCALE` déposé pour un visiteur, Notch Pay reçoit « monemploiGo — CV Premium », aucun téléphone stocké, suppression de compte → compte, documents, paiements et avis effacés).
 
 **⚠️ Reste hors code, signalé à l'utilisateur** : identité juridique de l'exploitant à publier ; loi n°2024/017 (délai de mise en conformité échu le 23 juin 2026, autorisation préalable des traitements et des transferts hors du Cameroun, autorité de protection signalée comme non encore créée en juillet 2025) — avis d'un juriste recommandé ; fonction « mot de passe oublié » à prévoir.
+
+## Site recentré sur le Cameroun (2026-09-29)
+
+Demande de l'utilisateur : vérifier toutes les mentions de l'Afrique et adapter le site au Cameroun uniquement (cohérent avec la décision de lancement du 2026-09-28, les CGU et la politique de confidentialité).
+
+- **Textes (FR/EN)** : description du site (balise meta), accroche de l'accueil et de l'inscription (« Fait pour les talents du Cameroun »), avantage « Fait pour le Cameroun », slogan du pied de page, sous-titre de l'inscription (« marché camerounais »), mentions légales (utilisateurs situés au Cameroun, prix en XAF).
+- **CV et lettres d'exemple** des catalogues : les profils situés à Abidjan, Dakar, Lagos, Nairobi, Accra et Kumasi sont désormais au Cameroun, avec indicatif +237 ; les profils anglais sont placés au **Cameroun anglophone** (Buea, Bamenda, et Douala), le pays étant bilingue. Écoles et employeurs étrangers remplacés par des équivalents camerounais ; « Bolloré Africa Logistics » → « Port Autonome de Douala ». Noms : 4 noms d'Afrique de l'Ouest (FR) et tous les noms nigérians/ghanéens/kényans (EN) remplacés par des noms camerounais (dont anglophones : Ayuk, Tabi, Nkeng, Tanyi, Ebai…). L'exemple de Bewerbungsbrief place la candidate à Douala (et non plus à Berlin), l'employeur restant en Allemagne. Longueurs des textes conservées (mise en page des aperçus).
+- **Illustration** `AfricaNetworkIllustration` (carte Dakar–Nairobi) supprimée : elle n'était plus affichée depuis la refonte de l'accueil.
+- Identifiant interne `africain` (personas) conservé ; commentaires mis à jour.
+
+Vérifié : texte réellement affiché (et description meta) de 23 pages publiques FR/EN — aucune mention de l'Afrique, d'une autre ville ou d'un autre pays africain, ni d'indicatif étranger ; accroches présentes ; aperçu de CV anglais à Bamenda contrôlé visuellement.

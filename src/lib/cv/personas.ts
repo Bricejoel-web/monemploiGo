@@ -15,9 +15,10 @@ export function genderOfPortraitGroup(group: PortraitGroup): Gender {
 }
 
 export function ethnicityOfPortraitGroup(group: PortraitGroup): Ethnicity {
-  // Les personnes métisses reçoivent un nom africain : le site cible avant
-  // tout l'Afrique francophone et anglophone (voir la remarque de
+  // Les personnes métisses reçoivent un nom camerounais : le site est
+  // destiné au Cameroun (décision du 2026-09-28 ; voir aussi la remarque de
   // l'utilisateur sur la majorité noire/métisse du bassin de photos).
+  // L'identifiant interne "africain" est conservé tel quel.
   return group === "homme_blanc" || group === "femme_blanche" ? "europeen" : "africain";
 }
 
@@ -34,13 +35,13 @@ const contentFr: GenderedPersonaContent[] = [
     content: {
       jobTitle: "Comptable",
       email: "contact@email.com",
-      phone: "+225 07 XX XX XX XX",
-      address: "Abidjan, Côte d'Ivoire",
+      phone: "+237 6 XX XX XX XX",
+      address: "Yaoundé, Cameroun",
       summary: "Comptable rigoureuse, 4 ans d'expérience en comptabilité générale et trésorerie de PME.",
       photoDataUrl: null,
       experience: [
-        { role: "Comptable", company: "Groupe Sika", location: "Abidjan", start: "2022", end: "présent", description: "Comptabilité générale, déclarations fiscales, rapprochements bancaires." },
-        { role: "Assistante comptable", company: "Cabinet Fiscia", location: "Abidjan", start: "2020", end: "2022", description: "" },
+        { role: "Comptable", company: "Groupe Sika", location: "Yaoundé", start: "2022", end: "présent", description: "Comptabilité générale, déclarations fiscales, rapprochements bancaires." },
+        { role: "Assistante comptable", company: "Cabinet Fiscia", location: "Yaoundé", start: "2020", end: "2022", description: "" },
       ],
       education: [{ degree: "BTS Comptabilité et Gestion", school: "Institut Supérieur de Commerce", start: "2018", end: "2020" }],
       skills: ["Sage Compta", "Excel avancé", "Fiscalité", "Rigueur"],
@@ -160,15 +161,15 @@ const contentFr: GenderedPersonaContent[] = [
     content: {
       jobTitle: "Développeur web",
       email: "contact@email.com",
-      phone: "+221 77 XX XX XX",
-      address: "Dakar, Sénégal",
+      phone: "+237 6 XX XX XX XX",
+      address: "Yaoundé, Cameroun",
       summary: "Développeur web autodidacte, création de sites et applications pour petites entreprises.",
       photoDataUrl: null,
       experience: [
-        { role: "Développeur web freelance", company: "Indépendant", location: "Dakar", start: "2021", end: "présent", description: "Sites vitrines et e-commerce pour clients locaux." },
-        { role: "Développeur junior", company: "Wave Digital", location: "Dakar", start: "2020", end: "2021", description: "" },
+        { role: "Développeur web freelance", company: "Indépendant", location: "Yaoundé", start: "2021", end: "présent", description: "Sites vitrines et e-commerce pour clients locaux." },
+        { role: "Développeur junior", company: "Wave Digital", location: "Yaoundé", start: "2020", end: "2021", description: "" },
       ],
-      education: [{ degree: "Licence en Informatique", school: "Université Cheikh Anta Diop", start: "2017", end: "2020" }],
+      education: [{ degree: "Licence en Informatique", school: "Université de Yaoundé I", start: "2017", end: "2020" }],
       skills: ["JavaScript", "React", "WordPress", "Gestion de projet"],
       languages: [{ name: "Français", level: "Langue maternelle" }, { name: "Anglais", level: "Courant" }],
     },
@@ -219,7 +220,7 @@ const contentFr: GenderedPersonaContent[] = [
       photoDataUrl: null,
       experience: [
         { role: "Ingénieur logistique", company: "APM Terminals", location: "Douala", start: "2021", end: "présent", description: "Optimisation des flux, -15% des délais de traitement." },
-        { role: "Ingénieur logistique junior", company: "Bolloré Africa Logistics", location: "Douala", start: "2019", end: "2021", description: "" },
+        { role: "Ingénieur logistique junior", company: "Port Autonome de Douala", location: "Douala", start: "2019", end: "2021", description: "" },
       ],
       education: [{ degree: "Diplôme d'Ingénieur en Logistique", school: "Institut Supérieur de Technologie", start: "2016", end: "2019" }],
       skills: ["Supply Chain", "SAP", "Gestion de stock", "Amélioration continue"],
@@ -270,15 +271,15 @@ const contentEn: GenderedPersonaContent[] = [
     content: {
       jobTitle: "Administrative Assistant",
       email: "contact@email.com",
-      phone: "+234 800 000 0000",
-      address: "Lagos, Nigeria",
+      phone: "+237 6XX XXX XXX",
+      address: "Buea, Cameroon",
       summary: "Organized professional with 4 years of experience in administrative management.",
       photoDataUrl: null,
       experience: [
-        { role: "Administrative Assistant", company: "Sika Group", location: "Lagos", start: "2022", end: "Present", description: "Managed client files and tracked budgets." },
-        { role: "Front Desk Officer", company: "Ivoire Hotel", location: "Lagos", start: "2020", end: "2022", description: "" },
+        { role: "Administrative Assistant", company: "Sika Group", location: "Buea", start: "2022", end: "Present", description: "Managed client files and tracked budgets." },
+        { role: "Front Desk Officer", company: "Mountain Hotel", location: "Buea", start: "2020", end: "2022", description: "" },
       ],
-      education: [{ degree: "BSc Business Administration", school: "Lagos Business School", start: "2018", end: "2020" }],
+      education: [{ degree: "BSc Business Administration", school: "University of Buea", start: "2018", end: "2020" }],
       skills: ["Administrative management", "Microsoft Office", "Customer service", "Organization"],
       languages: [{ name: "English", level: "Native" }, { name: "French", level: "Intermediate" }],
     },
@@ -288,17 +289,17 @@ const contentEn: GenderedPersonaContent[] = [
     content: {
       jobTitle: "Registered Nurse",
       email: "contact@email.com",
-      phone: "+254 700 000 000",
-      address: "Nairobi, Kenya",
+      phone: "+237 6XX XXX XXX",
+      address: "Bamenda, Cameroon",
       summary: "Compassionate registered nurse with 3 years of experience in general medicine.",
       photoDataUrl: null,
       experience: [
-        { role: "Registered Nurse", company: "Nairobi General Hospital", location: "Nairobi", start: "2022", end: "Present", description: "Patient care on a 40-bed ward, medical team coordination." },
-        { role: "Nurse Intern", company: "Aga Khan Clinic", location: "Nairobi", start: "2021", end: "2022", description: "" },
+        { role: "Registered Nurse", company: "Bamenda Regional Hospital", location: "Bamenda", start: "2022", end: "Present", description: "Patient care on a 40-bed ward, medical team coordination." },
+        { role: "Nurse Intern", company: "Mbingo Baptist Hospital", location: "Bamenda", start: "2021", end: "2022", description: "" },
       ],
-      education: [{ degree: "Diploma in Nursing", school: "Kenya Medical Training College", start: "2018", end: "2021" }],
+      education: [{ degree: "Diploma in Nursing", school: "Bamenda School of Nursing", start: "2018", end: "2021" }],
       skills: ["Patient care", "Crisis management", "Teamwork", "Medical precision"],
-      languages: [{ name: "English", level: "Native" }, { name: "Swahili", level: "Native" }],
+      languages: [{ name: "English", level: "Native" }, { name: "French", level: "Intermediate" }],
     },
   },
   {
@@ -306,15 +307,15 @@ const contentEn: GenderedPersonaContent[] = [
     content: {
       jobTitle: "Marketing Executive",
       email: "contact@email.com",
-      phone: "+233 24 000 0000",
-      address: "Accra, Ghana",
+      phone: "+237 6XX XXX XXX",
+      address: "Douala, Cameroon",
       summary: "Results-driven marketing executive, track record growing brand awareness.",
       photoDataUrl: null,
       experience: [
-        { role: "Marketing Executive", company: "Unilever Ghana", location: "Accra", start: "2021", end: "Present", description: "Digital campaigns, +30% brand engagement." },
-        { role: "Marketing Assistant", company: "MTN Ghana", location: "Accra", start: "2019", end: "2021", description: "" },
+        { role: "Marketing Executive", company: "Guinness Cameroon", location: "Douala", start: "2021", end: "Present", description: "Digital campaigns, +30% brand engagement." },
+        { role: "Marketing Assistant", company: "MTN Cameroon", location: "Douala", start: "2019", end: "2021", description: "" },
       ],
-      education: [{ degree: "BA Marketing", school: "University of Ghana", start: "2016", end: "2019" }],
+      education: [{ degree: "BA Marketing", school: "University of Buea", start: "2016", end: "2019" }],
       skills: ["Digital marketing", "Brand strategy", "Content creation", "Analytics"],
       languages: [{ name: "English", level: "Native" }],
     },
@@ -324,15 +325,15 @@ const contentEn: GenderedPersonaContent[] = [
     content: {
       jobTitle: "Software Developer",
       email: "contact@email.com",
-      phone: "+233 20 000 0000",
-      address: "Kumasi, Ghana",
+      phone: "+237 6XX XXX XXX",
+      address: "Buea, Cameroon",
       summary: "Self-taught software developer, focused on web applications for small businesses.",
       photoDataUrl: null,
       experience: [
-        { role: "Freelance Web Developer", company: "Self-employed", location: "Kumasi", start: "2021", end: "Present", description: "E-commerce and showcase websites for local clients." },
-        { role: "Junior Developer", company: "Wave Digital", location: "Kumasi", start: "2020", end: "2021", description: "" },
+        { role: "Freelance Web Developer", company: "Self-employed", location: "Buea", start: "2021", end: "Present", description: "E-commerce and showcase websites for local clients." },
+        { role: "Junior Developer", company: "Wave Digital", location: "Buea", start: "2020", end: "2021", description: "" },
       ],
-      education: [{ degree: "BSc Computer Science", school: "KNUST", start: "2017", end: "2020" }],
+      education: [{ degree: "BSc Computer Science", school: "University of Buea", start: "2017", end: "2020" }],
       skills: ["JavaScript", "React", "WordPress", "Project management"],
       languages: [{ name: "English", level: "Native" }],
     },
@@ -341,15 +342,16 @@ const contentEn: GenderedPersonaContent[] = [
 
 // Bassins de prénoms/noms — larges pour garantir un nom unique par modèle,
 // séparés par origine pour que le nom corresponde à l'apparence de la photo
-// affichée (photo d'une personne noire → nom africain, photo d'une personne
-// blanche → nom européen), sans confusion de genre.
+// affichée (photo d'une personne noire → nom camerounais — francophone ou
+// anglophone selon la langue du site —, photo d'une personne blanche → nom
+// européen), sans confusion de genre.
 const namesFr: Record<Ethnicity, { first: Record<Gender, string[]>; last: string[] }> = {
   africain: {
     first: {
       M: ["Moussa", "Kevin", "Steve", "Junior", "Emmanuel", "Patrick", "Yannick", "Cédric", "Franck", "Hervé", "Bertrand", "Aristide", "Landry", "Blaise", "Serge"],
-      F: ["Aïcha", "Aminata", "Célia", "Nadège", "Grace", "Larissa", "Fatou", "Rachel", "Sandrine", "Vanessa", "Carine", "Odile", "Prisca", "Solange", "Chantal"],
+      F: ["Aïcha", "Aminata", "Célia", "Nadège", "Grace", "Larissa", "Mireille", "Rachel", "Sandrine", "Vanessa", "Carine", "Odile", "Prisca", "Solange", "Chantal"],
     },
-    last: ["Koffi", "Diallo", "Naudin", "Mbarga", "Fouda", "Ngo Bell", "Mbia", "Talla", "Ateba", "Nkolo", "Kamdem", "Simo", "Wandji", "Ekani", "Bello", "Tchoua", "Njike", "Fokou", "Meka", "Assiga"],
+    last: ["Essomba", "Nana", "Etoundi", "Mbarga", "Fouda", "Ngo Bell", "Mbia", "Talla", "Ateba", "Nkolo", "Kamdem", "Simo", "Wandji", "Ekani", "Bello", "Tchoua", "Njike", "Fokou", "Meka", "Assiga"],
   },
   europeen: {
     first: {
@@ -363,10 +365,10 @@ const namesFr: Record<Ethnicity, { first: Record<Gender, string[]>; last: string
 const namesEn: Record<Ethnicity, { first: Record<Gender, string[]>; last: string[] }> = {
   africain: {
     first: {
-      M: ["David", "Samuel", "Daniel", "Joseph", "Michael", "Kwame", "Emmanuel", "Peter"],
-      F: ["Amara", "Grace", "Ruth", "Esther", "Blessing", "Patience", "Comfort", "Joy"],
+      M: ["David", "Samuel", "Daniel", "Joseph", "Michael", "Clovis", "Emmanuel", "Peter"],
+      F: ["Brenda", "Grace", "Ruth", "Esther", "Blessing", "Patience", "Comfort", "Joy"],
     },
-    last: ["Okafor", "Mensah", "Wanjiru", "Owusu", "Adeyemi", "Asante", "Nwosu", "Boateng", "Chukwu", "Osei"],
+    last: ["Ayuk", "Tabi", "Nkeng", "Tanyi", "Ebai", "Enow", "Ngwa", "Achu", "Tambe", "Fon"],
   },
   europeen: {
     first: {
@@ -393,7 +395,7 @@ function buildName(seed: string, gender: Gender, ethnicity: Ethnicity, locale: L
 
 /** Choisit un profil dont le genre correspond à la photo affichée, avec un
  * nom unique (rarissime de tomber sur la même combinaison deux fois) et une
- * origine du nom (africaine/européenne) qui correspond à l'apparence de la
+ * origine du nom (camerounaise/européenne) qui correspond à l'apparence de la
  * photo affichée. */
 export function pickPersona(locale: Locale, seed: string, gender: Gender, ethnicity: Ethnicity): CvData {
   const pool = locale === "en" ? contentEn : contentFr;

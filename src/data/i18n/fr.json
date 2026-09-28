@@ -2,10 +2,10 @@
   "site": {
     "name": "monemploiGo",
     "tagline": "Créez votre CV et votre lettre de motivation en quelques minutes",
-    "description": "monemploiGo aide les talents africains à créer des CV professionnels (standard, premium, ATS) et des lettres de motivation personnalisées, prêts à télécharger en PDF (convertibles en Word)."
+    "description": "monemploiGo aide les candidats au Cameroun à créer des CV professionnels (standard, premium, ATS) et des lettres de motivation personnalisées, prêts à télécharger en PDF (convertibles en Word)."
   },
   "home": {
-    "heroKicker": "Fait pour les talents d'Afrique",
+    "heroKicker": "Fait pour les talents du Cameroun",
     "heroTitle": "Un CV professionnel, prêt en quelques minutes",
     "heroSubtitle": "Créez, personnalisez et téléchargez votre CV et votre lettre de motivation. Payez facilement par MTN Mobile Money ou Orange Money.",
     "heroCtaPrimary": "Créer mon compte gratuitement",
@@ -17,7 +17,7 @@
     "advantagesTitle": "Pourquoi choisir monemploiGo ?",
     "advantage1Title": "Rapide et simple",
     "advantage1Text": "Choisissez un modèle, remplissez vos informations, téléchargez. Pas besoin de logiciel de design.",
-    "advantage2Title": "Fait pour l'Afrique",
+    "advantage2Title": "Fait pour le Cameroun",
     "advantage2Text": "Paiement par MTN Mobile Money et Orange Money, sans carte bancaire. Prix en francs CFA.",
     "advantage3Title": "Optimisé ATS",
     "advantage3Text": "Des modèles pensés pour passer les logiciels de tri automatique des recruteurs et des plateformes d'emploi en ligne.",
@@ -50,7 +50,7 @@
     "logout": "Déconnexion"
   },
   "footer": {
-    "tagline": "La plateforme de CV et lettres de motivation pensée pour l'Afrique.",
+    "tagline": "La plateforme de CV et lettres de motivation pensée pour le Cameroun.",
     "navigationTitle": "Navigation",
     "legalTitle": "Légal",
     "legalNotice": "Mentions légales",
@@ -67,7 +67,7 @@
   "legal": {
     "notice": {
       "title": "Mentions légales",
-      "content": "monemploiGo est une plateforme en ligne de création de CV et de lettres de motivation, destinée en priorité aux utilisateurs situés en Afrique francophone et anglophone. Les prix affichés sont exprimés en francs CFA (FCFA). Pour toute question, vous pouvez nous contacter via l'adresse indiquée sur le site."
+      "content": "monemploiGo est une plateforme en ligne de création de CV et de lettres de motivation, destinée aux utilisateurs situés au Cameroun. Les prix affichés sont exprimés en francs CFA (XAF). Pour toute question, vous pouvez nous contacter via l'adresse indiquée sur le site."
     },
     "terms": {
       "title": "Conditions d'utilisation",
@@ -130,9 +130,9 @@
     "goToLogin": "Se connecter",
     "goToSignup": "Créez-en un",
     "logout": "Déconnexion",
-    "heroKicker": "Fait pour les talents d'Afrique",
+    "heroKicker": "Fait pour les talents du Cameroun",
     "signupHeroTitle": "Rejoignez monemploiGo et donnez un nouvel élan à votre carrière",
-    "signupHeroSubtitle": "Créez, personnalisez et téléchargez votre CV et votre lettre de motivation en quelques minutes. Des modèles professionnels, pensés pour le marché africain.",
+    "signupHeroSubtitle": "Créez, personnalisez et téléchargez votre CV et votre lettre de motivation en quelques minutes. Des modèles professionnels, pensés pour le marché camerounais.",
     "loginHeroTitle": "Content de vous revoir",
     "loginHeroSubtitle": "Connectez-vous pour continuer à personnaliser vos CV et lettres de motivation.",
     "feature1Title": "Accès à tous les modèles",
