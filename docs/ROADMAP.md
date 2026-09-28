@@ -812,3 +812,17 @@ Demande de l'utilisateur : permettre aux clients de noter le service après la c
 - Politique de confidentialité : usage des avis (amélioration du service uniquement, non publiés, supprimés avec le compte).
 
 Vérifié (build de production, comptes de test jetables supprimés ensuite) : 18/18 — pas de demande pour un client sans document payé, demande sur le bon document, erreur claire sans étoile, libellés et questions selon la note, navigation au clavier, enregistrement exact en base, plus de demande après l'avis (tableau de bord et paiement), « Plus tard » persistant, version anglaise, aucun débordement à 360 px, note de 6 refusée par la base, aucune erreur JavaScript, notification e-mail envoyée sans erreur.
+
+## Paiement impossible hors du Cameroun sur la page Notch Pay (2026-09-28)
+
+Signalé par l'utilisateur : sur la page de paiement hébergée par Notch Pay, une liste de pays africains est proposée ; tout pays autre que le Cameroun aboutit à « paiement impossible ».
+
+**Diagnostic (appels directs à l'API, clés sandbox)** :
+- `GET /channels?country=XX` liste bien des canaux pour CI, SN, BJ, BF, NG (aucun pour GA) : c'est le catalogue général de Notch Pay.
+- Mais le traitement réel (`PUT /payments/{ref}` avec le canal et un numéro de test documenté) échoue pour tout pays hors Cameroun : **422 « The selected channel is invalid »** (ci.mtn, ci.orange, sn.orange), en XAF comme en XOF — ce n'est donc pas une question de devise. Le Cameroun (cm.mtn) répond 202 « Payment is being processed ».
+- Conclusion : **seuls les canaux du Cameroun sont activés sur le compte marchand**. Ce n'est pas un bug du site ; l'activation d'autres pays relève de Notch Pay (à demander par l'utilisateur, et à revérifier avec les clés de production).
+- `locked_country: "CM"` (paramètre documenté) est accepté à l'initialisation mais **ignoré par la page hébergée en sandbox** (le lien « Change country » propose toujours tous les pays — vérifié en comparant les deux pages). Il est tout de même envoyé (il pourrait être respecté en production), avec un commentaire indiquant de le retirer quand d'autres pays seront activés.
+
+**Côté site** : avertissement affiché avant le bouton « Payer » (`payment.countryNotice`) — paiement uniquement avec un compte Mobile Money du Cameroun pour le moment, garder « Cameroon » sur la page de paiement. Vérifié FR/EN, 360 px sans débordement, redirection vers Notch Pay toujours fonctionnelle.
+
+**Piste si Notch Pay ne permet pas de masquer les pays** : intégration « Direct Charge » (notre propre formulaire opérateur + numéro, puis `PUT /payments/{ref}` avec le canal) — contrôle total des pays proposés, mais davantage de responsabilité côté site (validation des numéros, attente de la confirmation USSD). Non fait : disproportionné tant que l'avertissement suffit.

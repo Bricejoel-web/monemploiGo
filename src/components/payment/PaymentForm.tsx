@@ -5,7 +5,7 @@ import Link from "next/link";
 import { initiatePaymentAction, checkPaymentStatusAction } from "@/lib/documents/payment-actions";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
-import { ClockIcon } from "@/components/home/icons";
+import { ClockIcon, PhoneIcon } from "@/components/home/icons";
 import { formatLongDate } from "@/lib/format-date";
 import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 
@@ -102,6 +102,11 @@ export function PaymentForm({
 
       {status === "pending" && <p className="text-sm text-amber-700 dark:text-amber-400">{message ?? dict.payment.pendingUssd}</p>}
       {status === "failed" && <p className="text-sm text-red-600">{message ?? dict.payment.failed}</p>}
+
+      <p className="flex items-start gap-2 rounded-md border border-sky-300/60 bg-sky-50 p-3 text-xs text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100">
+        <PhoneIcon className="mt-0.5 h-4 w-4 shrink-0" />
+        {dict.payment.countryNotice}
+      </p>
 
       <p className="flex items-start gap-2 rounded-md border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-200">
         <ClockIcon className="mt-0.5 h-4 w-4 shrink-0" />

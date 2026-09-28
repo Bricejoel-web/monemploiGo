@@ -86,6 +86,15 @@ export const notchpayGateway: PaymentGateway = {
       body: JSON.stringify({
         amount: amountFcfa,
         currency: "XAF",
+        // Seuls les canaux du Cameroun sont activés sur le compte marchand :
+        // tout autre pays est refusé au traitement ("The selected channel is
+        // invalid", reproduit le 2026-09-28 pour CI, SN, en XAF comme en
+        // XOF). On le déclare donc ici. ATTENTION : la page hébergée Notch
+        // Pay (sandbox) ignore ce paramètre et propose quand même tous les
+        // pays — d'où l'avertissement affiché avant le paiement
+        // (payment.countryNotice). À retirer dès que Notch Pay active
+        // d'autres pays sur le compte.
+        locked_country: "CM",
         reference,
         email,
         description,

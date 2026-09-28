@@ -295,6 +295,7 @@
     "title": "Payment",
     "chooseMethod": "Choose your payment method",
     "viaMonetbil": "Secure payment via Notch Pay — Mobile Money (MTN, Orange) and other operators.",
+    "countryNotice": "For now, payment only works with a Mobile Money account from Cameroon (MTN, Orange). On the payment page, keep the country set to “Cameroon”.",
     "phoneNumber": "Mobile Money phone number",
     "pay": "Pay",
     "amount": "Amount",
