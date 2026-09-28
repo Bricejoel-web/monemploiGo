@@ -21,9 +21,9 @@ export function retentionCutoff(now = new Date()): Date {
 
 /** Seul point d'entrée pour marquer un document comme payé : enregistre
  * toujours la date de paiement, qui fait démarrer la période de
- * conservation. */
-export function markDocumentPaid(documentId: string) {
-  return prisma.document.update({ where: { id: documentId }, data: { status: "PAID", paidAt: new Date() } });
+ * conservation. `db` permet de l'exécuter dans une transaction. */
+export function markDocumentPaid(documentId: string, db: Pick<typeof prisma, "document"> = prisma) {
+  return db.document.update({ where: { id: documentId }, data: { status: "PAID", paidAt: new Date() } });
 }
 
 /** Supprime les documents arrivés au bout de leur période de conservation.

@@ -36,22 +36,34 @@ export async function settlePayment(
         attendu: `${payment.amountFcfa} ${PAYMENT_CURRENCY}`,
         recu: `${outcome.amount} ${outcome.currency ?? "?"}`,
       });
-      await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
-      return "mismatch";
+      return (await leavePending(payment.id, "FAILED")) ? "mismatch" : "unchanged";
     }
-    await prisma.$transaction([
-      prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS" } }),
-      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
-    ]);
-    return "paid";
+    // Transition unique : plusieurs confirmations du même paiement peuvent
+    // arriver en même temps (webhook + retour sur le site + vérification à
+    // l'affichage). Elles lisaient toutes "PENDING" puis validaient toutes
+    // (6 validations pour 6 confirmations simultanées, mesuré). Désormais,
+    // seule celle qui fait réellement passer le paiement de PENDING à
+    // SUCCESS débloque le document, dans la même transaction.
+    const paid = await prisma.$transaction(async (tx) => {
+      const { count } = await tx.payment.updateMany({ where: { id: payment.id, status: "PENDING" }, data: { status: "SUCCESS" } });
+      if (count === 0) return false;
+      if (payment.documentId) await markDocumentPaid(payment.documentId, tx);
+      return true;
+    });
+    return paid ? "paid" : "unchanged";
   }
 
   if (outcome.status === "failed") {
-    await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
-    return "failed";
+    return (await leavePending(payment.id, "FAILED")) ? "failed" : "unchanged";
   }
 
   return "unchanged";
+}
+
+/** Sort un paiement de l'état PENDING, seulement s'il y est encore. */
+async function leavePending(paymentId: string, status: "FAILED"): Promise<boolean> {
+  const { count } = await prisma.payment.updateMany({ where: { id: paymentId, status: "PENDING" }, data: { status } });
+  return count === 1;
 }
 
 /** Au-delà, une transaction non validée a forcément expiré chez l'opérateur. */

@@ -107,6 +107,7 @@ export async function POST(request: Request) {
   if (result === "mismatch") {
     return NextResponse.json({ error: "Incohérence montant/devise" }, { status: 400 });
   }
-  console.log("[notchpay-webhook]", result === "paid" ? "paiement confirmé" : "paiement échoué/annulé/expiré", ourReference, event.type);
+  const label = { paid: "paiement confirmé", failed: "paiement échoué/annulé/expiré", unchanged: "déjà traité (idempotent)" }[result];
+  console.log("[notchpay-webhook]", label, ourReference, event.type);
   return NextResponse.json({ ok: true });
 }
