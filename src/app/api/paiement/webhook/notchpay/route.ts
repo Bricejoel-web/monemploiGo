@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/client";
 import { verifyNotchPaySignature } from "@/lib/payment";
-import { markDocumentPaid } from "@/lib/documents/retention";
+import { settlePayment } from "@/lib/payment/settle";
+import type { CheckPaymentStatusResult } from "@/lib/payment/types";
 
 /**
  * Notification serveur-à-serveur Notch Pay. D'après leur documentation
@@ -26,9 +27,12 @@ import { markDocumentPaid } from "@/lib/documents/retention";
  *     primaire du Payment que nous avons nous-mêmes créé pour cet
  *     utilisateur (voir payment-actions.ts), jamais une valeur devinable
  *     ou modifiable côté client.
- *  6. Le retour du navigateur sur `callback` (voir notchpay.ts) ne sert
- *     JAMAIS à débloquer un téléchargement : seule cette notification,
- *     signature vérifiée, peut faire passer un paiement à SUCCESS.
+ *  6. Les paramètres d'URL du retour navigateur sur `callback` (voir
+ *     notchpay.ts) ne débloquent JAMAIS un téléchargement : la page de
+ *     retour, comme la vérification à l'affichage des pages, interroge
+ *     Notch Pay de serveur à serveur. Cette notification et ces
+ *     vérifications passent toutes par settlePayment (mêmes contrôles de
+ *     montant et de devise, transition unique vers SUCCESS).
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -57,7 +61,6 @@ export async function POST(request: Request) {
   // avec repli sur `reference` par prudence si un type d'évènement envoie
   // un jour un format différent.
   const ourReference = event.data?.merchant_reference ?? event.data?.reference;
-  const notchReference = event.data?.reference;
   if (!ourReference) {
     console.error("[notchpay-webhook] reference manquante", event.type);
     return NextResponse.json({ error: "reference manquante" }, { status: 400 });
@@ -74,23 +77,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const amountMatches = event.data?.amount === payment.amountFcfa;
-  const currencyMatches = !event.data?.currency || event.data.currency === "XAF";
-
-  if (!amountMatches || !currencyMatches) {
-    console.error("[notchpay-webhook] incohérence montant/devise", ourReference, event.data);
-    await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
-    return NextResponse.json({ error: "Incohérence montant/devise" }, { status: 400 });
-  }
-
   const status = event.data?.status; // "complete" | "failed" | "canceled" | "expired"
-
-  if (event.type === "payment.complete" && status === "complete") {
-    await prisma.$transaction([
-      prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS", providerRef: notchReference ?? payment.providerRef } }),
-      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
-    ]);
-    console.log("[notchpay-webhook] paiement confirmé", ourReference);
+  let outcome: CheckPaymentStatusResult | null = null;
+  if (event.type === "payment.complete" && (status === "complete" || status === "completed")) {
+    outcome = { status: "success", amount: event.data?.amount, currency: event.data?.currency };
   } else if (
     event.type === "payment.failed" ||
     // Vérifié empiriquement (2026-09-26) : les webhooks Notch Pay
@@ -101,13 +91,22 @@ export async function POST(request: Request) {
     event.type === "payment.cancelled" ||
     event.type === "payment.expired"
   ) {
-    await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED", providerRef: notchReference ?? payment.providerRef } });
-    console.log("[notchpay-webhook] paiement échoué/annulé/expiré", ourReference, event.type);
-  } else {
+    outcome = { status: "failed" };
+  }
+
+  if (!outcome) {
     // payment.created ou tout autre évènement informatif : rien à faire,
     // mais on répond 200 pour éviter des réessais inutiles de Notch Pay.
     console.log("[notchpay-webhook] évènement ignoré", event.type, ourReference);
+    return NextResponse.json({ ok: true });
   }
 
+  // Mêmes contrôles (montant exact, devise XAF) que toutes les autres voies
+  // de confirmation : voir settlePayment.
+  const result = await settlePayment(payment, outcome);
+  if (result === "mismatch") {
+    return NextResponse.json({ error: "Incohérence montant/devise" }, { status: 400 });
+  }
+  console.log("[notchpay-webhook]", result === "paid" ? "paiement confirmé" : "paiement échoué/annulé/expiré", ourReference, event.type);
   return NextResponse.json({ ok: true });
 }

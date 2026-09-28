@@ -139,11 +139,12 @@ export const notchpayGateway: PaymentGateway = {
 
     const data = (await res.json().catch(() => null)) as NotchPayRetrieveResponse | null;
     const txStatus = data?.transaction?.status;
+    const paid = { amount: data?.transaction?.amount, currency: data?.transaction?.currency };
 
     // Statuts documentés par Notch Pay : pending, processing, complete
     // (parfois "completed"), failed, canceled (parfois "cancelled", vu en
     // réel), expired, refunded.
-    if (txStatus === "complete" || txStatus === "completed") return { status: "success" };
+    if (txStatus === "complete" || txStatus === "completed") return { status: "success", ...paid };
     if (txStatus === "processing") return { status: "processing" };
     if (txStatus === "failed" || txStatus === "canceled" || txStatus === "cancelled" || txStatus === "expired" || txStatus === "refunded") {
       return { status: "failed" };

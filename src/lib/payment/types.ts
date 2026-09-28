@@ -39,6 +39,10 @@ export interface CheckPaymentStatusResult {
    * un nouveau paiement risquerait alors de le faire payer deux fois.
    */
   status: "pending" | "processing" | "success" | "failed";
+  /** Montant et devise réellement payés, tels que la passerelle les
+   * rapporte : comparés à ce que nous avions demandé avant de débloquer. */
+  amount?: number;
+  currency?: string;
 }
 
 export interface PaymentGateway {
