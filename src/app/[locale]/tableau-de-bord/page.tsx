@@ -7,6 +7,7 @@ import { DashboardDocuments, type DashboardDocumentItem } from "@/components/das
 import { DeleteAccountButton } from "@/components/dashboard/DeleteAccountButton";
 import { FolderIcon, CheckIcon, ClockIcon } from "@/components/home/icons";
 import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
+import { refreshPendingPayments } from "@/lib/payment/settle";
 import { daysUntil, formatLongDate } from "@/lib/format-date";
 import { isEmailEnabled } from "@/lib/email/mailer";
 import { MailIcon } from "@/components/home/icons";
@@ -50,6 +51,9 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
   const session = await requireSession(locale);
   const dict = await getDictionary(locale as Locale);
   const user = await getCurrentUser();
+  // Un client qui a payé sans repasser par la page de retour (session
+  // expirée, autre navigateur...) retrouve ici son document débloqué.
+  await refreshPendingPayments({ userId: session.userId });
 
   const documents = await prisma.document.findMany({
     where: { userId: session.userId },

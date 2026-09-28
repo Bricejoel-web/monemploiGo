@@ -3,12 +3,12 @@ import { isLocale } from "@/i18n/config";
 import { requireSession } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
 import { getGateway } from "@/lib/payment";
-import { markDocumentPaid } from "@/lib/documents/retention";
+import { settlePayment } from "@/lib/payment/settle";
 
-// Page de retour après paiement CinetPay (return_url). CinetPay redirige ici
-// que le paiement ait réussi ou non ; on vérifie le vrai statut auprès de
-// CinetPay (jamais via les paramètres d'URL, qui ne sont pas fiables) avant
-// de renvoyer l'utilisateur vers la page du document concerné.
+// Page de retour après paiement (callback Notch Pay). La passerelle redirige
+// ici que le paiement ait réussi ou non ; on vérifie le vrai statut auprès
+// d'elle (jamais via les paramètres d'URL, qui ne sont pas fiables) avant de
+// renvoyer l'utilisateur vers la page du document concerné.
 export default async function PaymentReturnPage({
   params,
   searchParams,
@@ -27,15 +27,7 @@ export default async function PaymentReturnPage({
   if (payment.status === "PENDING" && payment.providerRef) {
     const gateway = getGateway(payment.provider);
     const result = await gateway.checkStatus({ provider: payment.provider, providerRef: payment.providerRef });
-
-    if (result.status === "success") {
-      await prisma.$transaction([
-        prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS" } }),
-        ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
-      ]);
-    } else if (result.status === "failed") {
-      await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
-    }
+    await settlePayment(payment, result);
   }
 
   redirect(payment.documentId ? `/${locale}/paiement/${payment.documentId}` : `/${locale}/tableau-de-bord`);

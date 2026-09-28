@@ -33,7 +33,12 @@ export interface CheckPaymentStatusInput {
 }
 
 export interface CheckPaymentStatusResult {
-  status: "pending" | "success" | "failed";
+  /**
+   * "pending" : le client n'a pas encore validé (ou a quitté la page de
+   * paiement) ; "processing" : il a validé et l'opérateur confirme (USSD) —
+   * un nouveau paiement risquerait alors de le faire payer deux fois.
+   */
+  status: "pending" | "processing" | "success" | "failed";
 }
 
 export interface PaymentGateway {

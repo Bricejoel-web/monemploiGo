@@ -131,14 +131,23 @@ export const notchpayGateway: PaymentGateway = {
 
     const res = await fetch(`${API_BASE_URL}/payments/${providerRef}`, {
       headers: { Authorization: publicKey },
-    });
-    if (!res.ok) return { status: "pending" };
+      // Appelé pendant l'affichage de pages (tableau de bord, paiement) :
+      // une API lente ne doit jamais bloquer la page.
+      signal: AbortSignal.timeout(8000),
+    }).catch(() => null);
+    if (!res?.ok) return { status: "pending" };
 
     const data = (await res.json().catch(() => null)) as NotchPayRetrieveResponse | null;
     const txStatus = data?.transaction?.status;
 
-    if (txStatus === "complete") return { status: "success" };
-    if (txStatus === "failed" || txStatus === "canceled" || txStatus === "expired") return { status: "failed" };
+    // Statuts documentés par Notch Pay : pending, processing, complete
+    // (parfois "completed"), failed, canceled (parfois "cancelled", vu en
+    // réel), expired, refunded.
+    if (txStatus === "complete" || txStatus === "completed") return { status: "success" };
+    if (txStatus === "processing") return { status: "processing" };
+    if (txStatus === "failed" || txStatus === "canceled" || txStatus === "cancelled" || txStatus === "expired" || txStatus === "refunded") {
+      return { status: "failed" };
+    }
     return { status: "pending" };
   },
 };

@@ -19,6 +19,7 @@ export function PaymentForm({
   initiallyPaid = false,
   expiresAtIso,
   askForReview,
+  processingPaymentId,
 }: {
   documentId: string;
   amountFcfa: number;
@@ -28,15 +29,33 @@ export function PaymentForm({
   expiresAtIso: string;
   /** Faux si le client a déjà donné son avis (un seul par client). */
   askForReview: boolean;
+  /** Paiement déjà validé par le client et en cours de confirmation chez
+   * l'opérateur : on attend son issue au lieu de proposer de repayer. */
+  processingPaymentId?: string;
 }) {
-  const [status, setStatus] = useState<Status>(initiallyPaid ? "success" : "idle");
-  const [message, setMessage] = useState<string | undefined>();
+  const [status, setStatus] = useState<Status>(initiallyPaid ? "success" : processingPaymentId ? "pending" : "idle");
+  const [message, setMessage] = useState<string | undefined>(processingPaymentId ? dict.payment.processing : undefined);
   const [pending, startTransition] = useTransition();
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => () => {
     if (pollRef.current) clearInterval(pollRef.current);
   }, []);
+
+  // Paiement en cours de confirmation à l'ouverture de la page : on suit son
+  // issue (réussi → téléchargement, échoué → bouton Payer à nouveau).
+  useEffect(() => {
+    if (!processingPaymentId) return;
+    const timer = setInterval(async () => {
+      const result = await checkPaymentStatusAction(processingPaymentId);
+      if (result.status === "success" || result.status === "failed") {
+        setMessage(undefined);
+        setStatus(result.status);
+        clearInterval(timer);
+      }
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [processingPaymentId]);
 
   const pollStatus = (id: string) => {
     pollRef.current = setInterval(() => {

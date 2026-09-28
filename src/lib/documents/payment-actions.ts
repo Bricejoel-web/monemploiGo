@@ -6,6 +6,7 @@ import { getGateway } from "@/lib/payment";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { markDocumentPaid } from "@/lib/documents/retention";
+import { settlePayment } from "@/lib/payment/settle";
 
 export interface PaymentActionResult {
   status: "success" | "pending" | "failed";
@@ -95,15 +96,7 @@ export async function checkPaymentStatusAction(paymentId: string): Promise<Payme
 
   const gateway = getGateway(payment.provider);
   const result = await gateway.checkStatus({ provider: payment.provider, providerRef: payment.providerRef });
+  await settlePayment(payment, result);
 
-  if (result.status === "success") {
-    await prisma.$transaction([
-      prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS" } }),
-      ...(payment.documentId ? [markDocumentPaid(payment.documentId)] : []),
-    ]);
-  } else if (result.status === "failed") {
-    await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
-  }
-
-  return { status: result.status };
+  return { status: result.status === "processing" ? "pending" : result.status };
 }

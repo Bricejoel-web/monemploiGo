@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { purgeExpiredDocuments } from "@/lib/documents/retention";
+import { refreshPendingPayments } from "@/lib/payment/settle";
 
 /**
  * Purge quotidienne des documents arrivés à échéance (voir retention.ts),
@@ -27,6 +28,12 @@ export async function GET(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+
+  // Règle d'abord les paiements restés "en attente" (client qui a payé mais
+  // n'est jamais revenu sur le site) : son document devient payé, et les
+  // transactions expirées chez Notch Pay cessent de bloquer la purge de
+  // leur brouillon.
+  await refreshPendingPayments({ limit: 50 });
 
   const result = await purgeExpiredDocuments();
   console.info("[cron] purge-documents", result);

@@ -307,6 +307,7 @@
     "pay": "Payer",
     "amount": "Montant",
     "pendingUssd": "Validez le paiement via le code USSD envoyé sur votre téléphone.",
+    "processing": "Votre paiement est en cours de confirmation par votre opérateur Mobile Money. Cette page se met à jour automatiquement : inutile de payer à nouveau.",
     "success": "Paiement réussi ! Vous pouvez maintenant télécharger votre document.",
     "failed": "Le paiement a échoué. Veuillez réessayer.",
     "downloadPdf": "Télécharger en PDF",

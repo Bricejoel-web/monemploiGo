@@ -6,12 +6,18 @@ import { prisma } from "@/lib/db/client";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { PaymentForm } from "@/components/payment/PaymentForm";
 import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
+import { refreshPendingPayments } from "@/lib/payment/settle";
 
 export default async function PaymentPage({ params }: PageProps<"/[locale]/paiement/[documentId]">) {
   const { locale, documentId } = await params;
   if (!isLocale(locale)) notFound();
 
   const session = await requireSession(locale);
+
+  // D'abord régler un éventuel paiement resté "en attente" (client revenu
+  // par un autre chemin que la page de retour) : le document affiché doit
+  // refléter ce que Notch Pay sait déjà.
+  const { processingPaymentId } = await refreshPendingPayments({ userId: session.userId, documentId });
 
   const document = await prisma.document.findFirst({
     where: { id: documentId, userId: session.userId },
@@ -47,6 +53,7 @@ export default async function PaymentPage({ params }: PageProps<"/[locale]/paiem
         // paiement enregistrée est "maintenant" : même échéance au jour près.
         expiresAtIso={expiresAt(document.paidAt ?? new Date()).toISOString()}
         askForReview={!existingReview}
+        processingPaymentId={document.status === "PAID" ? undefined : processingPaymentId}
       />
     </div>
   );
