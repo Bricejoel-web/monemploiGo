@@ -5,7 +5,7 @@ import Link from "next/link";
 import { initiatePaymentAction, checkPaymentStatusAction } from "@/lib/documents/payment-actions";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
-import { ClockIcon, PhoneIcon } from "@/components/home/icons";
+import { ClockIcon, PhoneIcon, WarningIcon } from "@/components/home/icons";
 import { formatLongDate } from "@/lib/format-date";
 import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 
@@ -20,6 +20,7 @@ export function PaymentForm({
   expiresAtIso,
   askForReview,
   processingPaymentId,
+  returnNotice,
 }: {
   documentId: string;
   amountFcfa: number;
@@ -32,6 +33,8 @@ export function PaymentForm({
   /** Paiement déjà validé par le client et en cours de confirmation chez
    * l'opérateur : on attend son issue au lieu de proposer de repayer. */
   processingPaymentId?: string;
+  /** Issue du paiement précédent, transmise par la page de retour. */
+  returnNotice?: "failed" | "notCompleted";
 }) {
   const [status, setStatus] = useState<Status>(initiallyPaid ? "success" : processingPaymentId ? "pending" : "idle");
   const [message, setMessage] = useState<string | undefined>(processingPaymentId ? dict.payment.processing : undefined);
@@ -121,6 +124,19 @@ export function PaymentForm({
 
       {status === "pending" && <p className="text-sm text-amber-700 dark:text-amber-400">{message ?? dict.payment.pendingUssd}</p>}
       {status === "failed" && <p className="text-sm text-red-600">{message ?? dict.payment.failed}</p>}
+
+      {status === "idle" && returnNotice === "failed" && (
+        <p role="alert" className="flex items-start gap-2 rounded-md border border-red-300/70 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800/60 dark:bg-red-950/30 dark:text-red-300">
+          <WarningIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          {dict.payment.returnFailed}
+        </p>
+      )}
+      {status === "idle" && returnNotice === "notCompleted" && (
+        <p role="status" className="flex items-start gap-2 rounded-md border border-black/15 bg-black/[0.03] p-3 text-sm text-black/75 dark:border-white/20 dark:bg-white/5 dark:text-white/75">
+          <ClockIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          {dict.payment.returnNotCompleted}
+        </p>
+      )}
 
       <p className="flex items-start gap-2 rounded-md border border-sky-300/60 bg-sky-50 p-3 text-xs text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100">
         <PhoneIcon className="mt-0.5 h-4 w-4 shrink-0" />

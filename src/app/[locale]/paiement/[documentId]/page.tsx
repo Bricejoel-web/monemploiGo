@@ -8,9 +8,12 @@ import { PaymentForm } from "@/components/payment/PaymentForm";
 import { expiresAt, retentionCutoff } from "@/lib/documents/retention";
 import { refreshPendingPayments } from "@/lib/payment/settle";
 
-export default async function PaymentPage({ params }: PageProps<"/[locale]/paiement/[documentId]">) {
+export default async function PaymentPage({ params, searchParams }: PageProps<"/[locale]/paiement/[documentId]">) {
   const { locale, documentId } = await params;
   if (!isLocale(locale)) notFound();
+  // Résultat transmis par la page de retour (voir paiement/retour).
+  const { paiement } = await searchParams;
+  const returnNotice = paiement === "echec" ? "failed" : paiement === "non-finalise" ? "notCompleted" : undefined;
 
   const session = await requireSession(locale);
 
@@ -54,6 +57,7 @@ export default async function PaymentPage({ params }: PageProps<"/[locale]/paiem
         expiresAtIso={expiresAt(document.paidAt ?? new Date()).toISOString()}
         askForReview={!existingReview}
         processingPaymentId={document.status === "PAID" ? undefined : processingPaymentId}
+        returnNotice={returnNotice}
       />
     </div>
   );

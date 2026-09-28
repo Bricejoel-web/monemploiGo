@@ -310,6 +310,8 @@
     "processing": "Votre paiement est en cours de confirmation par votre opérateur Mobile Money. Cette page se met à jour automatiquement : inutile de payer à nouveau.",
     "success": "Paiement réussi ! Vous pouvez maintenant télécharger votre document.",
     "failed": "Le paiement a échoué. Veuillez réessayer.",
+    "returnFailed": "Votre paiement n'a pas abouti : il a été refusé, annulé ou a expiré. Votre document n'est pas débloqué. Vous pouvez réessayer ci-dessous.",
+    "returnNotCompleted": "Le paiement n'a pas été finalisé. Vous pouvez le relancer quand vous le souhaitez.",
     "downloadPdf": "Télécharger en PDF",
     "wordHint": "Astuce : pour obtenir une version Word qui reprend fidèlement la mise en page bien remplie du PDF, ouvrez le PDF téléchargé avec Microsoft Word (Fichier > Ouvrir) — Word proposera de le convertir automatiquement en document modifiable.",
     "termsPrefix": "En payant, vous acceptez nos"

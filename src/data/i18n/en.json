@@ -310,6 +310,8 @@
     "pendingUssd":"Confirm the payment via the USSD prompt sent to your phone.",
     "success": "Payment successful! You can now download your document.",
     "failed": "Payment failed. Please try again.",
+    "returnFailed": "Your payment did not go through: it was declined, canceled or expired. Your document is not unlocked. You can try again below.",
+    "returnNotCompleted": "The payment was not completed. You can start it again whenever you like.",
     "downloadPdf": "Download as PDF",
     "wordHint": "Tip: to get a Word version that faithfully matches the well-filled PDF layout, open the downloaded PDF with Microsoft Word (File > Open) — Word will offer to convert it into an editable document automatically.",
     "termsPrefix": "By paying, you accept our"

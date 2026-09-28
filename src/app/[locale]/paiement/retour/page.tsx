@@ -24,11 +24,21 @@ export default async function PaymentReturnPage({
   const payment = await prisma.payment.findFirst({ where: { id: paymentId, userId: session.userId } });
   if (!payment) redirect(`/${locale}/tableau-de-bord`);
 
+  let stillPendingAtNotchPay = false;
   if (payment.status === "PENDING" && payment.providerRef) {
     const gateway = getGateway(payment.provider);
     const result = await gateway.checkStatus({ provider: payment.provider, providerRef: payment.providerRef });
     await settlePayment(payment, result);
+    // "processing" : la page de paiement affichera elle-même la
+    // confirmation en cours ; "pending" : le client est revenu sans valider.
+    stillPendingAtNotchPay = result.status === "pending";
   }
 
-  redirect(payment.documentId ? `/${locale}/paiement/${payment.documentId}` : `/${locale}/tableau-de-bord`);
+  if (!payment.documentId) redirect(`/${locale}/tableau-de-bord`);
+
+  // Sans ce retour, un client dont le paiement avait échoué revenait sur la
+  // page de paiement sans aucune explication.
+  const { status } = (await prisma.payment.findUnique({ where: { id: payment.id }, select: { status: true } }))!;
+  const notice = status === "FAILED" ? "?paiement=echec" : status === "PENDING" && stillPendingAtNotchPay ? "?paiement=non-finalise" : "";
+  redirect(`/${locale}/paiement/${payment.documentId}${notice}`);
 }

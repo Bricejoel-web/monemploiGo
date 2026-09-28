@@ -844,3 +844,19 @@ Vérifié : 17/17 (bouton visible, plus de case, fichier illisible → message, 
 Tentative d'ajouter le logo en haut de l'e-mail de bienvenue (la photo de profil du compte Gmail du site n'apparaît pas chez les destinataires ; son affichage dépend de Gmail seul). Structure MIME vérifiée correcte (multipart/related, `Content-ID` cohérent, image identique à l'original, 10/10 sur mail-tester). Pourtant, dans le Gmail de l'utilisateur, **aucune** des trois méthodes testées dans un même e-mail ne s'affichait : image intégrée (CID) avec l'identifiant d'origine, image intégrée avec un identifiant au format adresse complète, et image hébergée en HTTPS. Le blocage vient donc de l'affichage des images côté Gmail (réglage de l'appareil ou méfiance envers ce nouvel expéditeur), pas de l'e-mail.
 
 **Décision de l'utilisateur : abandonner, ne rien ajouter.** Les deux commits ont été annulés (retour à l'e-mail en production). Piste non explorée, si le sujet revient : dessiner le logo en HTML/CSS (aucune image, donc jamais d'icône cassée), après avoir d'abord confirmé si les images sont bloquées pour tous les destinataires ou seulement sur l'appareil de l'utilisateur.
+
+## Paiement Notch Pay : audit avant production et 5 corrections (2026-09-28 → 29)
+
+**Décision de l'utilisateur (2026-09-28)** : lancement **au Cameroun uniquement**, en **XAF**, avec les moyens de paiement camerounais de Notch Pay (MTN, Orange). Ne plus chercher à activer d'autres pays.
+
+**Audit** (tests réels de bout en bout en sandbox, sans modification) : MTN et Orange fonctionnent ; `locked_country: "CM"` bien envoyé ; retour et webhook corrects dans leur logique. Mais 5 défauts, tous corrigés depuis, un commit chacun :
+
+1. **Paiements restés « en attente » pour toujours** (seule voie de confirmation = la page de retour, le webhook ne se déclenchant pas) : un client payé mais revenu sans session — ou jamais revenu — n'avait jamais son document et se voyait proposer de repayer. → `refreshPendingPayments` interroge Notch Pay à l'affichage du tableau de bord et de la page de paiement, et dans la purge quotidienne. Statut Notch Pay « processing » (le client a validé, l'opérateur confirme) : la page l'indique, désactive « Payer » et bascule seule sur le téléchargement. `checkStatus` comprend aussi `completed`, `cancelled`, `refunded` ; délai maximal de 8 s.
+2. **Double paiement** depuis un onglet resté ouvert (2 paiements créés pour un document déjà payé). → `initiatePaymentAction` règle d'abord les paiements en attente du document, renvoie « réussi » s'il est payé, et attend le paiement en cours au lieu d'en créer un second.
+3. **Montant et devise non contrôlés** sur la voie réellement utilisée (une transaction de 100 XAF débloquait un document à 2000 XAF). → `settlePayment` exige le montant exact et XAF, pour toutes les voies ; le webhook l'utilise aussi au lieu de sa propre copie des contrôles.
+4. **Validations simultanées** : 6 confirmations simultanées → 6 validations (mesuré). → transition PENDING→SUCCESS par mise à jour conditionnelle dans une transaction : 1 validation sur 6 (3 essais).
+5. **Aucune explication après un échec** : la page de retour transmet l'issue (`?paiement=echec` / `?paiement=non-finalise`) et la page de paiement affiche un message (rouge pour refusé/annulé/expiré, neutre pour non finalisé).
+
+Point unique de validation : `src/lib/payment/settle.ts`. Vérifié : 40/40 en sandbox (MTN, Orange, échec, annulation, expiration, abandon, retour sans session, onglet resté ouvert, montant faux, webhook signé/faux/montant/devise/rejoué, validations simultanées, purge), FR/EN, 390 px.
+
+**Restant côté Notch Pay / utilisateur avant la production** : clés de production (le site est encore en sandbox), enregistrement du webhook de production (aucun n'est enregistré), et revérifier en réel le cas « fonds insuffisants » (le numéro de test sandbox renvoie « complete »).
