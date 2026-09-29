@@ -913,3 +913,18 @@ Suite à l'audit (docs/seo/rapport-audit-seo-2026-09-29.md). Décision de l'util
 Vérifié : 27/27 contrôles automatiques (30 pages publiques : titre, description, canonical, hreflang, OG, 1 seul H1 ; pages privées 307 déconnecté / noindex connecté ; sitemap 100 % indexable ; 404 réelle). Lighthouse mobile, catalogue Premium : performance 23–25 → 39–47, blocage 5,8–6,4 s → 0,6–3,7 s, poids 1 040 → 396 Ko, CLS 0.
 
 Reste à faire : rendu statique des pages publiques (l'en-tête lit la session), vignettes en images pré-calculées, articles « Conseils » (à relire par l'utilisateur), identité légale de l'éditeur, Search Console, nom de domaine, profils sociaux (`sameAs`).
+
+
+## Téléchargement du PDF : vrai fichier fabriqué par le serveur + page simplifiée (2026-09-29)
+
+Signalé par l'utilisateur après un vrai paiement : impossible de récupérer le PDF (« Réessayer » dans la fenêtre d'impression, bouton sans effet), page trop compliquée, CV affiché en taille réelle sur téléphone (impossible à réduire).
+
+- **Cause** : le PDF n'existait pas — la page ouvrait la fenêtre d'impression du navigateur (automatiquement, puis via un bouton). Dans les navigateurs intégrés (WhatsApp, Facebook, Gmail), `window.print()` ne fait rien ; ailleurs, l'enregistrement pouvait échouer.
+- **Correction** : route `/api/documents/[id]/pdf` — le serveur ouvre la page du document dans un Chrome sans écran (`puppeteer-core` 25.11.0 + `@sparticuz/chromium` 153 sur Vercel ; Chrome local en développement) et renvoie un vrai fichier (`CV-Prenom-Nom.pdf`). Le texte reste du texte (ATS). Vérifications : client connecté, document payé, non expiré et à lui ; limite 15 PDF / 15 min. Seuls les cookies de session du site (et d'accès aux prévisualisations Vercel) sont transmis au Chrome, pour ce seul site.
+- **Page simplifiée** (`document/[id]/apercu`) : « Votre CV est prêt », un seul gros bouton « Télécharger mon PDF » (indicateur « Préparation… » puis « C'est téléchargé ! »), aperçu réduit à la largeur de l'écran (`DocumentPreviewFit`, zoom appliqué à l'écran seulement). Plus d'ouverture automatique de l'impression ; en cas d'échec, message clair + impression en secours. `PrintButton` supprimé.
+- **Défauts découverts en testant** (ils touchaient aussi l'impression classique) :
+  1. page blanche en fin de document : `h-full` / `min-h-full` du site donnaient au corps la hauteur de l'écran à l'impression — annulés en `@media print` ;
+  2. dernière rubrique renvoyée en page 2 : les zones agrandies (`useAdaptiveFill`, 22 zones) visaient une hauteur fixe qui ignore l'en-tête réel (ex. 6 lignes de « Persönliche Daten ») → l'agrandissement est désormais réduit par dichotomie si la page dépasse A4, et recalculé une fois les polices chargées ;
+  3. échelle de conception : 679 px × (794/480) = 1123,2 px > page A4 (1122,5 px) → échelle = min(largeur, hauteur) A4 exactes ; dépassements de sous-pixel restants absorbés au rendu PDF (réduction < 2 %).
+
+Vérifié en local (Chrome réel) : 11/11 — CV d'une page → 1 page, CV long → pages suivantes normales, lettre → 1 page, non connecté / autre client refusés, bouton → fichier + « C'est téléchargé », page mobile sans débordement (aperçu 335 px), aucune impression automatique. Temps de fabrication : 7 à 20 s en local.

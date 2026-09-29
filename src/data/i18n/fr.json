@@ -316,6 +316,20 @@
     "wordHint": "Astuce : pour obtenir une version Word qui reprend fidèlement la mise en page bien remplie du PDF, ouvrez le PDF téléchargé avec Microsoft Word (Fichier > Ouvrir) — Word proposera de le convertir automatiquement en document modifiable.",
     "termsPrefix": "En payant, vous acceptez nos"
   },
+  "download": {
+    "titleCv": "Votre CV est prêt",
+    "titleCoverLetter": "Votre lettre de motivation est prête",
+    "titleBewerbungsbrief": "Votre Bewerbungsbrief est prêt",
+    "button": "Télécharger mon PDF",
+    "preparing": "Préparation de votre PDF… (quelques secondes)",
+    "done": "C'est téléchargé ! Retrouvez le fichier dans vos Téléchargements.",
+    "again": "Télécharger à nouveau",
+    "error": "Le téléchargement n'a pas abouti. Réessayez dans un instant. Si le problème continue, ouvrez cette page dans Chrome, ou utilisez l'impression ci-dessous.",
+    "print": "Imprimer ou enregistrer depuis le navigateur",
+    "availableUntil": "Téléchargeable gratuitement jusqu'au {date}. Gardez une copie du fichier.",
+    "previewLabel": "Aperçu de votre document",
+    "back": "Retour au tableau de bord"
+  },
   "retention": {
     "noticeTitle": "Durée de conservation de vos documents",
     "noticePaid": "Après paiement, vous pouvez retélécharger votre document gratuitement, autant de fois que vous le souhaitez, pendant 3 semaines. Il est ensuite supprimé automatiquement : pensez à garder une copie de votre PDF.",

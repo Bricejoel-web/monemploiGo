@@ -116,8 +116,13 @@ export function contactList(data: CvData): string[] {
 // contenu déborde, exactement comme un vrai CV sur plusieurs pages.
 export const DESIGN_WIDTH = 480;
 export const DESIGN_HEIGHT = 679;
-const REAL_WIDTH = 794;
-const REAL_SCALE = REAL_WIDTH / DESIGN_WIDTH;
+// Vraie page A4 à 96 dpi : 210 × 297 mm = 793,7 × 1122,5 px. L'échelle
+// retenue est la plus petite des deux : avec la largeur seule (794/480),
+// les 679 px de conception donnaient 1123,2 px de haut — 0,7 px de plus
+// qu'une page A4, assez pour qu'un CV d'une page sorte sur 2 pages en PDF.
+const REAL_WIDTH = (210 / 25.4) * 96;
+const REAL_HEIGHT = (297 / 25.4) * 96;
+const REAL_SCALE = Math.min(REAL_WIDTH / DESIGN_WIDTH, REAL_HEIGHT / DESIGN_HEIGHT);
 
 export function CvPageFrame({ children }: { children: React.ReactNode }) {
   return (

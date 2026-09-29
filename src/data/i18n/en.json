@@ -316,6 +316,20 @@
     "wordHint": "Tip: to get a Word version that faithfully matches the well-filled PDF layout, open the downloaded PDF with Microsoft Word (File > Open) — Word will offer to convert it into an editable document automatically.",
     "termsPrefix": "By paying, you accept our"
   },
+  "download": {
+    "titleCv": "Your resume is ready",
+    "titleCoverLetter": "Your cover letter is ready",
+    "titleBewerbungsbrief": "Your Bewerbungsbrief is ready",
+    "button": "Download my PDF",
+    "preparing": "Preparing your PDF… (a few seconds)",
+    "done": "Downloaded! You'll find the file in your Downloads.",
+    "again": "Download again",
+    "error": "The download didn't go through. Try again in a moment. If it keeps failing, open this page in Chrome, or use printing below.",
+    "print": "Print or save from the browser",
+    "availableUntil": "Free to download until {date}. Keep a copy of the file.",
+    "previewLabel": "Preview of your document",
+    "back": "Back to dashboard"
+  },
   "retention": {
     "noticeTitle": "How long your documents are kept",
     "noticePaid": "After payment, you can download your document again for free, as many times as you like, for 3 weeks. It is then deleted automatically, so keep a copy of your PDF.",

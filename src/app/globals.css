@@ -328,6 +328,14 @@ input[type="range"] {
   print-color-adjust: exact;
 }
 
+/* Aperçu du document réduit à la largeur de l'écran (DocumentPreviewFit).
+   Écran seulement : à l'impression et dans le PDF, taille A4 réelle. */
+@media screen {
+  .fit-to-screen {
+    zoom: var(--fit-zoom, 1);
+  }
+}
+
 @media print {
   @page {
     size: A4;
@@ -337,6 +345,15 @@ input[type="range"] {
   html,
   body {
     background: #ffffff !important;
+  }
+
+  /* La mise en page du site donne au corps la hauteur de l'écran
+     (`h-full`, `min-h-full`) : plus haute qu'une page A4, elle ajoutait
+     une page blanche à la fin des documents d'une seule page. */
+  html,
+  body {
+    height: auto !important;
+    min-height: 0 !important;
   }
 
   /* On masque l'habillage du site (en-tête, pied de page, bannière cookies,
