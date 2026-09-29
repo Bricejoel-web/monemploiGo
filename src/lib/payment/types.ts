@@ -48,4 +48,6 @@ export interface CheckPaymentStatusResult {
 export interface PaymentGateway {
   initiate(input: InitiatePaymentInput): Promise<InitiatePaymentResult>;
   checkStatus(input: CheckPaymentStatusInput): Promise<CheckPaymentStatusResult>;
+  /** Demande l'annulation d'un paiement non abouti. Vrai si la passerelle l'a acceptée. */
+  cancel?(input: CheckPaymentStatusInput): Promise<boolean>;
 }

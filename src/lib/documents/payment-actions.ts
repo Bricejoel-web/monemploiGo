@@ -6,7 +6,7 @@ import { getGateway } from "@/lib/payment";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { markDocumentPaid } from "@/lib/documents/retention";
-import { refreshPendingPayments, settlePayment } from "@/lib/payment/settle";
+import { ABANDON_MIN_AGE_MS, STALE_PROCESSING_MS, refreshPendingPayments, settlePayment } from "@/lib/payment/settle";
 
 export interface PaymentActionResult {
   status: "success" | "pending" | "failed";
@@ -105,6 +105,40 @@ export async function initiatePaymentAction(documentId: string): Promise<Payment
 
   await prisma.payment.update({ where: { id: payment.id }, data: { status: "FAILED" } });
   return { status: "failed", message: result.message };
+}
+
+/**
+ * Le client a annulé sur son téléphone, ou la demande n'est jamais arrivée :
+ * il abandonne ce paiement pour en relancer un. Jamais de double débit :
+ *   1. on demande à Notch Pay d'annuler la transaction ;
+ *   2. on revérifie son statut réel ;
+ *   3. s'il a finalement réussi → document débloqué, pas de nouveau paiement ;
+ *      s'il est annulé/échoué → nouveau paiement possible tout de suite ;
+ *      s'il est encore « en cours » → nouveau paiement possible seulement
+ *      après STALE_PROCESSING_MS (la demande au téléphone a alors expiré).
+ */
+export async function abandonPaymentAction(paymentId: string): Promise<{ status: "canceled" | "success" | "wait"; waitSeconds?: number }> {
+  const session = await verifySession();
+  if (!session) return { status: "wait" };
+
+  const payment = await prisma.payment.findFirst({ where: { id: paymentId, userId: session.userId } });
+  if (!payment || payment.status === "FAILED") return { status: "canceled" };
+  if (payment.status === "SUCCESS") return { status: "success" };
+  if (!payment.providerRef) return { status: "canceled" };
+
+  const age = Date.now() - payment.createdAt.getTime();
+  if (age < ABANDON_MIN_AGE_MS) return { status: "wait", waitSeconds: Math.ceil((ABANDON_MIN_AGE_MS - age) / 1000) };
+
+  const gateway = getGateway(payment.provider);
+  const ref = { provider: payment.provider, providerRef: payment.providerRef };
+  await gateway.cancel?.(ref);
+  await settlePayment(payment, await gateway.checkStatus(ref));
+
+  const after = await prisma.payment.findUnique({ where: { id: payment.id }, select: { status: true } });
+  if (after?.status === "SUCCESS") return { status: "success" };
+  if (after?.status === "FAILED") return { status: "canceled" };
+  if (age >= STALE_PROCESSING_MS) return { status: "canceled" };
+  return { status: "wait", waitSeconds: Math.ceil((STALE_PROCESSING_MS - age) / 1000) };
 }
 
 export async function checkPaymentStatusAction(paymentId: string): Promise<PaymentActionResult> {

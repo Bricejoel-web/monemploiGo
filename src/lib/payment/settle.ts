@@ -70,6 +70,22 @@ async function leavePending(paymentId: string, status: "FAILED"): Promise<boolea
 const RECENT_PENDING_MS = 48 * 60 * 60 * 1000;
 
 /**
+ * Délai avant de proposer d'abandonner un paiement : le client doit avoir eu
+ * le temps de valider la demande reçue sur son téléphone.
+ */
+export const ABANDON_MIN_AGE_MS = 2 * 60 * 1000;
+
+/**
+ * Au-delà, un paiement « en cours » ne bloque plus un nouveau paiement : la
+ * demande Mobile Money envoyée au téléphone a expiré depuis longtemps, mais
+ * Notch Pay peut mettre des heures à passer la transaction en « échouée »
+ * (mesuré le 2026-09-29 : abandon à 10 h 39, « échoué » à 14 h 40). Sans
+ * cette limite, un client qui avait annulé restait bloqué sur « paiement en
+ * attente, inutile de payer à nouveau ».
+ */
+export const STALE_PROCESSING_MS = 10 * 60 * 1000;
+
+/**
  * Interroge la passerelle pour les paiements encore "en attente" et les
  * règle. Indispensable tant que le webhook Notch Pay ne se déclenche pas :
  * sans cela, un client qui a payé mais n'est pas revenu sur la page de retour
@@ -81,7 +97,7 @@ const RECENT_PENDING_MS = 48 * 60 * 60 * 1000;
  * confirmation chez l'opérateur, s'il y en a un : pendant ce temps, on ne
  * propose pas de repayer.
  */
-export async function refreshPendingPayments(filter: { userId?: string; documentId?: string; limit?: number }): Promise<{ processingPaymentId?: string }> {
+export async function refreshPendingPayments(filter: { userId?: string; documentId?: string; limit?: number }): Promise<{ processingPaymentId?: string; processingSince?: string }> {
   const pending = await prisma.payment.findMany({
     where: {
       status: "PENDING",
@@ -95,10 +111,15 @@ export async function refreshPendingPayments(filter: { userId?: string; document
   });
 
   let processingPaymentId: string | undefined;
+  let processingSince: string | undefined;
   for (const payment of pending) {
     const outcome = await getGateway(payment.provider).checkStatus({ provider: payment.provider, providerRef: payment.providerRef! });
     await settlePayment(payment, outcome);
-    if (outcome.status === "processing" && !processingPaymentId) processingPaymentId = payment.id;
+    const recent = Date.now() - payment.createdAt.getTime() < STALE_PROCESSING_MS;
+    if (outcome.status === "processing" && recent && !processingPaymentId) {
+      processingPaymentId = payment.id;
+      processingSince = payment.createdAt.toISOString();
+    }
   }
-  return { processingPaymentId };
+  return { processingPaymentId, processingSince };
 }

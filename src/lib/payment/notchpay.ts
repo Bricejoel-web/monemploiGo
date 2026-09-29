@@ -29,9 +29,11 @@ const API_BASE_URL = "https://api.notchpay.co";
 // POST /payments et GET /payments/{reference} exigent tous les deux. Le
 // header `X-Grant` (clé PRIVÉE/secrète) ne sert qu'aux opérations dites
 // "sensibles" (solde, transferts, bénéficiaires, gestion des webhooks via
-// l'API) — aucune de ces opérations n'est utilisée ici, donc
-// NOTCHPAY_SECRET_KEY n'est pas consommée par ce fichier pour l'instant.
+// l'API). L'annulation d'un paiement en fait partie (vérifié en bac à
+// sable le 2026-09-29 : 403 avec la clé publique seule, 202 avec X-Grant) :
+// NOTCHPAY_SECRET_KEY sert uniquement à cela, côté serveur.
 const publicKey = process.env.NOTCHPAY_PUBLIC_KEY;
+const secretKey = process.env.NOTCHPAY_SECRET_KEY;
 const webhookHash = process.env.NOTCHPAY_WEBHOOK_HASH;
 
 // Schéma réel observé empiriquement (vérifié par appel direct à l'API
@@ -150,6 +152,22 @@ export const notchpayGateway: PaymentGateway = {
       return { status: "failed" };
     }
     return { status: "pending" };
+  },
+
+  // DELETE /payments/{reference} (api-reference/cancel-a-payment), clé
+  // privée requise. Constaté en bac à sable (2026-09-29) : un paiement
+  // « pending » (aucun opérateur choisi) est annulé (202) ; un paiement
+  // « processing » (demande déjà envoyée au téléphone) est refusé (403) — il
+  // faut attendre son expiration. L'appelant revérifie donc toujours le
+  // statut réel ensuite (voir abandonPaymentAction).
+  async cancel({ providerRef }) {
+    if (!publicKey || !secretKey) return false;
+    const res = await fetch(`${API_BASE_URL}/payments/${providerRef}`, {
+      method: "DELETE",
+      headers: { Authorization: publicKey, "X-Grant": secretKey },
+      signal: AbortSignal.timeout(8000),
+    }).catch(() => null);
+    return Boolean(res?.ok);
   },
 };
 

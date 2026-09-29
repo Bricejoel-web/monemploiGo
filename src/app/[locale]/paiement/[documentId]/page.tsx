@@ -20,7 +20,7 @@ export default async function PaymentPage({ params, searchParams }: PageProps<"/
   // D'abord régler un éventuel paiement resté "en attente" (client revenu
   // par un autre chemin que la page de retour) : le document affiché doit
   // refléter ce que Notch Pay sait déjà.
-  const { processingPaymentId } = await refreshPendingPayments({ userId: session.userId, documentId });
+  const { processingPaymentId, processingSince } = await refreshPendingPayments({ userId: session.userId, documentId });
 
   const document = await prisma.document.findFirst({
     where: { id: documentId, userId: session.userId },
@@ -57,6 +57,7 @@ export default async function PaymentPage({ params, searchParams }: PageProps<"/
         expiresAtIso={expiresAt(document.paidAt ?? new Date()).toISOString()}
         askForReview={!existingReview}
         processingPaymentId={document.status === "PAID" ? undefined : processingPaymentId}
+        processingSinceIso={processingSince}
         returnNotice={returnNotice}
       />
     </div>

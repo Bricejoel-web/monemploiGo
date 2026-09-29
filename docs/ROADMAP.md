@@ -960,3 +960,18 @@ Demande de l'utilisateur : corrections grammaticales côté CV et lettres allema
 - Majuscules automatiques aussi dans l'éditeur Bewerbungsbrief (nom, établissement, formation, attestations).
 
 Vérifié : 17 intitulés de formation, 4 profils complets relus en allemand ; suggestions sur textes corrects (aucune fausse alerte : Excel, MTN, forme, motive, boulanger, prêt a…) et fautifs ; navigateur 7/7 (texte fr et de enregistré à l'identique, notes françaises signalées, « zur Pflegefachkraft », niveau B2).
+
+
+## Paiement abandonné : le client n'est plus bloqué sur « en attente » (2026-09-29)
+
+Signalé par l'utilisateur : après avoir annulé la demande sur son téléphone, le site affichait « paiement en cours de confirmation, inutile de payer à nouveau », sans possibilité de réessayer. Cause : la protection contre le double paiement attend que Notch Pay clôture la transaction ; une demande annulée ou expirée reste « processing » chez Notch Pay pendant des heures (mesuré : abandon à 10 h 39, « failed » à 14 h 40).
+
+Constaté en bac à sable : l'annulation (`DELETE /payments/{ref}`) exige la clé privée (`X-Grant`, 403 avec la clé publique seule) et n'est acceptée que pour un paiement « pending » ; un paiement « processing » (demande déjà envoyée au téléphone) ne peut pas être annulé.
+
+- **Bouton « Annuler ce paiement et réessayer »** (`abandonPaymentAction`), actif 2 min après le début du paiement (compte à rebours) : demande d'annulation à Notch Pay (`NOTCHPAY_SECRET_KEY`, côté serveur), puis revérification du statut réel — réussi → document débloqué ; échoué/annulé → nouveau paiement tout de suite ; encore en cours → « réessayez dans X min ».
+- **Au-delà de 10 min** (`STALE_PROCESSING_MS`), un paiement « en cours » ne bloque plus un nouveau paiement : la demande Mobile Money a expiré. L'ancien paiement reste suivi : s'il réussissait quand même, le document serait débloqué.
+- Mode simulé (`mock.ts`) : références `MOCK-PROCESSING…` / `MOCK-FAILED…` pour tester ce parcours.
+
+Vérifié (navigateur, mode simulé) : 6/6 — compte à rebours, attente à 3 min sans nouveau paiement possible, déblocage à 11 min, ancien paiement toujours suivi, cas « refusé » → « rien n'a été débité » + Payer.
+
+Constat sur les échecs « service de paiement indisponible » : ils ont lieu sur la page de Notch Pay (les paiements ont bien leur référence Notch Pay) ; 1 seul paiement réel réussi sur la journée. À faire par l'utilisateur : support Notch Pay (références transmises), vérifier les canaux Orange/MTN en Live et la vérification du compte.

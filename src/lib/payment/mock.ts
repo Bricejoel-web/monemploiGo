@@ -17,7 +17,11 @@ export const mockGateway: PaymentGateway = {
       message: "Paiement simulé validé instantanément (mode démo).",
     };
   },
-  async checkStatus() {
+  async checkStatus({ providerRef }) {
+    // Pour les tests du parcours « annuler ce paiement et réessayer » : un
+    // paiement resté en cours chez l'opérateur, ou refusé par lui.
+    if (providerRef.startsWith("MOCK-PROCESSING")) return { status: "processing" };
+    if (providerRef.startsWith("MOCK-FAILED")) return { status: "failed" };
     return { status: "success" };
   },
 };
