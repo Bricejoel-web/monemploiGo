@@ -5,13 +5,14 @@ import { verifySession } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
 import { getCvTemplateBySlug, getCoverLetterBySlug, getBewerbungsbriefBySlug } from "@/lib/cv/catalog";
 import type { CvData, CoverLetterData, BewerbungsbriefData } from "@/lib/cv/types";
-import { correctSpelling } from "@/lib/spellcheck";
-
-// Filet de sécurité universel : les fautes d'orthographe des champs de
-// texte libre (jamais les noms/établissements/intitulés — voir
-// src/lib/spellcheck/index.ts) sont corrigées à l'enregistrement, pour
-// tous les documents (y compris le CV, qui n'a pas d'étape de génération),
-// que le texte ait été tapé à la main ou généré puis modifié.
+// Le texte du client est enregistré EXACTEMENT tel qu'il l'a écrit. La
+// correction orthographique automatique qui était appliquée ici a été
+// retirée (2026-09-29) : elle remplaçait tout mot absent du dictionnaire,
+// y compris les logiciels, marques et lieux (« Excel » → « Excellé »,
+// « MTN » → « MAN », « Buea » → « Beta ») et, en allemand, des mots justes
+// (« Zusammenarbeit » → « Zusammenarbeite »). Les fautes sont désormais
+// signalées dans l'éditeur, sous forme de suggestions que le client
+// accepte ou non (voir GrammarHints).
 
 export async function saveCvDocument(
   locale: string,
@@ -26,24 +27,18 @@ export async function saveCvDocument(
   const template = getCvTemplateBySlug(templateSlug);
   if (!template) throw new Error("Modèle introuvable.");
 
-  const spellLocale = template.category === "GERMAN_ATS" ? "de" : locale === "en" ? "en" : "fr";
   const correctedData: CvData = {
     ...data,
-    summary: await correctSpelling(data.summary, spellLocale),
     // Le formulaire démarre avec une ligne vide par défaut pour chaque
     // liste (expérience/formation/langue) : les entrées jamais remplies ne
     // doivent jamais atteindre le document final, sous peine d'un titre de
     // section vide, voire d'artefacts visibles comme " ()" pour une langue
     // sans nom (plusieurs mises en page affichent "nom (niveau)").
-    experience: await Promise.all(
-      data.experience
-        .filter((exp) => exp.role.trim() || exp.company.trim())
-        .map(async (exp) => ({ ...exp, description: await correctSpelling(exp.description, spellLocale) })),
-    ),
+    experience: data.experience.filter((exp) => exp.role.trim() || exp.company.trim()),
     education: data.education.filter((ed) => ed.degree.trim() || ed.school.trim()),
     languages: data.languages.filter((l) => l.name.trim()),
     extras: data.extras?.[0]?.title.trim()
-      ? [{ title: data.extras[0].title, content: await correctSpelling(data.extras[0].content, spellLocale) }]
+      ? [{ title: data.extras[0].title, content: data.extras[0].content }]
       : [],
   };
 
@@ -90,13 +85,7 @@ export async function saveCoverLetterDocument(
   const template = getCoverLetterBySlug(templateSlug);
   if (!template) throw new Error("Modèle introuvable.");
 
-  const spellLocale = locale === "en" ? "en" : "fr";
-  const correctedData: CoverLetterData = {
-    ...data,
-    subject: await correctSpelling(data.subject, spellLocale),
-    body: await correctSpelling(data.body, spellLocale),
-    motivationNotes: data.motivationNotes ? await correctSpelling(data.motivationNotes, spellLocale) : data.motivationNotes,
-  };
+  const correctedData: CoverLetterData = data;
 
   const fields = {
     templateSlug: template.slug,
@@ -137,11 +126,7 @@ export async function saveBewerbungsbriefDocument(
 
   // Toujours en allemand, quelle que soit la langue du site (voir décision
   // "CV Allemagne" dans docs/ROADMAP.md — même principe pour le Bewerbungsbrief).
-  const correctedData: BewerbungsbriefData = {
-    ...data,
-    body: await correctSpelling(data.body, "de"),
-    motivationNotes: data.motivationNotes ? await correctSpelling(data.motivationNotes, "de") : data.motivationNotes,
-  };
+  const correctedData: BewerbungsbriefData = data;
 
   const fields = {
     templateSlug: template.slug,

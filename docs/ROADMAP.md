@@ -943,3 +943,20 @@ Décision de l'utilisateur : **conseils uniquement, jamais bloquants** — le cl
 - Éditeur de lettre : grammaire sur le texte de la lettre, majuscules au nom, à l'entreprise et au destinataire.
 
 Vérifié : 15 tests des fonctions (majuscules, dates, adresse), 11 phrases de grammaire (4 fautes détectées, 7 phrases correctes non signalées), éditeur dans le navigateur 11/11 (dont « Enregistrer et passer au paiement » fonctionne malgré les avertissements, et document enregistré avec les majuscules).
+
+
+## Correction automatique retirée (elle abîmait les CV) + allemand et Bewerbungsbrief revus (2026-09-29)
+
+Demande de l'utilisateur : corrections grammaticales côté CV et lettres allemandes (« secteur délicat »), Bewerbungsbrief généré totalement correct et cohérent avec le formulaire. Option « petite histoire / expérience » résumée par l'IA : **reportée** (décision de l'utilisateur : pas d'IA pour l'instant — sans IA, le texte ne pourrait qu'être recopié).
+
+**Découvert en testant — défaut grave déjà en production** : la correction orthographique automatique et silencieuse appliquée à l'enregistrement (`correctSpelling`) remplaçait tout mot absent du dictionnaire : « Excel » → « Excellé », « Word » → « Bord », « PowerPoint » → « PourPoint », « MTN Cameroon » → « MAN Cameron », « Buea » → « Beta » ; en allemand, `nspell` lit mal le dictionnaire (mots composés) et abîmait des mots justes : « gut » → « Gut », « verbessern » → « Verbessern », « Unterstützung » → « Unterstützungs », « Zusammenarbeit » → « Zusammenarbeite ». Le corps des Bewerbungsbriefs était lui aussi « corrigé » à l'enregistrement. Les documents déjà enregistrés ne peuvent pas être réparés (le texte d'origine n'est pas conservé). En outre, le dictionnaire français met ~20 s à se charger en bloquant le serveur (premier enregistrement très lent après chaque démarrage).
+
+- **Correction silencieuse retirée partout** : le texte est enregistré exactement tel que le client l'a écrit.
+- **Suggestions à la place** (`GrammarHints`, bouton « Corriger », jamais appliquées d'office) :
+  - français : participe passé après être/avoir (règles, sans dictionnaire : listes de noms en -er / -ier exclus) + 106 fautes fréquentes des CV (accents oubliés : tres, experience, equipe…), liste fermée sans mots ambigus ;
+  - anglais : dictionnaire (0,4 s), mots en minuscules seulement, 4 suggestions au plus ;
+  - allemand : majuscule en début de phrase seulement (le dictionnaire allemand n'est pas fiable avec `nspell`).
+- **Bewerbungsbrief (générateur par règles) réécrit** : « zum/zur/in der/im » selon le métier ou le domaine (Pflegefachkraft → zur, Pflege → in der, Kauffrau im Einzelhandel → zur, Pflegefachmann/-frau → zum/zur) ; plus jamais de nom d'établissement inséré sans article (« bei Universitätsklinikum Köln ») ; attestations en liste grammaticale ; phrase sur l'allemand fidèle au niveau (A1/A2 : « lerne intensiv weiter » — plus de « gut verständigen » pour un A2) ; date de début en toutes lettres (« ab September 2027 ») ; « Einrichtung » pour la Pflege ; notes du client après ses expériences ; notes rédigées en français détectées (petits mots courants) → non insérées + avertissement.
+- Majuscules automatiques aussi dans l'éditeur Bewerbungsbrief (nom, établissement, formation, attestations).
+
+Vérifié : 17 intitulés de formation, 4 profils complets relus en allemand ; suggestions sur textes corrects (aucune fausse alerte : Excel, MTN, forme, motive, boulanger, prêt a…) et fautifs ; navigateur 7/7 (texte fr et de enregistré à l'identique, notes françaises signalées, « zur Pflegefachkraft », niveau B2).

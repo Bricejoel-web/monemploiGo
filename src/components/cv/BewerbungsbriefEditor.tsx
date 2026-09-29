@@ -10,6 +10,8 @@ import { EditorA4Preview } from "./EditorA4Preview";
 import { Field } from "./FormField";
 import { saveBewerbungsbriefDocument } from "@/lib/documents/actions";
 import { generateBewerbungsbriefBodyAction, isAiGenerationAvailableAction } from "@/lib/documents/generate-actions";
+import { GrammarHints } from "./GrammarHints";
+import { capitalizeFirst, capitalizeWords } from "@/lib/cv/quality";
 
 const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1"];
 
@@ -74,6 +76,11 @@ export function BewerbungsbriefEditor({
   const [pending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | undefined>();
   const [generating, setGenerating] = useState(false);
+  // Notes de motivation écrites en français : non insérées dans la lettre allemande.
+  const [notesNotGerman, setNotesNotGerman] = useState(false);
+  const grammarLabels = { grammarHint: dict.editor.grammarHint, grammarInsteadOf: dict.editor.grammarInsteadOf, grammarFix: dict.editor.grammarFix };
+  const setQual = (i: number, patch: Partial<BewerbungsbriefData["qualifications"][number]>) =>
+    setData((prev) => ({ ...prev, qualifications: prev.qualifications.map((x, j) => (j === i ? { ...x, ...patch } : x)) }));
   const [aiAvailable, setAiAvailable] = useState(false);
   const [availableNow, setAvailableNow] = useState(() => !data.availabilityDate);
   const [dayOverrides, setDayOverrides] = useState<Record<string, string>>({});
@@ -100,6 +107,7 @@ export function BewerbungsbriefEditor({
       const result = await generateBewerbungsbriefBodyAction(data, mode);
       if (result.text) update("body", result.text);
       else if (result.error) setSaveError(result.error);
+      setNotesNotGerman(result.notice === "notesNotGerman");
       setGenerating(false);
     });
   };
@@ -136,7 +144,7 @@ export function BewerbungsbriefEditor({
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.personalInfo}</h2>
           <Field id="bb-fullName" label={dict.editor.fullName}>
-            <input id="bb-fullName" value={data.fullName} onChange={(e) => update("fullName", e.target.value)} className="input" />
+            <input id="bb-fullName" value={data.fullName} onChange={(e) => update("fullName", e.target.value)} onBlur={(e) => update("fullName", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="bb-address" label={dict.editor.address}>
             <input id="bb-address" value={data.address} onChange={(e) => update("address", e.target.value)} className="input" />
@@ -152,7 +160,7 @@ export function BewerbungsbriefEditor({
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.bbTargetTitle}</h2>
           <Field id="bb-recipientInstitution" label={dict.editor.recipientCompany}>
-            <input id="bb-recipientInstitution" value={data.recipientInstitution} onChange={(e) => update("recipientInstitution", e.target.value)} className="input" />
+            <input id="bb-recipientInstitution" value={data.recipientInstitution} onChange={(e) => update("recipientInstitution", e.target.value)} onBlur={(e) => update("recipientInstitution", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="bb-recipientAddress" label={dict.editor.bbRecipientAddress} optionalLabel={dict.editor.optional}>
             <input id="bb-recipientAddress" value={data.recipientAddress ?? ""} onChange={(e) => update("recipientAddress", e.target.value)} className="input" />
@@ -169,7 +177,7 @@ export function BewerbungsbriefEditor({
             </Field>
           </div>
           <Field id="bb-targetProgram" label={dict.editor.bbTargetProgram}>
-            <input id="bb-targetProgram" placeholder="Ausbildung zur Pflegefachfrau" value={data.targetProgram} onChange={(e) => update("targetProgram", e.target.value)} className="input" />
+            <input id="bb-targetProgram" placeholder="Ausbildung zur Pflegefachfrau" value={data.targetProgram} onChange={(e) => update("targetProgram", e.target.value)} onBlur={(e) => update("targetProgram", capitalizeFirst(e.target.value))} className="input" />
           </Field>
           <Field id="bb-referenceNumber" label={dict.editor.bbReferenceNumber} optionalLabel={dict.editor.optional}>
             <input id="bb-referenceNumber" value={data.referenceNumber ?? ""} onChange={(e) => update("referenceNumber", e.target.value)} className="input" />
@@ -195,7 +203,8 @@ export function BewerbungsbriefEditor({
                   <input
                     id={`bb-qual-title-${i}`}
                     value={q.title}
-                    onChange={(e) => update("qualifications", data.qualifications.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))}
+                    onChange={(e) => setQual(i, { title: e.target.value })}
+                    onBlur={(e) => setQual(i, { title: capitalizeFirst(e.target.value) })}
                     className="input"
                   />
                 </Field>
@@ -203,7 +212,8 @@ export function BewerbungsbriefEditor({
                   <input
                     id={`bb-qual-institution-${i}`}
                     value={q.institution}
-                    onChange={(e) => update("qualifications", data.qualifications.map((x, j) => (j === i ? { ...x, institution: e.target.value } : x)))}
+                    onChange={(e) => setQual(i, { institution: e.target.value })}
+                    onBlur={(e) => setQual(i, { institution: capitalizeWords(e.target.value) })}
                     className="input"
                   />
                 </Field>
@@ -296,6 +306,7 @@ export function BewerbungsbriefEditor({
           <p className="-mt-1 text-xs text-black/50 dark:text-white/50">{dict.editor.bbMotivationNotesHint}</p>
           <Field id="bb-motivationNotes" label={dict.editor.bbMotivationNotes} optionalLabel={dict.editor.optional}>
             <textarea id="bb-motivationNotes" value={data.motivationNotes ?? ""} onChange={(e) => update("motivationNotes", e.target.value)} className="input min-h-16" />
+            <GrammarHints text={data.motivationNotes ?? ""} language="de" onApply={(t) => update("motivationNotes", t)} labels={grammarLabels} />
           </Field>
         </section>
 
@@ -324,6 +335,12 @@ export function BewerbungsbriefEditor({
           </div>
           <Field id="bb-body" label={dict.editor.body}>
             <textarea id="bb-body" value={data.body} onChange={(e) => update("body", e.target.value)} className="input min-h-64" />
+            {notesNotGerman && (
+              <p role="status" className="rounded-lg border border-amber-300/70 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-200">
+                {dict.editor.bbNotesNotGerman}
+              </p>
+            )}
+            <GrammarHints text={data.body} language="de" onApply={(t) => update("body", t)} labels={grammarLabels} />
           </Field>
         </section>
 

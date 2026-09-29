@@ -56,15 +56,94 @@ import { callOpenAiChat, isOpenAiConfigured } from "./openai-client";
 
 export { isOpenAiConfigured };
 
-// La plupart des noms de métiers allemands en Ausbildung se terminent en
-// "-er" et sont masculins (Mechatroniker, Elektroniker, Techniker...) — le
-// masculin sert donc de valeur par défaut, avec détection des suffixes
-// explicitement féminins/masculins pour les cas fréquents (Kauffrau,
-// Kaufmann, Fachfrau, Fachmann...).
-function germanArticleFor(program: string): "zum" | "zur" {
-  if (/frau\b/i.test(program)) return "zur";
-  if (/mann\b/i.test(program)) return "zum";
-  return "zum";
+/**
+ * Formulations grammaticalement justes pour la formation visée, quelle que
+ * soit la façon dont le client l'a saisie (troisième relecture, 2026-09-29 :
+ * « Ausbildungsplatz zum Pflegefachkraft », « zum Pflege », « als Pflege
+ * arbeiten » étaient produits).
+ *   - un métier masculin (Mechatroniker, Pflegefachmann, Kaufmann…) : « zum » ;
+ *   - un métier féminin (Pflegefachkraft, Pflegefachfrau, Erzieherin…) : « zur » ;
+ *   - un domaine (Pflege, Altenpflege, Gastronomie, Logistik…) : « in der »,
+ *     ou « im » (Einzelhandel, Gesundheitswesen) — et « als Fachkraft in der
+ *     Pflege » plutôt que « als Pflege ».
+ */
+interface ProgramWording {
+  /** Accusatif : « bewerbe mich um … ». */
+  position: string;
+  /** Datif : « Interesse an … ». */
+  positionDative: string;
+  /** « … in Deutschland zu arbeiten » : « als Pflegefachfrau », « als Fachkraft in der Pflege ». */
+  futureRole: string;
+}
+
+function cleanProgram(raw: string): string {
+  return raw
+    .replace(/\((?:m|w|d|f)(?:\s*\/\s*(?:m|w|d|f))*\)/gi, "") // « (m/w/d) »
+    .replace(/^\s*(?:eine?n?\s+)?ausbildung(?:splatz|sstelle)?\s+(?:zum|zur|als|in der|im)\s+/i, "") // « Ausbildung zur … »
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function describeProgram(rawProgram: string | undefined): ProgramWording {
+  const program = rawProgram ? cleanProgram(rawProgram) : "";
+  if (!program) {
+    return { position: "eine Ausbildungsstelle", positionDative: "einer Ausbildungsstelle", futureRole: "als Fachkraft" };
+  }
+  // Mot principal : avant « für »/« im »/« in der » (« Kaufmann für
+  // Büromanagement », « Kauffrau im Einzelhandel »), le dernier mot
+  // (« Gesundheits- und Krankenpflege »), avant une barre oblique
+  // (« Pflegefachmann/-frau »).
+  const head = program.split(/\s+(?:für|im|in|bei)\s+/i)[0];
+  const lastWord = head.split(/\s+/).pop()!;
+  const main = lastWord.split("/")[0];
+  // « Pflegefachmann/-frau », « Kaufmann/-frau » : formule des annonces allemandes.
+  if (/mann\/-?\s*frau/i.test(lastWord) || /frau\/-?\s*mann/i.test(lastWord)) {
+    return { position: `einen Ausbildungsplatz zum/zur ${program}`, positionDative: `einem Ausbildungsplatz zum/zur ${program}`, futureRole: `als ${program}` };
+  }
+  // Domaine plutôt que métier.
+  if (/(?:wesen|bereich|handel|dienst)$/i.test(main)) {
+    return { position: `einen Ausbildungsplatz im ${program}`, positionDative: `einem Ausbildungsplatz im ${program}`, futureRole: `als Fachkraft im ${program}` };
+  }
+  if (/(?:pflege|ung|ie|ik|logistik|gastronomie|hotellerie)$/i.test(main) && !/(?:kraft|frau|mann|er|in)$/i.test(main)) {
+    return { position: `einen Ausbildungsplatz in der ${program}`, positionDative: `einem Ausbildungsplatz in der ${program}`, futureRole: `als Fachkraft in der ${program}` };
+  }
+  const article = /(?:frau|kraft|in)$/i.test(main) && !/mann$/i.test(main) ? "zur" : "zum";
+  return {
+    position: `einen Ausbildungsplatz ${article} ${program}`,
+    positionDative: `einem Ausbildungsplatz ${article} ${program}`,
+    futureRole: `als ${program}`,
+  };
+}
+
+const GERMAN_MONTHS = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+
+/** « 09/2027 » → « September 2027 » (sinon la valeur telle quelle). */
+function germanMonthYear(value: string): string {
+  const m = value.trim().match(/^(\d{1,2})\/(\d{4})$/);
+  if (!m || Number(m[1]) < 1 || Number(m[1]) > 12) return value.trim();
+  return `${GERMAN_MONTHS[Number(m[1]) - 1]} ${m[2]}`;
+}
+
+/** Phrase sur l'allemand, fidèle au niveau réellement indiqué (A1 → C2). */
+function languageSentence(level: string | undefined): string {
+  const raw = (level ?? "").trim();
+  if (!raw) return "";
+  const cefr = raw.toUpperCase().match(/\b([ABC][12])\b/)?.[1];
+  if (cefr === "A1" || cefr === "A2") {
+    return `Derzeit verfüge ich über Deutschkenntnisse auf dem Niveau ${raw} und lerne intensiv weiter, um das für die Ausbildung erforderliche Sprachniveau zu erreichen.`;
+  }
+  if (cefr === "B1") {
+    return `Meine Deutschkenntnisse auf dem Niveau ${raw} ermöglichen es mir, mich im Alltag sicher zu verständigen. Ich arbeite kontinuierlich daran, sie weiter auszubauen, insbesondere im Hinblick auf die Fachsprache.`;
+  }
+  if (cefr === "C1" || cefr === "C2") {
+    return `Dank meiner Deutschkenntnisse auf dem Niveau ${raw} kann ich mich auch in anspruchsvollen beruflichen Situationen sicher und präzise ausdrücken.`;
+  }
+  return `Meine Deutschkenntnisse auf dem Niveau ${raw} ermöglichen es mir, mich im beruflichen Alltag gut zu verständigen. Gleichzeitig arbeite ich kontinuierlich daran, meine Fachsprache weiter zu verbessern.`;
+}
+
+/** « a, b und c ». */
+function germanList(items: string[]): string {
+  return items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} und ${items[items.length - 1]}`;
 }
 
 function hashSeed(seed: string): number {
@@ -113,40 +192,44 @@ function availabilityClause(availabilityDate?: string): string {
   if (!availabilityDate || /^(sofort|dès que possible|asap)$/i.test(availabilityDate.trim())) {
     return "Für einen Ausbildungsbeginn stehe ich nach Absprache flexibel zur Verfügung.";
   }
-  return `Ich kann die Ausbildung ab ${availabilityDate} beginnen.`;
+  return `Die Ausbildung könnte ich ab ${germanMonthYear(availabilityDate)} beginnen.`;
 }
 
+/**
+ * Corps de la lettre par règles. Principe de la troisième relecture
+ * (2026-09-29) : une information saisie par le client n'est jamais insérée
+ * à un endroit où la grammaire allemande exigerait un article ou un cas
+ * qu'on ne peut pas deviner (« bei Universitätsklinikum Köln », « Im
+ * Rahmen von Praktikum »). Le nom de l'établissement figure déjà dans
+ * l'adresse du destinataire ; les attestations sont présentées en liste.
+ */
 export function buildFallbackBody(data: BewerbungsbriefData): string {
-  // `program` reste `undefined` tant que l'utilisateur n'a rien saisi : la
-  // collocation "Ausbildungsplatz zum/zur [métier]" exige un vrai nom de
-  // métier après l'article de genre (contrairement à "als", qui acceptait
-  // n'importe quelle formule de secours). Sans métier précisé, on utilise
-  // donc "eine Ausbildungsstelle", une formule neutre qui n'a besoin
-  // d'aucun article de genre.
-  const program = data.targetProgram?.trim() || undefined;
-  const institution = data.recipientInstitution || "Ihrem Unternehmen";
-  const seed = `${data.fullName}-${program ?? ""}-${institution}`;
+  const program = data.targetProgram?.trim() || "";
+  const wording = describeProgram(program);
+  const category = categorizeProgram(program);
+  const seed = `${data.fullName}-${program}-${data.recipientInstitution ?? ""}`;
+  // Un hôpital ou une maison de retraite est une « Einrichtung », pas une entreprise.
+  const workplace = category === "pflege" ? "Ihrer Einrichtung" : "Ihrem Unternehmen";
 
-  const positionPhrase = program ? `einen Ausbildungsplatz ${germanArticleFor(program)} ${program}` : "eine Ausbildungsstelle";
   const openings = [
-    `mit großem Interesse bewerbe ich mich um ${positionPhrase} bei ${institution}.`,
-    `${institution} genießt einen ausgezeichneten Ruf, und ich bewerbe mich daher sehr gerne um ${positionPhrase} in Ihrem Unternehmen.`,
-    `mit dieser Bewerbung möchte ich Ihnen mein ernsthaftes Interesse an ${positionPhrase} bei ${institution} darlegen.`,
+    `mit großem Interesse bewerbe ich mich bei Ihnen um ${wording.position}.`,
+    `mit dieser Bewerbung möchte ich Ihnen mein ernsthaftes Interesse an ${wording.positionDative} in ${workplace} zeigen.`,
+    `sehr gerne bewerbe ich mich bei Ihnen um ${wording.position}, denn ich möchte meine berufliche Zukunft in Deutschland aufbauen.`,
   ];
-  const sourceSentence = data.sourceOfListing ? ` Auf die Ausbildungsstelle bin ich über ${data.sourceOfListing} aufmerksam geworden.` : "";
-  const professionSentence = pick(PROFESSION_MOTIVATION[categorizeProgram(program ?? "")], seed);
+  const source = data.sourceOfListing?.trim();
+  const sourceSentence = source ? ` Auf Ihre Ausschreibung bin ich über ${source} aufmerksam geworden.` : "";
+  const professionSentence = pick(PROFESSION_MOTIVATION[category], seed);
   const paragraph1 = `${pick(openings, seed)}${sourceSentence} ${professionSentence}`;
 
-  // Le formulaire démarre avec une ligne d'attestation vide (voir
-  // BewerbungsbriefEditor.tsx) : filtrer les entrées sans intitulé pour
-  // éviter un paragraphe du type "Im Rahmen von  konnte ich..." (espace
-  // vide) quand l'utilisateur génère avant d'avoir rempli une attestation.
+  // Le formulaire démarre avec une ligne d'attestation vide : on ignore les
+  // entrées sans intitulé.
   const filledQualifications = data.qualifications.filter((q) => q.title.trim());
   let paragraph2 = "";
   if (filledQualifications.length > 0) {
-    const quals = filledQualifications
-      .map((q) => `${q.title}${q.institution ? ` an ${q.institution}` : ""}${q.date ? ` (${q.date})` : ""}`)
-      .join(", ");
+    const items = filledQualifications.map((q) => {
+      const details = [q.institution?.trim(), q.date?.trim() ? germanMonthYear(q.date) : ""].filter(Boolean).join(", ");
+      return details ? `${q.title.trim()} (${details})` : q.title.trim();
+    });
     const traits = pick(
       [
         "sorgfältig, zuverlässig und verantwortungsbewusst zu arbeiten",
@@ -155,23 +238,24 @@ export function buildFallbackBody(data: BewerbungsbriefData): string {
       ],
       `${seed}-traits`,
     );
-    paragraph2 = `Im Rahmen von ${quals} konnte ich bereits erste praktische Kenntnisse in diesem Bereich sammeln. Dabei habe ich gelernt, ${traits}.`;
+    const intro = filledQualifications.length === 1 ? "Eine erste praktische Erfahrung bringe ich bereits mit:" : "Folgende erste Erfahrungen und Qualifikationen bringe ich bereits mit:";
+    paragraph2 = `${intro} ${germanList(items)}. Dabei habe ich gelernt, ${traits}.`;
   }
 
-  const languageSentence = data.languageLevel
-    ? `Mein Deutsch auf dem Niveau ${data.languageLevel} ermöglicht es mir bereits, mich im beruflichen Alltag gut zu verständigen. Gleichzeitig arbeite ich kontinuierlich daran, meine Deutschkenntnisse weiter zu verbessern.`
-    : "";
+  const languageParagraph = languageSentence(data.languageLevel);
 
   // Un employeur qui recrute à l'étranger a besoin d'être rassuré sur
   // l'engagement du candidat (risque d'abandon en cours de formation).
-  const paragraph4 = `Für diese Ausbildung bin ich bereit, nach Deutschland umzuziehen. Ich habe mich bereits mit den notwendigen Schritten für einen Ausbildungsbeginn in Deutschland beschäftigt und bin sehr motiviert, die Ausbildung erfolgreich abzuschließen und langfristig als ${program ?? "Fachkraft"} in Deutschland zu arbeiten.`;
+  const paragraph4 = `Für diese Ausbildung bin ich bereit, nach Deutschland umzuziehen. Ich habe mich bereits mit den notwendigen Schritten für einen Ausbildungsbeginn in Deutschland beschäftigt und bin sehr motiviert, die Ausbildung erfolgreich abzuschließen und langfristig ${wording.futureRole} in Deutschland zu arbeiten.`;
 
+  // Notes du client, en allemand (vérifié en amont : des notes rédigées dans
+  // une autre langue ne sont pas insérées — voir generate-actions.ts).
   const motivationNotes = data.motivationNotes?.trim() || "";
 
   const valueSummaries = [
     `Eine Ausbildungsstelle bei Ihnen wäre für mich eine hervorragende Gelegenheit, meine bisherigen Kenntnisse weiterzuentwickeln, neue Fähigkeiten zu erwerben und mich engagiert in Ihr Team einzubringen.`,
-    `Eine Ausbildungsstelle in Ihrem Unternehmen würde mir die Möglichkeit geben, meine Fähigkeiten gezielt weiterzuentwickeln und von Beginn an einen echten Beitrag zu leisten.`,
-    `Ich wäre stolz darauf, meine Ausbildung in Ihrem Unternehmen zu absolvieren und mit Engagement zum Erfolg Ihres Teams beizutragen.`,
+    `Eine Ausbildung in ${workplace} würde mir die Möglichkeit geben, meine Fähigkeiten gezielt weiterzuentwickeln und von Beginn an einen echten Beitrag zu leisten.`,
+    `Ich wäre stolz darauf, meine Ausbildung in ${workplace} zu absolvieren und mit Engagement zum Erfolg Ihres Teams beizutragen.`,
   ];
   const paragraph6 = pick(valueSummaries, `${seed}-value`);
 
@@ -182,7 +266,9 @@ export function buildFallbackBody(data: BewerbungsbriefData): string {
   ];
   const paragraph7 = `${pick(closings, `${seed}-closing`)} ${availabilityClause(data.availabilityDate)}`;
 
-  return [paragraph1, paragraph2, languageSentence, paragraph4, motivationNotes, paragraph6, paragraph7]
+  // Les notes du client suivent ses expériences : c'est là qu'une anecdote
+  // ou une précision personnelle prend son sens.
+  return [paragraph1, paragraph2, motivationNotes, languageParagraph, paragraph4, paragraph6, paragraph7]
     .filter(Boolean)
     .join("\n\n");
 }

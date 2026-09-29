@@ -3,6 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { grammarSuggestionsAction } from "@/lib/documents/grammar-actions";
 
+/** Remplace le mot ou groupe de mots entier (jamais « erfahrung » dans « Berufserfahrung »), à chaque occurrence. */
+function replaceWhole(text: string, wrong: string, fix: string): string {
+  const escaped = wrong.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.replace(new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "gu"), fix);
+}
+
 /**
  * Suggestions sous un champ de texte : « Vouliez-vous écrire « j'étais
  * chargé » ? [Corriger] ». Le client reste libre de les ignorer.
@@ -15,7 +21,7 @@ export function GrammarHints({
   labels,
 }: {
   text: string;
-  /** Langue du document ("fr" uniquement vérifié pour l'instant). */
+  /** Langue du document : "fr", "en" et "de" sont vérifiés. */
   language: string;
   onApply: (corrected: string) => void;
   /** Nombre de suggestions, pour l'encadré « À vérifier avant de payer ». */
@@ -31,7 +37,7 @@ export function GrammarHints({
     let cancelled = false;
     // Petite attente : on vérifie quand le client marque une pause, pas à chaque lettre.
     const timer = setTimeout(async () => {
-      const issues = language === "fr" && text.trim() ? await grammarSuggestionsAction(text, language).catch(() => []) : [];
+      const issues = ["fr", "de", "en"].includes(language) && text.trim() ? await grammarSuggestionsAction(text, language).catch(() => []) : [];
       if (cancelled) return;
       setChecked({ text, issues });
       onCountChange?.(issues.length);
@@ -63,7 +69,7 @@ export function GrammarHints({
           </span>
           <button
             type="button"
-            onClick={() => onApply(text.replace(issue.wrong, issue.fix))}
+            onClick={() => onApply(replaceWhole(text, issue.wrong, issue.fix))}
             className="rounded-full bg-amber-600 px-2.5 py-0.5 font-semibold text-white hover:bg-amber-700"
           >
             {labels.grammarFix}

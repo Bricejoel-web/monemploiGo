@@ -5,12 +5,14 @@ import type { BewerbungsbriefData, CoverLetterData } from "@/lib/cv/types";
 import type { Locale } from "@/i18n/config";
 import { buildFallbackBody, generateWithOpenAI, isOpenAiConfigured } from "@/lib/ai/bewerbungsbrief";
 import { buildFallbackCoverLetterBody, generateCoverLetterWithOpenAI } from "@/lib/ai/cover-letter";
-import { correctSpelling } from "@/lib/spellcheck";
+import { detectGermanOrFrench } from "@/lib/spellcheck";
 import { rateLimit } from "@/lib/security/rate-limit";
 
 export interface GenerateBodyResult {
   text?: string;
   error?: string;
+  /** Information non bloquante à afficher sous le texte généré. */
+  notice?: "notesNotGerman";
 }
 
 export async function isAiGenerationAvailableAction(): Promise<boolean> {
@@ -24,10 +26,9 @@ export async function isAiGenerationAvailableAction(): Promise<boolean> {
 const GENERATE_LIMIT = 20;
 const GENERATE_WINDOW_MS = 5 * 60 * 1000;
 
-// Les fautes d'orthographe de l'utilisateur dans les notes de motivation
-// (seul champ de texte libre qui alimente la génération) sont corrigées
-// avant même de composer la lettre, pour que le texte affiché à l'utilisateur
-// soit déjà propre — voir src/lib/spellcheck/index.ts.
+// Les notes du client sont reprises telles quelles (plus de correction
+// silencieuse : voir src/lib/documents/actions.ts) ; les fautes éventuelles
+// sont signalées dans l'éditeur.
 export async function generateBewerbungsbriefBodyAction(
   data: BewerbungsbriefData,
   mode: "rules" | "ai",
@@ -39,13 +40,18 @@ export async function generateBewerbungsbriefBodyAction(
     return { error: "Trop de générations. Réessayez dans quelques minutes." };
   }
 
+  // Des notes rédigées en français seraient collées telles quelles au milieu
+  // d'une lettre allemande : le générateur par règles ne sait pas traduire.
+  // On les laisse de côté et on prévient le client.
+  const notesLanguage = data.motivationNotes?.trim() ? await detectGermanOrFrench(data.motivationNotes) : "unknown";
+  const notesNotGerman = notesLanguage === "fr";
   const correctedData: BewerbungsbriefData = {
     ...data,
-    motivationNotes: data.motivationNotes ? await correctSpelling(data.motivationNotes, "de") : data.motivationNotes,
+    motivationNotes: notesNotGerman ? "" : data.motivationNotes,
   };
 
   if (mode === "rules") {
-    return { text: buildFallbackBody(correctedData) };
+    return { text: buildFallbackBody(correctedData), ...(notesNotGerman ? { notice: "notesNotGerman" as const } : {}) };
   }
 
   const result = await generateWithOpenAI(correctedData);
@@ -65,11 +71,7 @@ export async function generateCoverLetterBodyAction(
     return { error: "Trop de générations. Réessayez dans quelques minutes." };
   }
 
-  const spellLocale = locale === "en" ? "en" : "fr";
-  const correctedData: CoverLetterData = {
-    ...data,
-    motivationNotes: data.motivationNotes ? await correctSpelling(data.motivationNotes, spellLocale) : data.motivationNotes,
-  };
+  const correctedData: CoverLetterData = data;
 
   if (mode === "rules") {
     return { text: buildFallbackCoverLetterBody(correctedData, locale) };
