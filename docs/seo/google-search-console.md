@@ -8,6 +8,8 @@ Le site n'a pas encore de nom de domaine propre : il est à l'adresse `https://m
 
 Le site est déjà prêt : il affiche automatiquement la balise de vérification dès que le réglage `GOOGLE_SITE_VERIFICATION` est renseigné dans Vercel (voir `src/app/[locale]/layout.tsx`). Le code de vérification est **public** par nature (il apparaît dans le code de la page) : ce n'est pas un secret.
 
+**Méthode réellement utilisée (29/09/2026) : le fichier HTML.** Google a fourni le fichier `google832f5d6f9ab6663c.html`, placé dans `public/` : il est servi à `https://monemploigo.vercel.app/google832f5d6f9ab6663c.html`. **Ne jamais supprimer ce fichier** : Google vérifie régulièrement sa présence. La méthode par balise ci-dessous reste disponible en secours.
+
 ## Étapes
 
 1. Ouvrez https://search.google.com/search-console et connectez-vous avec le compte Google du site (**monemploigo.contact@gmail.com**, recommandé : l'accès reste lié à l'entreprise).
