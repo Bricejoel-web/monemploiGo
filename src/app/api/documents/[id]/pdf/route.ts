@@ -29,9 +29,11 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/api/document
   const langParam = request.nextUrl.searchParams.get("lang") ?? "";
   const locale = isLocale(langParam) ? langParam : "fr";
   const previewPage = new URL(`/${locale}/document/${id}/apercu`, request.nextUrl.origin);
-  const backWithError = () => {
+  const backWithError = (reason?: string) => {
     const url = new URL(previewPage);
     url.searchParams.set("pdf", "erreur");
+    // Diagnostic sur les prévisualisations seulement (jamais en production).
+    if (reason && process.env.VERCEL_ENV === "preview") url.searchParams.set("raison", reason.slice(0, 300));
     return NextResponse.redirect(url, 303);
   };
 
@@ -55,8 +57,9 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/api/document
   try {
     pdf = await renderPageToPdf(renderUrl.toString(), cookies);
   } catch (error) {
-    console.error("[pdf] échec du rendu", id, error instanceof Error ? error.message : error);
-    return backWithError();
+    const reason = error instanceof Error ? error.message : String(error);
+    console.error("[pdf] échec du rendu", id, reason);
+    return backWithError(reason);
   }
 
   const name = asciiSlug(loaded.data.fullName || "") || "monemploiGo";
