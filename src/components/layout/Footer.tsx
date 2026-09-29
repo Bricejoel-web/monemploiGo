@@ -72,7 +72,7 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
           </ul>
         </div>
       </div>
-      <div className="mx-auto mt-10 max-w-6xl border-t border-black/[0.06] pt-6 text-xs text-black/40 dark:border-white/10 dark:text-white/40">
+      <div className="mx-auto mt-10 max-w-6xl border-t border-black/[0.06] pt-6 text-xs text-black/60 dark:border-white/10 dark:text-white/60">
         © {new Date().getFullYear()} {dict.site.name}. {dict.footer.rightsReserved}
       </div>
     </footer>
