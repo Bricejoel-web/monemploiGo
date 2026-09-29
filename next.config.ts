@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
   // PDF des documents (src/app/api/documents/[id]/pdf) : le binaire Chromium
   // compressé est lu à l'exécution, le traçage automatique ne le voit pas.
   outputFileTracingIncludes: {
-    "/api/documents/[id]/pdf": ["./node_modules/@sparticuz/chromium/bin/**"],
+    "/api/documents/*/pdf": ["./node_modules/@sparticuz/chromium/bin/**"],
   },
   async headers() {
     return [
