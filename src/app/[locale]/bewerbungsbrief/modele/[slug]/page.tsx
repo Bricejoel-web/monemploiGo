@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/client";
 import { getBewerbungsbriefBySlug } from "@/lib/cv/catalog";
 import { BewerbungsbriefEditor } from "@/components/cv/BewerbungsbriefEditor";
 import type { BewerbungsbriefData } from "@/lib/cv/types";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 export default async function BewerbungsbriefEditorPage({ params, searchParams }: PageProps<"/[locale]/bewerbungsbrief/modele/[slug]">) {
   const { locale, slug } = await params;
@@ -36,12 +37,15 @@ export default async function BewerbungsbriefEditorPage({ params, searchParams }
   }
 
   return (
-    <BewerbungsbriefEditor
-      template={template}
-      dict={dict}
-      locale={locale as Locale}
-      documentId={resolvedDocumentId}
-      initialData={initialData}
-    />
+    <>
+      <CvFonts />
+      <BewerbungsbriefEditor
+        template={template}
+        dict={dict}
+        locale={locale as Locale}
+        documentId={resolvedDocumentId}
+        initialData={initialData}
+      />
+    </>
   );
 }

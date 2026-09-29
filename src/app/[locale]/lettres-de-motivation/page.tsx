@@ -5,10 +5,13 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { coverLetterCatalog, CL_LAYOUT_LABELS } from "@/lib/cv/catalog";
 import { CoverLetterRenderer } from "@/components/cv/CoverLetterRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
-import { CatalogSwipeSection } from "@/components/cv/CatalogSwipeSection";
+import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
 import { getSampleCoverLetterData } from "@/lib/cv/sample-data";
 import type { CoverLetterTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { seoMetadata } from "@/lib/seo-pages";
+import { COVER_LETTER_PRICE_FCFA } from "@/lib/cv/catalog";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 function TemplateCard({
   template,
@@ -16,21 +19,17 @@ function TemplateCard({
   dict,
   sample,
   index,
-  mode,
 }: {
   template: CoverLetterTemplateMeta;
   locale: Locale;
   dict: Dictionary;
   sample: ReturnType<typeof getSampleCoverLetterData>;
   index: number;
-  mode: "grid" | "scroll";
 }) {
   return (
     <Link
       href={`/${locale}/lettres-de-motivation/modele/${template.slug}`}
-      className={`animate-fade-in-up group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/[0.06] ${
-        mode === "scroll" ? "w-72 shrink-0 snap-start" : "w-full"
-      }`}
+      className={`animate-fade-in-up group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/[0.06] ${CATALOG_CARD_CLASSES}`}
       style={{ animationDelay: `${Math.min(index * 0.02, 0.4)}s` }}
     >
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
@@ -47,6 +46,11 @@ function TemplateCard({
       </span>
     </Link>
   );
+}
+
+export async function generateMetadata({ params }: PageProps<"/[locale]/lettres-de-motivation">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "coverLetters", "/lettres-de-motivation", { vars: { count: coverLetterCatalog.length, price: COVER_LETTER_PRICE_FCFA } });
 }
 
 export default async function CoverLetterCatalogPage({ params }: PageProps<"/[locale]/lettres-de-motivation">) {
@@ -69,30 +73,20 @@ export default async function CoverLetterCatalogPage({ params }: PageProps<"/[lo
 
   return (
     <div className="bg-dot-grid relative bg-[#efe6d8] py-14 dark:bg-white/[0.05]">
+      <CvFonts />
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
         <div className="animate-fade-in-up px-6 text-center">
           <h1 className="text-3xl font-bold sm:text-4xl">{dict.catalog.letterTitle}</h1>
           <span className="mx-auto mt-3 block h-1 w-16 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
           <p className="mt-4 text-black/60 dark:text-white/60">{dict.catalog.letterSubtitle}</p>
         </div>
-
-        {/* Bureau/tablette : grille classique. */}
-        <div className="hidden px-6 sm:grid sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-          {coverLetterCatalog.map((template, index) => (
-            <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} mode="grid" />
-          ))}
-        </div>
-
-        {/* Mobile : une section par mise en page, chacune défilant
-            horizontalement au doigt (façon Play Store) — évite un défilement
-            vertical interminable sur un catalogue de 100 modèles. */}
-        <div className="flex flex-col gap-8 sm:hidden">
+        <div className="flex flex-col gap-10">
           {[...groups.entries()].map(([layoutKey, templates]) => (
-            <CatalogSwipeSection key={layoutKey} title={CL_LAYOUT_LABELS[layoutKey] ?? layoutKey}>
+            <CatalogSection key={layoutKey} title={CL_LAYOUT_LABELS[layoutKey] ?? layoutKey}>
               {templates.map((template, index) => (
-                <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} mode="scroll" />
+                <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} />
               ))}
-            </CatalogSwipeSection>
+            </CatalogSection>
           ))}
         </div>
       </div>

@@ -22,29 +22,29 @@ function Heading({
   const font = theme.headingFont === "serif" ? "font-serif" : "font-sans";
   if (layout.headingStyle === "underline") {
     return (
-      <h1 className={`${font} text-[20px] font-bold pb-2 border-b-2`} style={{ borderColor: theme.accent }}>
+      <div className={`${font} text-[20px] font-bold pb-2 border-b-2`} style={{ borderColor: theme.accent }}>
         {children}
-      </h1>
+      </div>
     );
   }
   if (layout.headingStyle === "block") {
     return (
-      <h1 className={`${font} text-[16px] font-bold text-white px-3 py-2 inline-block`} style={{ backgroundColor: theme.accent }}>
+      <div className={`${font} text-[16px] font-bold text-white px-3 py-2 inline-block`} style={{ backgroundColor: theme.accent }}>
         {children}
-      </h1>
+      </div>
     );
   }
   if (layout.headingStyle === "uppercase-tracked") {
     return (
-      <h1 className={`${font} text-[16px] font-bold uppercase tracking-[0.2em]`} style={{ color: theme.accent }}>
+      <div className={`${font} text-[16px] font-bold uppercase tracking-[0.2em]`} style={{ color: theme.accent }}>
         {children}
-      </h1>
+      </div>
     );
   }
   return (
-    <h1 className={`${font} text-[18px] font-bold`} style={{ color: theme.text }}>
+    <div className={`${font} text-[18px] font-bold`} style={{ color: theme.text }}>
       {children}
-    </h1>
+    </div>
   );
 }
 

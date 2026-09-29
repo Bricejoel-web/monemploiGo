@@ -10,7 +10,7 @@ export function StdClassique({ data, theme, includePhoto, locale = "fr" }: CvLay
         <div style={{ padding: "34px 40px 22px 40px", display: "flex", alignItems: "center", gap: 16 }}>
           {includePhoto && <PhotoCircle photoDataUrl={data.photoDataUrl} size={80 * (data.photoScale ?? 1)} ringColor="#fff" bg={theme.accentSoft} iconColor={theme.accent} />}
           <div>
-            <h1 style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 29, fontWeight: 700, color: "#231f1c" }}>{data.fullName || t.namePlaceholder}</h1>
+            <div style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 29, fontWeight: 700, color: "#231f1c" }}>{data.fullName || t.namePlaceholder}</div>
             <div style={{ fontSize: 13, fontWeight: 500, color: theme.accent, marginTop: 3 }}>{data.jobTitle || t.jobTitlePlaceholder}</div>
             <div style={{ fontSize: 11, color: "#8a8580", marginTop: 10 }}>{[data.email, data.phone, data.address].filter(Boolean).join("  ·  ")}</div>
           </div>

@@ -20,8 +20,11 @@ import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA } from "@/lib/cv/catalog";
 import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
 import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { verifySession } from "@/lib/auth/dal";
-import { getPortraitById, unsplashProfileLink } from "@/lib/photos/unsplash";
+import { getPortraitById, unsplashProfileLink, unsplashSrcSet } from "@/lib/photos/unsplash";
 import type { CvCategory } from "@/lib/cv/types";
+import { seoMetadata } from "@/lib/seo-pages";
+import { websiteJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS"];
 
@@ -35,6 +38,11 @@ const CATEGORY_ICONS: Record<CvCategory, typeof BoltIcon> = {
 // Choix éditorial fixe (pas une photo de démonstration de CV) — voir les
 // pistes présentées à l'utilisateur avant intégration, docs/ROADMAP.md.
 const HERO_PHOTO_ID = "PoJVgIbdKV0";
+
+export async function generateMetadata({ params }: PageProps<"/[locale]">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "home", "");
+}
 
 export default async function HomePage({
   params,
@@ -58,15 +66,31 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col">
+      <JsonLd data={websiteJsonLd(locale as Locale, dict.site.description)} />
       {/* Hero — vraie photo en arrière-plan, fortement assombrie de façon
           uniforme (voile marqué, plus seulement un dégradé concentré en
           bas) pour un rendu sobre et professionnel où le texte se pose
           directement sur l'image, sans panneau en verre. */}
       <section className="relative">
         <div
-          className="relative flex min-h-[560px] items-center overflow-hidden bg-[#0b1420] bg-cover bg-center px-6 py-20 sm:min-h-[620px]"
-          style={heroPortrait ? { backgroundImage: `url(${heroPortrait.url})` } : undefined}
+          className="relative flex min-h-[560px] items-center overflow-hidden bg-[#0b1420] px-6 py-20 sm:min-h-[620px]"
         >
+          {/* Vraie image (et non plus image de fond CSS) : le navigateur la
+              découvre dès le HTML, la charge en priorité (c'est l'élément le
+              plus grand de l'écran, qui déterminait un LCP de 4,1 s) et choisit
+              la taille adaptée à l'écran, au format AVIF/WebP. Décorative : alt vide. */}
+          {heroPortrait && (
+            // eslint-disable-next-line @next/next/no-img-element -- photo Unsplash redimensionnée par leur CDN
+            <img
+              src={heroPortrait.url}
+              srcSet={unsplashSrcSet(heroPortrait.url, [480, 828, 1280, 1920])}
+              sizes="100vw"
+              alt=""
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/65 to-black/85" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-black/10" />
           <div className="pointer-events-none absolute -top-20 -right-10 h-72 w-72 rounded-full bg-gradient-to-br from-[#f2994a] to-[#eb5757] opacity-20 blur-3xl" />

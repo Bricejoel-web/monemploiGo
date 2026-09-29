@@ -39,7 +39,7 @@ export function PremVagues({ data, theme, includePhoto, locale = "fr" }: CvLayou
               <div style={{ position: "absolute", inset: 10, borderRadius: BLOB, overflow: "hidden", background: "#e5e0d3" }}>
                 {data.photoDataUrl && (
                   // eslint-disable-next-line @next/next/no-img-element -- photo utilisateur / démonstration
-                  <img src={data.photoDataUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <img src={data.photoDataUrl} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 )}
               </div>
             </div>

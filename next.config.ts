@@ -37,6 +37,11 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "4mb",
     },
+    // Page 404 unique pour tout le site (src/app/global-not-found.tsx) : la
+    // mise en page racine étant sous un segment de langue ([locale]), un
+    // `not-found` classique n'est jamais utilisé — la page anglaise par
+    // défaut de Next.js s'affichait. Solution prévue par Next.js pour ce cas.
+    globalNotFound: true,
   },
   async headers() {
     return [

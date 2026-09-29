@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/client";
 import { getCoverLetterBySlug } from "@/lib/cv/catalog";
 import { CoverLetterEditor } from "@/components/cv/CoverLetterEditor";
 import type { CoverLetterData } from "@/lib/cv/types";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 export default async function CoverLetterEditorPage({ params, searchParams }: PageProps<"/[locale]/lettres-de-motivation/modele/[slug]">) {
   const { locale, slug } = await params;
@@ -36,12 +37,15 @@ export default async function CoverLetterEditorPage({ params, searchParams }: Pa
   }
 
   return (
-    <CoverLetterEditor
-      template={template}
-      dict={dict}
-      locale={locale as Locale}
-      documentId={resolvedDocumentId}
-      initialData={initialData}
-    />
+    <>
+      <CvFonts />
+      <CoverLetterEditor
+        template={template}
+        dict={dict}
+        locale={locale as Locale}
+        documentId={resolvedDocumentId}
+        initialData={initialData}
+      />
+    </>
   );
 }

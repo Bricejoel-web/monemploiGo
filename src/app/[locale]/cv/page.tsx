@@ -10,8 +10,16 @@ import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
 import { pickPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
 import { pickSamplePortrait, seedFromString } from "@/lib/photos/unsplash";
 import type { CvCategory } from "@/lib/cv/types";
+import { seoMetadata } from "@/lib/seo-pages";
+import { allCvTemplates } from "@/lib/cv/catalog";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS"];
+
+export async function generateMetadata({ params }: PageProps<"/[locale]/cv">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "cvHub", "/cv", { vars: { count: allCvTemplates.length } });
+}
 
 export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv">) {
   const { locale } = await params;
@@ -20,6 +28,7 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
 
   return (
     <div className="bg-dot-grid relative bg-[#efe6d8] py-14 dark:bg-white/[0.05]">
+      <CvFonts />
       <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6">
         <div className="animate-fade-in-up text-center">
           <h1 className="text-3xl font-bold sm:text-4xl">{dict.catalog.cvTitle}</h1>

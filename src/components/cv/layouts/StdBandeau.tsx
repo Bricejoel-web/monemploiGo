@@ -14,7 +14,7 @@ export function StdBandeau({ data, theme, includePhoto, locale = "fr" }: CvLayou
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {includePhoto && <PhotoCircle photoDataUrl={data.photoDataUrl} size={64 * (data.photoScale ?? 1)} ringColor="rgba(255,255,255,.8)" ringWidth={2} bg="rgba(255,255,255,.25)" iconColor="#fff" />}
             <div>
-              <h1 style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 25, fontWeight: 700, color: "#fff" }}>{data.fullName || t.namePlaceholder}</h1>
+              <div style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 25, fontWeight: 700, color: "#fff" }}>{data.fullName || t.namePlaceholder}</div>
               <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.85)", marginTop: 3 }}>{data.jobTitle || t.jobTitlePlaceholder}</div>
             </div>
           </div>

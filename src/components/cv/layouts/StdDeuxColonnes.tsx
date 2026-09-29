@@ -55,7 +55,7 @@ export function StdDeuxColonnes({ data, theme, includePhoto, locale = "fr" }: Cv
         <div style={{ width: `${(1 - 0.34) * 480}px` }}>
           <AdaptiveZone targetHeight={679 - 68} deps={[data]} style={{ padding: "40px 40px 28px 30px", display: "flex", flexDirection: "column", gap: 22 }}>
             <div>
-              <h1 style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 26, fontWeight: 700 }}>{data.fullName || t.namePlaceholder}</h1>
+              <div style={{ margin: 0, fontFamily: "'Source Serif 4', serif", fontSize: 26, fontWeight: 700 }}>{data.fullName || t.namePlaceholder}</div>
               <div style={{ fontSize: 13, fontWeight: 500, color: theme.accent, marginTop: 3 }}>{data.jobTitle || t.jobTitlePlaceholder}</div>
             </div>
             {data.summary && (

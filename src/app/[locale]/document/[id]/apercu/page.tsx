@@ -12,6 +12,7 @@ import { CoverLetterRenderer } from "@/components/cv/CoverLetterRenderer";
 import { BewerbungsbriefRenderer } from "@/components/cv/BewerbungsbriefRenderer";
 import { PrintButton } from "@/components/cv/PrintButton";
 import { ClockIcon } from "@/components/home/icons";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 export default async function DocumentPreviewPage({ params }: PageProps<"/[locale]/document/[id]/apercu">) {
   const { locale, id } = await params;
@@ -53,6 +54,7 @@ export default async function DocumentPreviewPage({ params }: PageProps<"/[local
 
   return (
     <div className="overflow-x-auto bg-black/5 py-10 print:overflow-visible print:bg-white print:p-0 dark:bg-black">
+      <CvFonts />
       <PrintButton label={dict.payment.downloadPdf} />
       <div className="print-hide sticky left-0 mb-6 px-4">
         <p className="mx-auto flex max-w-xl items-start gap-2 rounded-lg border border-sky-300/60 bg-sky-50 px-4 py-3 text-sm text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/40 dark:text-sky-100">

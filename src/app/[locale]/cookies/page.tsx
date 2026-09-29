@@ -2,11 +2,17 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { seoMetadata } from "@/lib/seo-pages";
 
 // Décrit uniquement ce que le site dépose réellement (vérifié dans le code le
 // 2026-09-29 : cookies de session et de langue, stockage local de trois
 // préférences). À mettre à jour si un outil de mesure d'audience ou tout
 // autre cookie est ajouté un jour.
+export async function generateMetadata({ params }: PageProps<"/[locale]/cookies">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "cookies", "/cookies");
+}
+
 export default async function CookiePolicyPage({ params }: PageProps<"/[locale]/cookies">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();

@@ -895,3 +895,21 @@ Demande de l'utilisateur : vérifier toutes les mentions de l'Afrique et adapter
 - Identifiant interne `africain` (personas) conservé ; commentaires mis à jour.
 
 Vérifié : texte réellement affiché (et description meta) de 23 pages publiques FR/EN — aucune mention de l'Afrique, d'une autre ville ou d'un autre pays africain, ni d'indicatif étranger ; accroches présentes ; aperçu de CV anglais à Bamenda contrôlé visuellement.
+
+
+## Référencement (SEO) : socle technique, pages de confiance, vitesse (2026-09-29)
+
+Suite à l'audit (docs/seo/rapport-audit-seo-2026-09-29.md). Décision de l'utilisateur : « fais juste ce qu'il faut » ; le nom de domaine reste monemploigo.vercel.app pour l'instant (budget).
+
+- **Pages privées protégées dans le proxy** : `loading.tsx` fait envoyer chaque page en flux, donc un `redirect()` dans la page renvoyait un « 200 » avec redirection différée, explorable par Google (≈ 318 URL : éditeurs, paiements, aperçus). Désormais : redirection 307 vers la connexion avant tout rendu, et en-tête `X-Robots-Tag: noindex` sur les espaces privés, éditeurs, connexion et inscription.
+- **Métadonnées par page** (`src/lib/seo.ts`, `src/lib/seo-pages.ts`, espace `seo` des dictionnaires) : titre et description propres, URL canonique, versions FR/EN (hreflang + x-default), Open Graph et carte X avec image de partage générée (`opengraph-image.tsx`). Chiffres (nombre de modèles, prix) lus dans le catalogue, jamais écrits en dur.
+- **robots.txt et sitemap.xml** générés (30 URL publiques, source unique `INDEXABLE_PAGES`).
+- **Données structurées** : Organization (nom, site, logo, e-mail uniquement — pas d'adresse, téléphone ni note inventés), WebSite (accueil), BreadcrumbList (catégories, fil d'Ariane visible identique).
+- **Nouvelles pages** : Tarifs, À propos, Contact (liées dans le pied de page) ; **vraie page 404** bilingue (`global-not-found.tsx`, l'ancienne `[locale]/not-found.tsx` ne s'affichait jamais), y compris pour une catégorie de CV inconnue.
+- **Un seul H1 par page** : les noms dans les vignettes n'étaient pas des titres (jusqu'à 201 H1 sur la page des lettres).
+- **Vitesse** : chaque modèle n'est plus rendu qu'une fois (grille ou défilement horizontal selon l'écran, `CatalogSection`) ; les vignettes ne sont fabriquées qu'à l'approche de l'écran ; photos différées ; polices des CV chargées seulement sur les pages qui affichent des documents ; photo de l'accueil en format moderne et à la bonne taille ; écran de chargement pleine hauteur (supprime le saut du pied de page, CLS 0,259 → 0).
+- Logo `public/logo.png`, icône Apple, guide `docs/seo/google-search-console.md` (le jeton de vérification se met dans la variable Vercel `GOOGLE_SITE_VERIFICATION`).
+
+Vérifié : 27/27 contrôles automatiques (30 pages publiques : titre, description, canonical, hreflang, OG, 1 seul H1 ; pages privées 307 déconnecté / noindex connecté ; sitemap 100 % indexable ; 404 réelle). Lighthouse mobile, catalogue Premium : performance 23–25 → 39–47, blocage 5,8–6,4 s → 0,6–3,7 s, poids 1 040 → 396 Ko, CLS 0.
+
+Reste à faire : rendu statique des pages publiques (l'en-tête lit la session), vignettes en images pré-calculées, articles « Conseils » (à relire par l'utilisateur), identité légale de l'éditeur, Search Console, nom de domaine, profils sociaux (`sameAs`).

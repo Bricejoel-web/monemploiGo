@@ -31,7 +31,7 @@ export const BEWERBUNGSBRIEF_PRICE_FCFA = 1500;
 
 // Exportés (et non plus seulement locaux à ce fichier) pour être réutilisés
 // comme titres de section dans le défilement horizontal mobile des pages
-// catalogue (voir CatalogSwipeSection.tsx) : les modèles y sont regroupés
+// catalogue (voir CatalogSection.tsx) : les modèles y sont regroupés
 // par mise en page, chaque groupe affichant ce libellé.
 export const LAYOUT_LABELS: Record<CvLayoutId, string> = {
   "std-classique": "Classique",

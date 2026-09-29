@@ -5,12 +5,15 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { bewerbungsbriefCatalog, BB_LAYOUT_LABELS } from "@/lib/cv/catalog";
 import { BewerbungsbriefRenderer } from "@/components/cv/BewerbungsbriefRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
-import { CatalogSwipeSection } from "@/components/cv/CatalogSwipeSection";
+import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
 import { FlagIcon } from "@/components/home/icons";
 import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { getSampleBewerbungsbriefData } from "@/lib/cv/sample-data";
 import type { BewerbungsbriefTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { seoMetadata } from "@/lib/seo-pages";
+import { BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 function TemplateCard({
   template,
@@ -18,21 +21,17 @@ function TemplateCard({
   dict,
   sample,
   index,
-  mode,
 }: {
   template: BewerbungsbriefTemplateMeta;
   locale: Locale;
   dict: Dictionary;
   sample: ReturnType<typeof getSampleBewerbungsbriefData>;
   index: number;
-  mode: "grid" | "scroll";
 }) {
   return (
     <Link
       href={`/${locale}/bewerbungsbrief/modele/${template.slug}`}
-      className={`animate-fade-in-up group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/[0.06] ${
-        mode === "scroll" ? "w-72 shrink-0 snap-start" : "w-full"
-      }`}
+      className={`animate-fade-in-up group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/[0.06] ${CATALOG_CARD_CLASSES}`}
       style={{ animationDelay: `${Math.min(index * 0.02, 0.4)}s` }}
     >
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
@@ -51,6 +50,11 @@ function TemplateCard({
   );
 }
 
+export async function generateMetadata({ params }: PageProps<"/[locale]/bewerbungsbrief">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "bewerbungsbrief", "/bewerbungsbrief", { vars: { count: bewerbungsbriefCatalog.length, price: BEWERBUNGSBRIEF_PRICE_FCFA } });
+}
+
 export default async function BewerbungsbriefCatalogPage({ params }: PageProps<"/[locale]/bewerbungsbrief">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
@@ -67,6 +71,7 @@ export default async function BewerbungsbriefCatalogPage({ params }: PageProps<"
 
   return (
     <div className="bg-dot-grid relative bg-[#efe6d8] py-14 dark:bg-white/[0.05]">
+      <CvFonts />
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
         <div className="animate-fade-in-up px-6 text-center">
           <h1 className="text-3xl font-bold sm:text-4xl">{dict.catalog.bewerbungsbriefTitle}</h1>
@@ -89,19 +94,13 @@ export default async function BewerbungsbriefCatalogPage({ params }: PageProps<"
           </div>
         </div>
 
-        <div className="hidden px-6 sm:grid sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-          {bewerbungsbriefCatalog.map((template, index) => (
-            <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} mode="grid" />
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-8 sm:hidden">
+        <div className="flex flex-col gap-10">
           {[...groups.entries()].map(([layoutId, templates]) => (
-            <CatalogSwipeSection key={layoutId} title={BB_LAYOUT_LABELS[layoutId as keyof typeof BB_LAYOUT_LABELS] ?? layoutId}>
+            <CatalogSection key={layoutId} title={BB_LAYOUT_LABELS[layoutId as keyof typeof BB_LAYOUT_LABELS] ?? layoutId}>
               {templates.map((template, index) => (
-                <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} mode="scroll" />
+                <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} />
               ))}
-            </CatalogSwipeSection>
+            </CatalogSection>
           ))}
         </div>
       </div>

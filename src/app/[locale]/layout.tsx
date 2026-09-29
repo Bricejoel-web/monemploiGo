@@ -8,6 +8,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { InfoTicker, type TickerItem } from "@/components/layout/InfoTicker";
+import { SITE_NAME, SITE_URL, organizationJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,8 +33,15 @@ export async function generateMetadata({
 
   const dict = await getDictionary(locale);
   return {
+    metadataBase: new URL(SITE_URL),
+    applicationName: SITE_NAME,
+    // Valeurs par défaut (pages privées) : chaque page publique définit ses
+    // propres titre, description, canonical et hreflang (voir seo-pages.ts).
     title: `${dict.site.name} — ${dict.site.tagline}`,
     description: dict.site.description,
+    // Jeton public de vérification Google Search Console (balise meta),
+    // réglé dans les variables Vercel — voir docs/seo/google-search-console.md.
+    ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   };
 }
 
@@ -51,11 +60,9 @@ export default async function LocaleLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* Polices utilisées par les mises en page de CV (src/components/cv/layouts) */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Poppins:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,600&display=swap"
-        />
+        {/* Les polices des CV ne sont plus chargées ici mais seulement sur
+            les pages qui affichent des documents : voir CvFonts. */}
+        <JsonLd data={organizationJsonLd(dict.site.description)} />
         <Header locale={locale as Locale} dict={dict} />
         <InfoTicker
           items={dict.ticker.items as TickerItem[]}

@@ -52,6 +52,8 @@
   "footer": {
     "tagline": "La plateforme de CV et lettres de motivation pensée pour le Cameroun.",
     "navigationTitle": "Navigation",
+    "about": "À propos",
+    "contact": "Contact",
     "legalTitle": "Légal",
     "legalNotice": "Mentions légales",
     "privacyPolicy": "Politique de confidentialité",
@@ -187,6 +189,7 @@
     "allLettersAt": "Toutes les lettres à {price}",
     "customize": "Personnaliser",
     "backToCategories": "Retour aux catégories",
+    "breadcrumbLabel": "Fil d'Ariane",
     "categoryDescriptions": {
       "STANDARD": "Sobres et efficaces, pour toutes les candidatures classiques.",
       "PREMIUM": "Mises en page élégantes et modernes pour vous démarquer.",
@@ -402,6 +405,150 @@
       "rateLimited": "Trop de tentatives. Réessayez dans quelques minutes.",
       "notEligible": "Vous pourrez donner votre avis après avoir payé un document.",
       "unknown": "Une erreur est survenue. Réessayez."
+    }
+  },
+  "pages": {
+    "pricing": {
+      "title": "Tarifs et paiement",
+      "intro": "Créer votre compte, choisir un modèle et remplir votre document sont libres : vous ne payez qu'au moment de télécharger le document terminé. Chaque catégorie a un prix unique, quel que soit le modèle choisi.",
+      "tableTitle": "Prix par document",
+      "rows": {
+        "STANDARD": "CV Standard",
+        "ATS": "CV ATS",
+        "GERMAN_ATS": "CV Allemagne (ATS)",
+        "PREMIUM": "CV Premium",
+        "COVER_LETTER": "Lettre de motivation",
+        "BEWERBUNGSBRIEF": "Bewerbungsbrief (lettre allemande)"
+      },
+      "paymentTitle": "Comment payer",
+      "payment": [
+        "Le paiement se fait par Mobile Money (MTN Mobile Money ou Orange Money), avec un compte Mobile Money du Cameroun. Aucune carte bancaire n'est nécessaire.",
+        "Le paiement est traité par notre prestataire Notch Pay : vous saisissez votre numéro directement sur sa page de paiement, puis vous validez sur votre téléphone.",
+        "monemploiGo ne vous demandera jamais votre code PIN Mobile Money ni votre mot de passe."
+      ],
+      "afterTitle": "Après le paiement",
+      "after": [
+        "Votre document est débloqué dès que le paiement est confirmé, et vous le téléchargez en PDF.",
+        "Vous pouvez le retélécharger gratuitement, autant de fois que vous le souhaitez, pendant 21 jours depuis votre tableau de bord. Il est ensuite supprimé automatiquement : gardez une copie de votre PDF.",
+        "Besoin d'une version Word ? Ouvrez le PDF avec Microsoft Word (Fichier > Ouvrir) pour le convertir en document modifiable."
+      ],
+      "problemsTitle": "En cas de problème",
+      "problems": [
+        "Si le paiement échoue, est annulé ou expire, votre document n'est pas débloqué et monemploiGo ne vous facture rien : vous pouvez simplement réessayer.",
+        "Si votre compte Mobile Money a été débité mais que votre document n'est pas débloqué, écrivez-nous en indiquant l'adresse e-mail de votre compte, la date du paiement et le document concerné.",
+        "Les conditions de remboursement sont décrites à la section « Politique de remboursement » de nos Conditions générales d'utilisation."
+      ],
+      "termsLink": "Lire les Conditions générales d'utilisation",
+      "cta": "Voir les modèles de CV"
+    },
+    "about": {
+      "title": "À propos de monemploiGo",
+      "intro": "monemploiGo est une plateforme en ligne qui aide les candidats au Cameroun à créer un CV et une lettre de motivation professionnels, en français ou en anglais.",
+      "forWhoTitle": "Pour qui ?",
+      "forWho": [
+        "les jeunes diplômés qui préparent leur premier CV, même sans expérience professionnelle ;",
+        "les personnes en recherche d'emploi ou de stage au Cameroun ;",
+        "les candidats qui préparent une candidature en Allemagne, notamment pour une Ausbildung."
+      ],
+      "featuresTitle": "Ce que vous pouvez faire",
+      "features": [
+        "choisir parmi des modèles de CV Standard, Premium, ATS et allemands (Lebenslauf), et des modèles de lettres de motivation ;",
+        "remplir vos informations et voir votre document se mettre à jour en direct, avec un indicateur qui vous dit s'il tient sur une page ;",
+        "créer une lettre de motivation allemande (Bewerbungsbrief) pour une Ausbildung ;",
+        "payer par Mobile Money et télécharger votre document en PDF."
+      ],
+      "notTitle": "Ce que monemploiGo n'est pas",
+      "not": "monemploiGo est un outil de création de documents. Ce n'est ni une agence de recrutement, ni une agence d'intérim, ni une agence d'immigration ou de visa. Un bon CV aide à présenter sa candidature, mais aucun service ne peut garantir un emploi, un entretien ou une Ausbildung.",
+      "commitmentsTitle": "Nos engagements",
+      "commitments": [
+        "des prix clairs, affichés avant tout paiement ;",
+        "vos données ne sont jamais vendues, et vos documents sont supprimés automatiquement au bout de 21 jours ;",
+        "aucun cookie publicitaire ni outil de mesure d'audience."
+      ],
+      "contactText": "Une question ou une suggestion ?",
+      "contactLink": "Contactez-nous"
+    },
+    "contact": {
+      "title": "Contact",
+      "intro": "Pour toute question sur votre CV, votre lettre de motivation, un paiement ou vos données personnelles, écrivez-nous :",
+      "tipsTitle": "Pour une réponse plus rapide",
+      "tips": [
+        "écrivez depuis l'adresse e-mail de votre compte monemploiGo, ou indiquez-la dans votre message ;",
+        "pour un paiement : précisez la date du paiement et le document concerné ;",
+        "pour une demande sur vos données personnelles : utilisez l'objet « Protection des données personnelles »."
+      ],
+      "safety": "monemploiGo ne vous demandera jamais votre code PIN Mobile Money ni votre mot de passe, ni par e-mail ni par téléphone.",
+      "pricingLink": "Questions sur le paiement : voir la page Tarifs"
+    }
+  },
+  "seo": {
+    "home": {
+      "title": "Créer un CV en ligne au Cameroun | monemploiGo",
+      "description": "Créez votre CV et votre lettre de motivation en quelques minutes : modèles Standard, Premium, ATS et allemands, aperçu en direct, paiement par Mobile Money."
+    },
+    "cvHub": {
+      "title": "Modèles de CV professionnels | monemploiGo",
+      "description": "{count} modèles de CV : Standard, Premium, ATS ou allemand (Lebenslauf). Personnalisez votre CV en ligne et téléchargez-le en PDF."
+    },
+    "STANDARD": {
+      "title": "Modèles de CV Standard | monemploiGo",
+      "description": "{count} modèles de CV sobres et efficaces pour toutes vos candidatures. Remplissez vos informations et téléchargez votre CV en PDF pour {price} FCFA."
+    },
+    "PREMIUM": {
+      "title": "Modèles de CV Premium | monemploiGo",
+      "description": "{count} modèles de CV modernes et élégants pour vous démarquer. Personnalisez votre CV professionnel en ligne et téléchargez-le en PDF pour {price} FCFA."
+    },
+    "ATS": {
+      "title": "Modèles de CV ATS | monemploiGo",
+      "description": "{count} modèles de CV au format ATS, en une colonne, lisibles par les logiciels de tri des recruteurs. Idéal pour les candidatures en ligne. {price} FCFA."
+    },
+    "GERMAN_ATS": {
+      "title": "CV allemand (Lebenslauf) pour une Ausbildung | monemploiGo",
+      "description": "Modèles de CV allemand au format Lebenslauf, avec titres en allemand, pour postuler à une Ausbildung depuis le Cameroun. Téléchargement en PDF pour {price} FCFA."
+    },
+    "coverLetters": {
+      "title": "Modèles de lettre de motivation | monemploiGo",
+      "description": "{count} modèles de lettre de motivation et de demande d'emploi à personnaliser en ligne, en français ou en anglais. Téléchargement en PDF pour {price} FCFA."
+    },
+    "bewerbungsbrief": {
+      "title": "Lettre de motivation allemande pour une Ausbildung | monemploiGo",
+      "description": "Créez votre Bewerbungsbrief, la lettre de motivation en allemand pour une Ausbildung, rédigée à partir de vos informations. {count} modèles, {price} FCFA."
+    },
+    "pricing": {
+      "title": "Tarifs et paiement | monemploiGo",
+      "description": "Prix des CV et lettres de motivation (de {minPrice} à {maxPrice} FCFA), paiement par Mobile Money MTN et Orange, retéléchargement gratuit pendant 21 jours."
+    },
+    "about": {
+      "title": "À propos | monemploiGo",
+      "description": "monemploiGo aide les candidats au Cameroun à créer des CV et des lettres de motivation professionnels, y compris aux formats ATS et allemand."
+    },
+    "contact": {
+      "title": "Contact | monemploiGo",
+      "description": "Une question sur votre CV, un paiement ou vos données personnelles ? Écrivez à l'équipe monemploiGo."
+    },
+    "terms": {
+      "title": "Conditions générales d'utilisation | monemploiGo",
+      "description": "Conditions d'utilisation de monemploiGo : services, prix, paiement, conservation des documents, remboursement et responsabilités."
+    },
+    "privacy": {
+      "title": "Politique de confidentialité | monemploiGo",
+      "description": "Quelles données monemploiGo collecte, pourquoi, avec qui elles sont partagées, combien de temps elles sont conservées et quels sont vos droits."
+    },
+    "notice": {
+      "title": "Mentions légales | monemploiGo",
+      "description": "Informations légales sur le site monemploiGo."
+    },
+    "cookies": {
+      "title": "Politique de cookies | monemploiGo",
+      "description": "monemploiGo n'utilise que des cookies nécessaires au fonctionnement du site : connexion et langue. Aucun cookie publicitaire."
+    },
+    "login": {
+      "title": "Connexion | monemploiGo",
+      "description": "Connectez-vous à votre compte monemploiGo pour retrouver vos CV et lettres de motivation."
+    },
+    "signup": {
+      "title": "Créer un compte | monemploiGo",
+      "description": "Créez votre compte monemploiGo pour réaliser votre CV et votre lettre de motivation."
     }
   },
   "welcomeEmail": {

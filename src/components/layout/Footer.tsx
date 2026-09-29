@@ -29,6 +29,21 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 {dict.nav.bewerbungsbrief}
               </Link>
             </li>
+            <li>
+              <Link href={`/${locale}/tarifs`} className="hover:text-foreground hover:underline">
+                {dict.nav.pricing}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/a-propos`} className="hover:text-foreground hover:underline">
+                {dict.footer.about}
+              </Link>
+            </li>
+            <li>
+              <Link href={`/${locale}/contact`} className="hover:text-foreground hover:underline">
+                {dict.footer.contact}
+              </Link>
+            </li>
           </ul>
         </div>
         <div>

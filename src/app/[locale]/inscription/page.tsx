@@ -3,6 +3,12 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { SignupForm } from "@/components/auth/SignupForm";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { notFound } from "next/navigation";
+import { seoMetadata } from "@/lib/seo-pages";
+
+export async function generateMetadata({ params }: PageProps<"/[locale]/inscription">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "signup", "/inscription", { noindex: true });
+}
 
 export default async function SignupPage({ params }: PageProps<"/[locale]/inscription">) {
   const { locale } = await params;

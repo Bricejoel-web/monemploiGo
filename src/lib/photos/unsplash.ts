@@ -41,6 +41,24 @@ export function getPortraitById(id: string): UnsplashPortrait | undefined {
   return curatedPortraits.find((p) => p.id === id);
 }
 
+/**
+ * `srcset` d'une photo Unsplash, redimensionnée par le CDN d'Unsplash au
+ * format le plus léger accepté par le navigateur (AVIF/WebP, `auto=format`).
+ * Pour la photo d'accueil : ~15-30 Ko sur téléphone au lieu de 118 Ko (JPEG
+ * 1080 px servi à tous les écrans), mesuré le 2026-09-29.
+ */
+export function unsplashSrcSet(url: string, widths: number[], quality = 70): string {
+  return widths
+    .map((width) => {
+      const sized = new URL(url);
+      sized.searchParams.set("w", String(width));
+      sized.searchParams.set("q", String(quality));
+      sized.searchParams.set("auto", "format");
+      return `${sized.href} ${width}w`;
+    })
+    .join(", ");
+}
+
 export function seedFromString(value: string): number {
   let hash = 0;
   for (let i = 0; i < value.length; i++) {

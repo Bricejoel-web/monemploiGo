@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db/client";
 import { getCvTemplateBySlug } from "@/lib/cv/catalog";
 import { CvEditor } from "@/components/cv/CvEditor";
 import type { CvData } from "@/lib/cv/types";
+import { CvFonts } from "@/components/cv/CvFonts";
 
 export default async function CvEditorPage({ params, searchParams }: PageProps<"/[locale]/cv/modele/[slug]">) {
   const { locale, slug } = await params;
@@ -40,13 +41,16 @@ export default async function CvEditorPage({ params, searchParams }: PageProps<"
   }
 
   return (
-    <CvEditor
-      template={template}
-      dict={dict}
-      locale={locale as Locale}
-      documentId={resolvedDocumentId}
-      initialData={initialData}
-      initialIncludePhoto={initialIncludePhoto}
-    />
+    <>
+      <CvFonts />
+      <CvEditor
+        template={template}
+        dict={dict}
+        locale={locale as Locale}
+        documentId={resolvedDocumentId}
+        initialData={initialData}
+        initialIncludePhoto={initialIncludePhoto}
+      />
+    </>
   );
 }

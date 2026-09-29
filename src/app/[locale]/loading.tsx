@@ -4,9 +4,15 @@ import { LogoMark } from "@/components/layout/Logo";
 // n'importe quelle page de ce segment (et de ses sous-routes), le temps
 // que les données serveur soient prêtes — c'est ce que l'utilisateur voit
 // pendant qu'il attend, sans avoir à instrumenter chaque page une à une.
+//
+// Hauteur d'un écran entier (et non 60 %) : avec 60 %, le pied de page
+// apparaissait pendant le chargement puis « sautait » vers le bas à
+// l'arrivée du contenu — mesuré comme un décalage de mise en page (CLS
+// 0,259, seuil « mauvais » de Google) sur les catalogues. Hors de l'écran,
+// son déplacement ne compte plus.
 export default function Loading() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-5 px-6">
       <div className="animate-pulse">
         <LogoMark size={40} />
       </div>

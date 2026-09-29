@@ -50,7 +50,7 @@ export function PhotoCircle({
     >
       {photoDataUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- photo utilisateur en data URL
-        <img src={photoDataUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <img src={photoDataUrl} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       ) : (
         <PersonIcon size={Math.round(size * 0.45)} color={iconColor} />
       )}

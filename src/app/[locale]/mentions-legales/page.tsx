@@ -2,6 +2,12 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { LegalPage } from "@/components/layout/LegalPage";
+import { seoMetadata } from "@/lib/seo-pages";
+
+export async function generateMetadata({ params }: PageProps<"/[locale]/mentions-legales">) {
+  const { locale } = await params;
+  return seoMetadata(locale, "notice", "/mentions-legales");
+}
 
 export default async function LegalNoticePage({ params }: PageProps<"/[locale]/mentions-legales">) {
   const { locale } = await params;

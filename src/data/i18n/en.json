@@ -52,6 +52,8 @@
   "footer": {
     "tagline": "The resume and cover letter platform built for Cameroon.",
     "navigationTitle": "Navigation",
+    "about": "About",
+    "contact": "Contact",
     "legalTitle": "Legal",
     "legalNotice": "Legal notice",
     "privacyPolicy": "Privacy policy",
@@ -187,6 +189,7 @@
     "allLettersAt": "Every letter: {price}",
     "customize": "Customize",
     "backToCategories": "Back to categories",
+    "breadcrumbLabel": "Breadcrumb",
     "categoryDescriptions": {
       "STANDARD": "Clean and effective, for any classic application.",
       "PREMIUM": "Elegant, modern layouts to help you stand out.",
@@ -402,6 +405,150 @@
       "rateLimited": "Too many attempts. Try again in a few minutes.",
       "notEligible": "You can leave a review after paying for a document.",
       "unknown": "Something went wrong. Please try again."
+    }
+  },
+  "pages": {
+    "pricing": {
+      "title": "Pricing and payment",
+      "intro": "Creating your account, choosing a template and filling in your document are free: you only pay when you download the finished document. Each category has a single price, whatever template you choose.",
+      "tableTitle": "Price per document",
+      "rows": {
+        "STANDARD": "Standard CV",
+        "ATS": "ATS CV",
+        "GERMAN_ATS": "Germany (ATS) CV",
+        "PREMIUM": "Premium CV",
+        "COVER_LETTER": "Cover letter",
+        "BEWERBUNGSBRIEF": "Bewerbungsbrief (German letter)"
+      },
+      "paymentTitle": "How to pay",
+      "payment": [
+        "Payment is made by Mobile Money (MTN Mobile Money or Orange Money), with a Cameroonian Mobile Money account. No bank card is needed.",
+        "The payment is processed by our provider Notch Pay: you enter your number directly on its payment page, then confirm on your phone.",
+        "monemploiGo will never ask for your Mobile Money PIN code or your password."
+      ],
+      "afterTitle": "After payment",
+      "after": [
+        "Your document is unlocked as soon as the payment is confirmed, and you download it as a PDF.",
+        "You can download it again for free, as often as you like, for 21 days from your dashboard. It is then deleted automatically: keep a copy of your PDF.",
+        "Need a Word version? Open the PDF with Microsoft Word (File > Open) to convert it into an editable document."
+      ],
+      "problemsTitle": "If something goes wrong",
+      "problems": [
+        "If the payment fails, is canceled or expires, your document is not unlocked and monemploiGo charges you nothing: you can simply try again.",
+        "If your Mobile Money account was debited but your document is not unlocked, write to us with your account email address, the payment date and the document concerned.",
+        "Refund conditions are described in the \"Refund policy\" section of our Terms of Use."
+      ],
+      "termsLink": "Read the Terms of Use",
+      "cta": "See CV templates"
+    },
+    "about": {
+      "title": "About monemploiGo",
+      "intro": "monemploiGo is an online platform that helps job seekers in Cameroon create a professional CV and cover letter, in English or French.",
+      "forWhoTitle": "Who is it for?",
+      "forWho": [
+        "recent graduates preparing their first CV, even without work experience;",
+        "people looking for a job or an internship in Cameroon;",
+        "applicants preparing an application in Germany, in particular for an Ausbildung."
+      ],
+      "featuresTitle": "What you can do",
+      "features": [
+        "choose from Standard, Premium, ATS and German (Lebenslauf) CV templates, and cover letter templates;",
+        "fill in your details and see your document update live, with an indicator telling you whether it fits on one page;",
+        "create a German cover letter (Bewerbungsbrief) for an Ausbildung;",
+        "pay with Mobile Money and download your document as a PDF."
+      ],
+      "notTitle": "What monemploiGo is not",
+      "not": "monemploiGo is a document creation tool. It is not a recruitment agency, a temporary employment agency, or an immigration or visa agency. A good CV helps you present your application, but no service can guarantee a job, an interview or an Ausbildung.",
+      "commitmentsTitle": "Our commitments",
+      "commitments": [
+        "clear prices, shown before any payment;",
+        "your data is never sold, and your documents are deleted automatically after 21 days;",
+        "no advertising cookies or audience measurement tools."
+      ],
+      "contactText": "A question or a suggestion?",
+      "contactLink": "Contact us"
+    },
+    "contact": {
+      "title": "Contact",
+      "intro": "For any question about your CV, your cover letter, a payment or your personal data, write to us:",
+      "tipsTitle": "For a faster answer",
+      "tips": [
+        "write from the email address of your monemploiGo account, or mention it in your message;",
+        "for a payment: give the payment date and the document concerned;",
+        "for a request about your personal data: use the subject \"Protection des données personnelles\"."
+      ],
+      "safety": "monemploiGo will never ask for your Mobile Money PIN code or your password, by email or by phone.",
+      "pricingLink": "Payment questions: see the Pricing page"
+    }
+  },
+  "seo": {
+    "home": {
+      "title": "Create a CV online in Cameroon | monemploiGo",
+      "description": "Create your CV and cover letter in minutes: Standard, Premium, ATS and German templates, live preview, Mobile Money payment."
+    },
+    "cvHub": {
+      "title": "Professional CV templates | monemploiGo",
+      "description": "{count} CV templates: Standard, Premium, ATS or German (Lebenslauf). Customize your CV online and download it as a PDF."
+    },
+    "STANDARD": {
+      "title": "Standard CV templates | monemploiGo",
+      "description": "{count} clean, effective CV templates for any application. Fill in your details, check the preview and download your CV as a PDF for {price} FCFA."
+    },
+    "PREMIUM": {
+      "title": "Premium CV templates | monemploiGo",
+      "description": "{count} modern, elegant CV templates to stand out. Customize your professional CV online and download it as a PDF for {price} FCFA."
+    },
+    "ATS": {
+      "title": "ATS CV templates | monemploiGo",
+      "description": "{count} single-column ATS CV templates that recruiters' screening software can read. Ideal for online applications. {price} FCFA."
+    },
+    "GERMAN_ATS": {
+      "title": "German CV (Lebenslauf) for an Ausbildung | monemploiGo",
+      "description": "German Lebenslauf CV templates with German section titles, to apply for an Ausbildung from Cameroon. PDF download for {price} FCFA."
+    },
+    "coverLetters": {
+      "title": "Cover letter templates | monemploiGo",
+      "description": "{count} cover letter templates to customize online, in English or French. PDF download for {price} FCFA."
+    },
+    "bewerbungsbrief": {
+      "title": "German cover letter for an Ausbildung | monemploiGo",
+      "description": "Create your Bewerbungsbrief, the German cover letter for an Ausbildung, written from your details. {count} templates, {price} FCFA."
+    },
+    "pricing": {
+      "title": "Pricing and payment | monemploiGo",
+      "description": "CV and cover letter prices ({minPrice} to {maxPrice} FCFA), MTN and Orange Mobile Money payment, free re-download for 21 days."
+    },
+    "about": {
+      "title": "About | monemploiGo",
+      "description": "monemploiGo helps job seekers in Cameroon create professional CVs and cover letters, including ATS and German formats."
+    },
+    "contact": {
+      "title": "Contact | monemploiGo",
+      "description": "A question about your CV, a payment or your personal data? Write to the monemploiGo team."
+    },
+    "terms": {
+      "title": "Terms of Use | monemploiGo",
+      "description": "monemploiGo terms of use: services, prices, payment, document retention, refunds and liability."
+    },
+    "privacy": {
+      "title": "Privacy Policy | monemploiGo",
+      "description": "What data monemploiGo collects, why, who it is shared with, how long it is kept and what your rights are."
+    },
+    "notice": {
+      "title": "Legal notice | monemploiGo",
+      "description": "Legal information about the monemploiGo website."
+    },
+    "cookies": {
+      "title": "Cookie policy | monemploiGo",
+      "description": "monemploiGo only uses cookies needed for the site to work: login and language. No advertising cookies."
+    },
+    "login": {
+      "title": "Log in | monemploiGo",
+      "description": "Log in to your monemploiGo account to find your CVs and cover letters."
+    },
+    "signup": {
+      "title": "Create an account | monemploiGo",
+      "description": "Create your monemploiGo account to build your CV and cover letter."
     }
   },
   "welcomeEmail": {
