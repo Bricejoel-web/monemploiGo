@@ -138,6 +138,8 @@ export function PhotoPicker({
         </button>
       )}
 
+      <p className="text-xs text-black/55 dark:text-white/55">{labels.photoTip}</p>
+
       {error && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {error}

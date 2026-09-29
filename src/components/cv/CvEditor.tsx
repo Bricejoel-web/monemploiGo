@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { unstable_rethrow } from "next/navigation";
 import type { CvData, CvTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -10,6 +10,9 @@ import { EditorA4Preview } from "./EditorA4Preview";
 import { PhotoPicker } from "./PhotoPicker";
 import { Field } from "./FormField";
 import { saveCvDocument } from "@/lib/documents/actions";
+import { GrammarHints } from "./GrammarHints";
+import { WarningIcon } from "@/components/home/icons";
+import { capitalizeFirst, capitalizeWords, dateIssues, isSuspiciousAddress, type DateIssue } from "@/lib/cv/quality";
 
 // Niveau de langue en menu déroulant plutôt qu'en texte libre, pour un choix
 // plus rapide et cohérent d'un CV à l'autre. Le CV allemand utilise l'échelle
@@ -117,9 +120,44 @@ export function CvEditor({
   const [pending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | undefined>();
   const isGerman = template.category === "GERMAN_ATS";
+  // Langue du contenu du CV (même règle que la correction orthographique à l'enregistrement).
+  const contentLanguage = isGerman ? "de" : locale === "en" ? "en" : "fr";
 
   const update = <K extends keyof CvData>(key: K, value: CvData[K]) =>
     setData((prev) => ({ ...prev, [key]: value }));
+  const setExp = (i: number, patch: Partial<CvData["experience"][number]>) =>
+    update("experience", data.experience.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const setEd = (i: number, patch: Partial<CvData["education"][number]>) =>
+    update("education", data.education.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+
+  // Conseils de qualité (dates, adresse, formulations) : regroupés avant le
+  // paiement, jamais bloquants — le client peut continuer sans rien changer.
+  const [grammarCounts, setGrammarCounts] = useState<Record<string, number>>({});
+  const setGrammarCount = useCallback(
+    (field: string, count: number) => setGrammarCounts((prev) => (prev[field] === count ? prev : { ...prev, [field]: count })),
+    [],
+  );
+  const grammarLabels = { grammarHint: dict.editor.grammarHint, grammarInsteadOf: dict.editor.grammarInsteadOf, grammarFix: dict.editor.grammarFix };
+  const DATE_MESSAGES: Record<DateIssue, string> = {
+    endBeforeStart: dict.editor.qualityEndBeforeStart,
+    startFuture: dict.editor.qualityStartFuture,
+    endFuture: dict.editor.qualityEndFuture,
+    sameMonth: dict.editor.qualitySameMonth,
+  };
+  const qualityWarnings: string[] = [];
+  const addDateWarnings = (item: string, start: string, end: string) =>
+    dateIssues(start, end).forEach((issue) => qualityWarnings.push(DATE_MESSAGES[issue].replace("{item}", item).replace("{date}", start)));
+  if (!noExperience) {
+    data.experience.forEach((exp, i) => {
+      if (exp.role.trim() || exp.company.trim()) addDateWarnings(`${dict.editor.experience} ${i + 1}`, exp.start, exp.end);
+    });
+  }
+  data.education.forEach((ed, i) => {
+    if (ed.degree.trim() || ed.school.trim()) addDateWarnings(`${dict.editor.education} ${i + 1}`, ed.start, ed.end);
+  });
+  if (isSuspiciousAddress(data.address)) qualityWarnings.push(dict.editor.qualityAddress.replace("{value}", (data.address ?? "").trim()));
+  const grammarFields = Object.entries(grammarCounts).filter(([, n]) => n > 0).map(([field]) => field);
+  if (grammarFields.length > 0) qualityWarnings.push(dict.editor.qualityGrammar.replace("{fields}", grammarFields.join(", ")));
 
   // Le CV n'affiche que mois/année (start/end sont stockés en "MM/AAAA"), donc
   // reconstruire la valeur ISO du calendrier à partir de data renvoie toujours
@@ -217,10 +255,10 @@ export function CvEditor({
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.personalInfo}</h2>
           <Field id="fullName" label={dict.editor.fullName}>
-            <input id="fullName" placeholder="Jean Dupont" value={data.fullName} onChange={(e) => update("fullName", e.target.value)} className="input" />
+            <input id="fullName" placeholder="Jean Dupont" value={data.fullName} onChange={(e) => update("fullName", e.target.value)} onBlur={(e) => update("fullName", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="jobTitle" label={dict.editor.jobTitle}>
-            <input id="jobTitle" value={data.jobTitle} onChange={(e) => update("jobTitle", e.target.value)} className="input" />
+            <input id="jobTitle" value={data.jobTitle} onChange={(e) => update("jobTitle", e.target.value)} onBlur={(e) => update("jobTitle", capitalizeFirst(e.target.value))} className="input" />
           </Field>
           <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.targetRoleHint}</p>
           <Field id="email" label={dict.editor.email}>
@@ -230,10 +268,11 @@ export function CvEditor({
             <input id="phone" type="tel" placeholder="+237 6XX XX XX XX" value={data.phone} onChange={(e) => update("phone", e.target.value)} className="input" />
           </Field>
           <Field id="address" label={dict.editor.address} optionalLabel={dict.editor.optional}>
-            <input id="address" value={data.address} onChange={(e) => update("address", e.target.value)} className="input" />
+            <input id="address" value={data.address} onChange={(e) => update("address", e.target.value)} onBlur={(e) => update("address", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="summary" label={dict.editor.summary} optionalLabel={dict.editor.optional}>
             <textarea id="summary" value={data.summary} onChange={(e) => update("summary", e.target.value)} className="input min-h-20" />
+            <GrammarHints text={data.summary} language={contentLanguage} onApply={(t) => update("summary", t)} onCountChange={(n) => setGrammarCount(dict.editor.summary, n)} labels={grammarLabels} />
           </Field>
         </section>
 
@@ -253,7 +292,7 @@ export function CvEditor({
                 />
               </Field>
               <Field id="birthPlace" label={dict.editor.birthPlace} optionalLabel={dict.editor.optional}>
-                <input id="birthPlace" value={data.birthPlace ?? ""} onChange={(e) => update("birthPlace", e.target.value)} className="input" />
+                <input id="birthPlace" value={data.birthPlace ?? ""} onChange={(e) => update("birthPlace", e.target.value)} onBlur={(e) => update("birthPlace", capitalizeWords(e.target.value))} className="input" />
               </Field>
               <Field id="nationality" label={dict.editor.nationality} optionalLabel={dict.editor.optional}>
                 <input id="nationality" value={data.nationality ?? ""} onChange={(e) => update("nationality", e.target.value)} className="input" />
@@ -299,13 +338,13 @@ export function CvEditor({
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     <Field id={`exp-role-${i}`} label={dict.editor.role}>
-                      <input id={`exp-role-${i}`} value={exp.role} onChange={(e) => update("experience", data.experience.map((x, j) => (j === i ? { ...x, role: e.target.value } : x)))} className="input" />
+                      <input id={`exp-role-${i}`} value={exp.role} onChange={(e) => setExp(i, { role: e.target.value })} onBlur={(e) => setExp(i, { role: capitalizeFirst(e.target.value) })} className="input" />
                     </Field>
                     <Field id={`exp-company-${i}`} label={dict.editor.company}>
-                      <input id={`exp-company-${i}`} value={exp.company} onChange={(e) => update("experience", data.experience.map((x, j) => (j === i ? { ...x, company: e.target.value } : x)))} className="input" />
+                      <input id={`exp-company-${i}`} value={exp.company} onChange={(e) => setExp(i, { company: e.target.value })} onBlur={(e) => setExp(i, { company: capitalizeWords(e.target.value) })} className="input" />
                     </Field>
                     <Field id={`exp-location-${i}`} label={dict.editor.location} optionalLabel={dict.editor.optional}>
-                      <input id={`exp-location-${i}`} value={exp.location ?? ""} onChange={(e) => update("experience", data.experience.map((x, j) => (j === i ? { ...x, location: e.target.value } : x)))} className="input" />
+                      <input id={`exp-location-${i}`} value={exp.location ?? ""} onChange={(e) => setExp(i, { location: e.target.value })} onBlur={(e) => setExp(i, { location: capitalizeWords(e.target.value) })} className="input" />
                     </Field>
                     <Field id={`exp-start-${i}`} label={dict.editor.startDate}>
                       <input
@@ -352,7 +391,8 @@ export function CvEditor({
                     {dict.editor.currentPosition}
                   </label>
                   <Field id={`exp-description-${i}`} label={dict.editor.description} optionalLabel={dict.editor.optional}>
-                    <textarea id={`exp-description-${i}`} value={exp.description} onChange={(e) => update("experience", data.experience.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)))} className="input" />
+                    <textarea id={`exp-description-${i}`} value={exp.description} onChange={(e) => setExp(i, { description: e.target.value })} className="input" />
+                    <GrammarHints text={exp.description ?? ""} language={contentLanguage} onApply={(t) => setExp(i, { description: t })} onCountChange={(n) => setGrammarCount(`${dict.editor.experience} ${i + 1}`, n)} labels={grammarLabels} />
                   </Field>
                   <button type="button" onClick={() => update("experience", data.experience.filter((_, j) => j !== i))} className="self-start text-xs font-medium text-red-600 transition-colors hover:text-red-700 dark:text-red-400">
                     {dict.editor.remove}
@@ -379,13 +419,13 @@ export function CvEditor({
               </p>
               <div className="grid grid-cols-2 gap-2">
                 <Field id={`ed-degree-${i}`} label={dict.editor.degree}>
-                  <input id={`ed-degree-${i}`} value={ed.degree} onChange={(e) => update("education", data.education.map((x, j) => (j === i ? { ...x, degree: e.target.value } : x)))} className="input" />
+                  <input id={`ed-degree-${i}`} value={ed.degree} onChange={(e) => setEd(i, { degree: e.target.value })} onBlur={(e) => setEd(i, { degree: capitalizeFirst(e.target.value) })} className="input" />
                 </Field>
                 <Field id={`ed-school-${i}`} label={dict.editor.school}>
-                  <input id={`ed-school-${i}`} value={ed.school} onChange={(e) => update("education", data.education.map((x, j) => (j === i ? { ...x, school: e.target.value } : x)))} className="input" />
+                  <input id={`ed-school-${i}`} value={ed.school} onChange={(e) => setEd(i, { school: e.target.value })} onBlur={(e) => setEd(i, { school: capitalizeWords(e.target.value) })} className="input" />
                 </Field>
                 <Field id={`ed-location-${i}`} label={dict.editor.location} optionalLabel={dict.editor.optional}>
-                  <input id={`ed-location-${i}`} value={ed.location ?? ""} onChange={(e) => update("education", data.education.map((x, j) => (j === i ? { ...x, location: e.target.value } : x)))} className="input" />
+                  <input id={`ed-location-${i}`} value={ed.location ?? ""} onChange={(e) => setEd(i, { location: e.target.value })} onBlur={(e) => setEd(i, { location: capitalizeWords(e.target.value) })} className="input" />
                 </Field>
                 <Field id={`ed-start-${i}`} label={dict.editor.startDate}>
                   <input
@@ -529,11 +569,32 @@ export function CvEditor({
                 onChange={(e) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: e.target.value }])}
                 className="input min-h-24"
               />
+              <GrammarHints
+                text={data.extras?.[0]?.content ?? ""}
+                language={contentLanguage}
+                onApply={(t) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: t }])}
+                onCountChange={(n) => setGrammarCount(dict.editor.extraSectionHeading, n)}
+                labels={grammarLabels}
+              />
             </Field>
           )}
         </section>
 
         <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          {qualityWarnings.length > 0 && (
+            <div role="status" className="rounded-xl border border-amber-300/70 bg-amber-50 p-4 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <WarningIcon className="h-4 w-4 shrink-0" />
+                {dict.editor.qualityTitle}
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
+                {qualityWarnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs opacity-75">{dict.editor.qualityOptional}</p>
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm">
               {dict.editor.price}: <strong>{template.priceFcfa} FCFA</strong>

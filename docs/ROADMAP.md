@@ -928,3 +928,18 @@ Signalé par l'utilisateur après un vrai paiement : impossible de récupérer l
   3. échelle de conception : 679 px × (794/480) = 1123,2 px > page A4 (1122,5 px) → échelle = min(largeur, hauteur) A4 exactes ; dépassements de sous-pixel restants absorbés au rendu PDF (réduction < 2 %).
 
 Vérifié en local (Chrome réel) : 11/11 — CV d'une page → 1 page, CV long → pages suivantes normales, lettre → 1 page, non connecté / autre client refusés, bouton → fichier + « C'est téléchargé », page mobile sans débordement (aperçu 335 px), aucune impression automatique. Temps de fabrication : 7 à 20 s en local.
+
+
+## Conseils de qualité dans les éditeurs (2026-09-29)
+
+Constat de l'utilisateur sur un vrai PDF : fautes (« motiver », « J'étais charger »), minuscules (« Fotsing brice », « Pascal tohoua »), dates « 09/2026 – 09/2026 », adresse « 00000 », photo décontractée. La correction orthographique existante (`correctSpelling`, à l'enregistrement) ne peut rien : « motiver » et « charger » sont de vrais mots — ce sont des fautes de grammaire.
+
+Décision de l'utilisateur : **conseils uniquement, jamais bloquants** — le client peut toujours enregistrer et payer.
+
+- **Grammaire** (`findParticipleMistakes`, `grammar-actions.ts`, `GrammarHints`) : infinitif en -er après être/avoir (« j'étais charger » → « chargé »). Proposé sous le champ avec un bouton « Corriger », jamais appliqué d'office. La forme en -é doit exister dans le dictionnaire et le mot en -er y être un verbe ; « a »/« as » seulement après un sujet (« prêt a travailler » ignoré) ; liste de noms en -er (conseiller, boucher, fier…). Français seulement, sans service extérieur. Limite assumée : « aimable et motiver » n'est pas détecté.
+- **Majuscules** à la sortie du champ (`capitalizeWords` / `capitalizeFirst`, `src/lib/cv/quality.ts`) : noms, établissements, villes, poste, diplôme. Seuls les mots entièrement en minuscules sont touchés ; particules (de, du, la…) conservées.
+- **Encadré « À vérifier avant de payer »** : dates (fin avant début, date future, même mois de début et de fin), adresse sans lettres (« 00000 »), champs avec une formulation à vérifier.
+- **Conseil photo** sous le bouton « Ajouter une photo ».
+- Éditeur de lettre : grammaire sur le texte de la lettre, majuscules au nom, à l'entreprise et au destinataire.
+
+Vérifié : 15 tests des fonctions (majuscules, dates, adresse), 11 phrases de grammaire (4 fautes détectées, 7 phrases correctes non signalées), éditeur dans le navigateur 11/11 (dont « Enregistrer et passer au paiement » fonctionne malgré les avertissements, et document enregistré avec les majuscules).

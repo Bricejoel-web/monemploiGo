@@ -87,6 +87,45 @@ function matchCase(suggestion: string, original: string): string {
 // le reste (espaces, ponctuation, retours à la ligne) parfaitement intact.
 const WORD_RE = /[\p{L}\p{M}'’-]+/gu;
 
+// Auxiliaires être/avoir suivis d'un participe passé. « a » et « as » sont
+// traités à part : « a » est souvent tapé à la place de « à » (« prêt a
+// travailler »), on ne les retient qu'après un sujet.
+const AUXILIARIES = "ai|avons|avez|ont|avais|avait|avions|aviez|avaient|aurai|aura|aurais|aurait|suis|es|est|sommes|êtes|sont|étais|était|étions|étiez|étaient|été|serai|sera|a|as";
+const AUX_THEN_ER_RE = new RegExp(`(?<![\\p{L}])(${AUXILIARIES})\\s+([\\p{L}]{2,}er)(?![\\p{L}])`, "giu");
+const SUBJECT_BEFORE_A = /(?:^|[^\p{L}])(il|elle|on|qui|ça|cela|tu)\s*$/iu;
+// Noms ou adjectifs en -er dont la forme en -é existe aussi : « je suis
+// conseiller », « il est fier » sont corrects.
+const ER_WORDS_NOT_VERBS = new Set(["fier", "conseiller", "boucher", "cher", "hier", "premier", "dernier", "léger", "entier", "étranger", "amer", "super", "leader", "manager", "designer", "reporter"]);
+
+/**
+ * Faute fréquente qu'un dictionnaire ne voit pas (les deux mots existent) :
+ * infinitif à la place du participe passé après être/avoir — « j'étais
+ * charger », « j'ai travailler » → « chargé », « travaillé ». Renvoie des
+ * suggestions (jamais appliquées d'office) ; la forme en -é doit exister
+ * dans le dictionnaire, et le mot en -er y être un verbe connu.
+ */
+export async function findParticipleMistakes(text: string): Promise<{ wrong: string; fix: string }[]> {
+  if (!text || !text.trim()) return [];
+  let speller: Awaited<ReturnType<typeof getSpeller>>;
+  try {
+    speller = await getSpeller("fr");
+  } catch {
+    return [];
+  }
+  const found: { wrong: string; fix: string }[] = [];
+  for (const match of text.matchAll(AUX_THEN_ER_RE)) {
+    const [whole, aux, word] = match;
+    const lower = word.toLocaleLowerCase("fr");
+    if (ER_WORDS_NOT_VERBS.has(lower)) continue;
+    if (/^as?$/i.test(aux) && !SUBJECT_BEFORE_A.test(text.slice(0, match.index))) continue;
+    const participle = word.slice(0, -2) + (word.endsWith("ER") ? "É" : "é");
+    if (!speller.correct(word) || !speller.correct(participle)) continue;
+    const fix = whole.slice(0, whole.length - word.length) + participle;
+    if (!found.some((f) => f.wrong === whole)) found.push({ wrong: whole, fix });
+  }
+  return found;
+}
+
 /**
  * Corrige l'orthographe d'un texte libre. Dégradation gracieuse : si le
  * dictionnaire ne peut pas être chargé pour une raison quelconque, le texte

@@ -9,6 +9,8 @@ import { CoverLetterRenderer } from "./CoverLetterRenderer";
 import { EditorA4Preview } from "./EditorA4Preview";
 import { Field } from "./FormField";
 import { saveCoverLetterDocument } from "@/lib/documents/actions";
+import { GrammarHints } from "./GrammarHints";
+import { capitalizeFirst, capitalizeWords } from "@/lib/cv/quality";
 import { generateCoverLetterBodyAction, isAiGenerationAvailableAction } from "@/lib/documents/generate-actions";
 
 function emptyData(): CoverLetterData {
@@ -98,7 +100,7 @@ export function CoverLetterEditor({
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.personalInfo}</h2>
           <Field id="cl-fullName" label={dict.editor.fullName}>
-            <input id="cl-fullName" value={data.fullName} onChange={(e) => update("fullName", e.target.value)} className="input" />
+            <input id="cl-fullName" value={data.fullName} onChange={(e) => update("fullName", e.target.value)} onBlur={(e) => update("fullName", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="cl-email" label={dict.editor.email}>
             <input id="cl-email" type="email" placeholder="vous@exemple.com" value={data.email} onChange={(e) => update("email", e.target.value)} className="input" />
@@ -114,10 +116,10 @@ export function CoverLetterEditor({
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.recipient}</h2>
           <Field id="cl-recipientCompany" label={dict.editor.recipientCompany} optionalLabel={dict.editor.optional}>
-            <input id="cl-recipientCompany" value={data.recipientCompany} onChange={(e) => update("recipientCompany", e.target.value)} className="input" />
+            <input id="cl-recipientCompany" value={data.recipientCompany} onChange={(e) => update("recipientCompany", e.target.value)} onBlur={(e) => update("recipientCompany", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="cl-recipientName" label={dict.editor.recipientName} optionalLabel={dict.editor.optional}>
-            <input id="cl-recipientName" value={data.recipientName} onChange={(e) => update("recipientName", e.target.value)} className="input" />
+            <input id="cl-recipientName" value={data.recipientName} onChange={(e) => update("recipientName", e.target.value)} onBlur={(e) => update("recipientName", capitalizeWords(e.target.value))} className="input" />
           </Field>
           <Field id="cl-date" label={dict.editor.dateAndPlace}>
             <input id="cl-date" placeholder="Douala, le 21 septembre 2026" value={data.date} onChange={(e) => update("date", e.target.value)} className="input" />
@@ -127,7 +129,7 @@ export function CoverLetterEditor({
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.jobDetails}</h2>
           <Field id="cl-jobTitle" label={dict.editor.jobTitle}>
-            <input id="cl-jobTitle" value={data.jobTitle ?? ""} onChange={(e) => update("jobTitle", e.target.value)} className="input" />
+            <input id="cl-jobTitle" value={data.jobTitle ?? ""} onChange={(e) => update("jobTitle", e.target.value)} onBlur={(e) => update("jobTitle", capitalizeFirst(e.target.value))} className="input" />
           </Field>
           <Field id="cl-sourceOfListing" label={dict.editor.sourceOfListing} optionalLabel={dict.editor.optional}>
             <input id="cl-sourceOfListing" value={data.sourceOfListing ?? ""} onChange={(e) => update("sourceOfListing", e.target.value)} className="input" />
@@ -171,6 +173,12 @@ export function CoverLetterEditor({
           </div>
           <Field id="cl-body" label={dict.editor.body}>
             <textarea id="cl-body" value={data.body} onChange={(e) => update("body", e.target.value)} className="input min-h-64" />
+            <GrammarHints
+              text={data.body}
+              language={locale === "en" ? "en" : "fr"}
+              onApply={(t) => update("body", t)}
+              labels={{ grammarHint: dict.editor.grammarHint, grammarInsteadOf: dict.editor.grammarInsteadOf, grammarFix: dict.editor.grammarFix }}
+            />
           </Field>
           <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.bodyHint}</p>
         </section>
