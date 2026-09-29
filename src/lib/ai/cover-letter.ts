@@ -24,28 +24,56 @@ function pick<T>(variants: T[], seed: string): T {
   return variants[hashSeed(seed) % variants.length];
 }
 
-function buildFallbackBodyFr(data: CoverLetterData): string {
-  const role = data.jobTitle || "ce poste";
-  const company = data.recipientCompany || "votre entreprise";
-  const seed = `${data.fullName}-${role}-${company}`;
+/**
+ * Nombre seul (« 3 ») → « 3 ans » / « 3 years » ; texte déjà complet
+ * (« 3 ans », « trois années ») laissé tel quel.
+ */
+function withYears(value: string, unit: "ans" | "years"): string {
+  const v = value.trim();
+  if (!/^\d+([.,]\d+)?$/.test(v)) return v;
+  if (unit === "years") return v === "1" ? "1 year" : `${v} years`;
+  return v === "1" ? "1 an" : `${v} ans`;
+}
 
-  const openings = [
-    `C'est avec un vif intérêt que je vous adresse ma candidature au poste de ${role} au sein de ${company}.`,
-    `Le poste de ${role} que vous proposez au sein de ${company} correspond exactement au type de mission dans lequel je souhaite aujourd'hui m'investir.`,
-    `Votre offre pour le poste de ${role} au sein de ${company} a immédiatement retenu mon attention.`,
-  ];
-  const sourceSentence = data.sourceOfListing ? ` J'ai pris connaissance de cette offre via ${data.sourceOfListing}.` : "";
+/**
+ * Relecture du 2026-09-30 (mêmes défauts que le Bewerbungsbrief avant sa
+ * correction) : le nom de l'entreprise n'est plus inséré après « au sein
+ * de » (« au sein de Collège… » au lieu de « du Collège », « de Orange » au
+ * lieu de « d'Orange ») — il figure déjà dans le bloc du destinataire ; un
+ * poste non renseigné ne donne plus « au poste de ce poste » ; « 3 » années
+ * d'expérience devient « 3 ans ».
+ */
+function buildFallbackBodyFr(data: CoverLetterData): string {
+  const role = data.jobTitle?.trim();
+  const company = data.recipientCompany?.trim() ?? "";
+  const seed = `${data.fullName}-${role ?? ""}-${company}`;
+
+  const openings = role
+    ? [
+        `C'est avec un vif intérêt que je vous adresse ma candidature au poste de ${role} au sein de votre structure.`,
+        `Le poste de ${role} que vous proposez correspond exactement au type de mission dans lequel je souhaite aujourd'hui m'investir.`,
+        `Votre offre pour le poste de ${role} a immédiatement retenu mon attention.`,
+      ]
+    : [
+        "C'est avec un vif intérêt que je vous adresse ma candidature pour le poste que vous proposez.",
+        "Le poste que vous proposez correspond exactement au type de mission dans lequel je souhaite aujourd'hui m'investir.",
+        "Votre offre d'emploi a immédiatement retenu mon attention.",
+      ];
+  const source = data.sourceOfListing?.trim();
+  const sourceSentence = source ? ` J'ai pris connaissance de cette offre via ${source}.` : "";
   const paragraph1 = `${pick(openings, seed)}${sourceSentence}`;
 
   const traits = pick(
     ["rigueur et fiabilité", "autonomie et sens de l'organisation", "réactivité et esprit d'équipe"],
     `${seed}-traits`,
   );
-  const experienceSentence = data.yearsOfExperience
-    ? `Au cours de mes ${data.yearsOfExperience} d'expérience dans ce domaine, j'ai eu l'occasion de développer des compétences concrètes, tout en cultivant ${traits}.`
+  const years = data.yearsOfExperience?.trim();
+  const experienceSentence = years
+    ? `Au cours de mes ${withYears(years, "ans")} d'expérience dans ce domaine, j'ai eu l'occasion de développer des compétences concrètes, tout en cultivant ${traits}.`
     : "";
-  const skillsSentence = data.keySkills
-    ? `Je maîtrise en particulier : ${data.keySkills}, des atouts que je saurai mettre directement au service de vos équipes.`
+  const skills = data.keySkills?.trim();
+  const skillsSentence = skills
+    ? `Je maîtrise en particulier : ${skills}, des atouts que je saurai mettre directement au service de vos équipes.`
     : "";
   const paragraph2 = [experienceSentence, skillsSentence].filter(Boolean).join(" ");
 
@@ -61,27 +89,37 @@ function buildFallbackBodyFr(data: CoverLetterData): string {
 }
 
 function buildFallbackBodyEn(data: CoverLetterData): string {
-  const role = data.jobTitle || "this position";
-  const company = data.recipientCompany || "your company";
-  const seed = `${data.fullName}-${role}-${company}`;
+  const role = data.jobTitle?.trim();
+  const company = data.recipientCompany?.trim() ?? "";
+  const seed = `${data.fullName}-${role ?? ""}-${company}`;
+  const at = company ? ` at ${company}` : "";
 
-  const openings = [
-    `I am excited to apply for the ${role} position at ${company}.`,
-    `The ${role} opening at ${company} is precisely the kind of opportunity I am looking to take on next.`,
-    `Your posting for the ${role} position at ${company} immediately caught my attention.`,
-  ];
-  const sourceSentence = data.sourceOfListing ? ` I came across this opening through ${data.sourceOfListing}.` : "";
+  const openings = role
+    ? [
+        `I am excited to apply for the ${role} position${at}.`,
+        `The ${role} opening${at} is precisely the kind of opportunity I am looking to take on next.`,
+        `Your posting for the ${role} position${at} immediately caught my attention.`,
+      ]
+    : [
+        `I am excited to apply for the position you are offering${at}.`,
+        `The opening${at} is precisely the kind of opportunity I am looking to take on next.`,
+        `Your job posting${at} immediately caught my attention.`,
+      ];
+  const source = data.sourceOfListing?.trim();
+  const sourceSentence = source ? ` I came across this opening through ${source}.` : "";
   const paragraph1 = `${pick(openings, seed)}${sourceSentence}`;
 
   const traits = pick(
     ["attention to detail and reliability", "independence and strong organizational skills", "adaptability and a collaborative mindset"],
     `${seed}-traits`,
   );
-  const experienceSentence = data.yearsOfExperience
-    ? `Over ${data.yearsOfExperience} of experience in this field, I have built practical skills while developing ${traits}.`
+  const years = data.yearsOfExperience?.trim();
+  const experienceSentence = years
+    ? `Over ${withYears(years, "years")} of experience in this field, I have built practical skills while developing ${traits}.`
     : "";
-  const skillsSentence = data.keySkills
-    ? `I am particularly skilled in: ${data.keySkills}, strengths I would be glad to bring directly to your team.`
+  const skills = data.keySkills?.trim();
+  const skillsSentence = skills
+    ? `I am particularly skilled in: ${skills}, strengths I would be glad to bring directly to your team.`
     : "";
   const paragraph2 = [experienceSentence, skillsSentence].filter(Boolean).join(" ");
 
