@@ -15,19 +15,19 @@ import ws from "ws";
 // Identifiants (non secrets) des bases de production connues.
 const PRODUCTION_DB_HOSTS = ["ep-floral-king-b5t4r9ak"];
 
-/** DATABASE_URL telle que la voit `next start` : .env.local prime sur .env. */
-function effectiveDatabaseUrl(): string | undefined {
-  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+/** Variable telle que la voit `next start` : .env.local prime sur .env. */
+function effectiveEnv(name: string): string | undefined {
+  if (process.env[name]) return process.env[name];
   for (const file of [".env.local", ".env"]) {
     const full = path.join(process.cwd(), file);
     if (!fs.existsSync(full)) continue;
-    const match = fs.readFileSync(full, "utf8").match(/^DATABASE_URL\s*=\s*"?([^"\r\n]+)"?/m);
+    const match = fs.readFileSync(full, "utf8").match(new RegExp(`^${name}\\s*=\\s*"?([^"\\r\\n]+)"?`, "m"));
     if (match) return match[1];
   }
   return undefined;
 }
 
-const databaseUrl = effectiveDatabaseUrl();
+const databaseUrl = effectiveEnv("DATABASE_URL");
 
 export const dbWritesAllowed = Boolean(databaseUrl && !PRODUCTION_DB_HOSTS.some((host) => databaseUrl.includes(host)));
 export const DB_WRITES_SKIP_REASON = "base de production (ou absente) : tests écrivant en base désactivés — configurer une base de développement";
@@ -61,4 +61,39 @@ export function lastEmailTo(to: string): { to: string; subject: string; text: st
     .map((line) => JSON.parse(line) as { to: string; subject: string; text: string })
     .filter((mail) => mail.to.toLowerCase() === to.toLowerCase())
     .at(-1);
+}
+
+/** Compte de test avec espace Pro, créé directement en base (base de développement uniquement). */
+export async function createProUser(company: string) {
+  const { hash } = await import("bcryptjs");
+  const email = testEmail("dashboard");
+  const user = await testDb().user.create({
+    data: {
+      email,
+      name: "Responsable Test",
+      passwordHash: await hash("Pro-Test#2026", 10),
+      professionalAccount: {
+        create: { companyName: company, managerName: "Responsable Test", email, phone: "+237 600000000", termsVersion: "test", proTermsVersion: "test", termsAcceptedAt: new Date() },
+      },
+    },
+    select: { id: true, professionalAccount: { select: { id: true } } },
+  });
+  return { userId: user.id, accountId: user.professionalAccount!.id, email };
+}
+
+/**
+ * Connecte le navigateur de test à ce compte sans passer par le formulaire
+ * (déjà testé en phase 1) : cookie de session signé comme le fait le site
+ * (src/lib/auth/session.ts), avec la clé locale SESSION_SECRET.
+ */
+export async function loginAs(context: import("@playwright/test").BrowserContext, userId: string, baseURL: string) {
+  const { SignJWT } = await import("jose");
+  const secret = effectiveEnv("SESSION_SECRET");
+  if (!secret) throw new Error("SESSION_SECRET introuvable dans .env.local / .env");
+  const token = await new SignJWT({ userId })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(new TextEncoder().encode(secret));
+  await context.addCookies([{ name: "monemploigo_session", value: token, url: baseURL, httpOnly: true, sameSite: "Lax" }]);
 }

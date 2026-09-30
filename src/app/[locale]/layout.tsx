@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { InfoTicker, type TickerItem } from "@/components/layout/InfoTicker";
+import { HideInProSpace } from "@/components/layout/HideInProSpace";
 import { SITE_NAME, SITE_URL, organizationJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 
@@ -63,18 +64,22 @@ export default async function LocaleLayout({
         {/* Les polices des CV ne sont plus chargées ici mais seulement sur
             les pages qui affichent des documents : voir CvFonts. */}
         <JsonLd data={organizationJsonLd(dict.site.description)} />
-        <Header locale={locale as Locale} dict={dict} />
-        <InfoTicker
-          items={dict.ticker.items as TickerItem[]}
-          label={dict.ticker.label}
-          regionLabel={dict.ticker.regionLabel}
-          kindLabels={dict.ticker.kinds}
-          pauseLabel={dict.ticker.pause}
-          playLabel={dict.ticker.play}
-          closeLabel={dict.ticker.close}
-        />
+        <HideInProSpace>
+          <Header locale={locale as Locale} dict={dict} />
+          <InfoTicker
+            items={dict.ticker.items as TickerItem[]}
+            label={dict.ticker.label}
+            regionLabel={dict.ticker.regionLabel}
+            kindLabels={dict.ticker.kinds}
+            pauseLabel={dict.ticker.pause}
+            playLabel={dict.ticker.play}
+            closeLabel={dict.ticker.close}
+          />
+        </HideInProSpace>
         <main className="flex-1">{children}</main>
-        <Footer locale={locale as Locale} dict={dict} />
+        <HideInProSpace>
+          <Footer locale={locale as Locale} dict={dict} />
+        </HideInProSpace>
         <CookieConsent locale={locale as Locale} dict={dict} />
       </body>
     </html>

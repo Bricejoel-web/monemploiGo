@@ -98,7 +98,64 @@ model ProfessionalAccount {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+  candidates    ProfessionalCandidate[]
+}
+
+enum SubscriptionPlan {
+  PRO_STARTER
+}
+
+// Une ligne par période payée (30 jours, sans renouvellement automatique).
+// Le statut n'est jamais stocké : il se déduit des dates (actif, lecture
+// seule 90 jours après expiration...), voir src/lib/pro/subscription.ts.
+// Un renouvellement anticipé crée la période suivante, accolée à la fin de
+// la période en cours. `documentsUsed` : documents finalisés sur la période,
+// incrémenté seulement s'il reste du quota (phase 6).
+model Subscription {
+  id                    String           @id @default(cuid())
+  professionalAccountId String
+  plan                  SubscriptionPlan @default(PRO_STARTER)
+  priceFcfa             Int
+  currency              String           @default("XAF")
+  startsAt              DateTime
+  expiresAt             DateTime
+  documentsUsed         Int              @default(0)
+  createdAt             DateTime         @default(now())
+
+  professionalAccount ProfessionalAccount @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
+
+  @@index([professionalAccountId, expiresAt])
+}
+
+enum CandidateStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+// Candidat suivi par un professionnel. Toujours rattaché à UN compte Pro :
+// toute lecture filtre par `professionalAccountId` (isolation des données).
+model ProfessionalCandidate {
+  id                    String          @id @default(cuid())
+  professionalAccountId String
+  firstName             String
+  lastName              String
+  email                 String?
+  phone                 String?
+  destinationCountry    String?
+  professionalField     String?
+  applicationType       String?
+  educationLevel        String?
+  languages             String?
+  germanLevel           String?
+  status                CandidateStatus @default(ACTIVE)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  professionalAccount ProfessionalAccount @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
+
+  @@index([professionalAccountId, status])
 }
 
 // Lien « mot de passe oublié » : seule l'empreinte SHA-256 du jeton est

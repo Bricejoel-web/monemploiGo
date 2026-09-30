@@ -128,6 +128,32 @@ développement séparée (branche Neon) avant de continuer.
   code — « mot de passe oublié » (visible par les particuliers, sans
   interrupteur) utilise la nouvelle table.
 
+### Phase 2 : tableau de bord Pro (2026-09-30)
+
+- Tables `Subscription` (une ligne par période de 30 jours, statut jamais
+  stocké : déduit des dates) et `ProfessionalCandidate` ; migration
+  `20260930150000_pro_subscriptions_and_candidates` appliquée sur `dev`
+  uniquement.
+- `src/lib/pro/plans.ts` : prix et quotas Pro Starter, seule source de
+  vérité. `src/lib/pro/subscription.ts` : état de l'accès (aucun / actif avec
+  renouvellements accolés / lecture seule 90 jours / expiré) et chiffres du
+  tableau de bord, tous lus en base pour le compte de la session.
+- Espace Pro avec sa propre navigation (`ProShell` : barre latérale sur
+  ordinateur, menu sur mobile) ; l'en-tête, le bandeau et le pied de page du
+  site particulier y sont masqués (`HideInProSpace`). Rubriques pas encore
+  construites grisées « Bientôt » (`src/lib/pro/navigation.ts`, à activer à
+  chaque phase) — jamais de lien vers une page vide.
+- Tableau de bord : « Bonjour, [structure] », Pro Starter, statut, 4 cartes
+  (candidats actifs, documents utilisés, disponibles, abonnement), barres de
+  progression, messages « Vous approchez… » (80 %) / « quota atteint »,
+  bannière d'expiration avec date de suppression (J-30 mis en évidence).
+  Page Aide (réponses tirées des CGU Pro, contact officiel).
+- Tests `e2e/phase2-pro-dashboard.spec.ts` : données réelles préparées en
+  base de développement, isolation entre deux structures, menu mobile.
+- Lenteur des tests en local expliquée (mesurée) : ~0,35 s par échange avec
+  la base depuis cette machine, ~2,6 s pour la première connexion ; sans
+  effet en production (Vercel et Neon dans la même région).
+
 ## Webhook Notch Pay : cause racine trouvée — bug côté plateforme (2026-09-26)
 
 Après un premier paiement réel réussi (voir section précédente) confirmé uniquement par le mécanisme de secours (`checkStatus()` sur la page de retour) et non par le webhook, investigation poussée à la demande explicite de l'utilisateur ("on corrige. Tout dois être parfait").

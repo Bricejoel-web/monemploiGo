@@ -4,6 +4,7 @@ import { defaultLocale, isLocale, locales } from "@/i18n/config";
 import { SESSION_COOKIE, decryptSessionToken } from "@/lib/auth/session";
 import { isCategorySlug } from "@/lib/cv/category-routes";
 import { isProEnabled } from "@/lib/pro/flag";
+import { PRO_PRIVATE_SEGMENTS } from "@/lib/pro/navigation";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
 const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document"];
@@ -17,7 +18,7 @@ const PASSWORD_RESET_SEGMENTS = ["mot-de-passe-oublie", "reinitialiser-mot-de-pa
 const NOINDEX_SEGMENTS = [...PROTECTED_SEGMENTS, ...AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS, ...PASSWORD_RESET_SEGMENTS];
 // Espace Pro (/fr/pro/…) : pages privées (connexion obligatoire) et pages
 // publiques indexables ; tout le reste (connexion, inscription) : noindex.
-const PRO_PRIVATE_SEGMENTS = ["dashboard", "candidats", "documents", "abonnement", "parametres", "aide"];
+
 const PRO_INDEXABLE_SEGMENTS = [undefined, "conditions-utilisation"];
 
 /**
