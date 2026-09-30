@@ -154,6 +154,28 @@ développement séparée (branche Neon) avant de continuer.
   la base depuis cette machine, ~2,6 s pour la première connexion ; sans
   effet en production (Vercel et Neon dans la même région).
 
+### Phase 3 : gestion des candidats (2026-09-30)
+
+- `/fr/pro/candidats` : liste (tableau sur ordinateur, cartes sur mobile),
+  recherche serveur (chaque mot dans prénom, nom, e-mail, pays ou domaine),
+  filtres Tous / Actifs / Archivés, « Candidats : X / 10 », colonnes
+  demandées dont le nombre de documents (réel : 0 jusqu'à la phase 5).
+- `/fr/pro/candidats/nouveau` : formulaire (identité + candidature, niveau
+  d'allemand affiché seulement pour l'Allemagne/Autriche/Suisse ou une
+  Ausbildung, listes de choix vérifiées côté serveur), puis ouverture
+  directe du dossier. Création refusée sans abonnement actif ; **limite de
+  10 candidats actifs vérifiée sous verrou** (`SELECT … FOR UPDATE` sur le
+  compte Pro) : testé avec deux créations simultanées à 9 actifs.
+- `/fr/pro/candidats/[id]` : dossier en consultation (Modifier / Archiver /
+  documents « Bientôt » jusqu'aux phases 4-5). Candidat d'une autre
+  structure : page « introuvable » en français (`not-found.tsx` de l'espace
+  Pro), aucune donnée révélée. Statut HTTP 200 (page envoyée en flux, même
+  limite que le reste du site) — jamais indexée.
+- Migration `20260930170000_pro_documents_link` (dev uniquement) :
+  `Document.professionalAccountId` / `candidateId`, nuls pour les
+  particuliers. ⚠️ Phase 5 : filtrer `professionalAccountId: null` dans
+  toutes les pages particulier avant de créer le moindre document Pro.
+
 ## Webhook Notch Pay : cause racine trouvée — bug côté plateforme (2026-09-26)
 
 Après un premier paiement réel réussi (voir section précédente) confirmé uniquement par le mécanisme de secours (`checkStatus()` sur la page de retour) et non par le webhook, investigation poussée à la demande explicite de l'utilisateur ("on corrige. Tout dois être parfait").

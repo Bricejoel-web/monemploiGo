@@ -83,23 +83,24 @@ enum ProfessionalAccountStatus {
 // connexion et le mot de passe restent ceux du `User` : `email` est
 // l'adresse de contact professionnelle de la structure.
 model ProfessionalAccount {
-  id          String                    @id @default(cuid())
-  userId      String                    @unique
-  companyName String
-  managerName String
-  email       String
-  phone       String
-  status      ProfessionalAccountStatus @default(ACTIVE)
+  id              String                    @id @default(cuid())
+  userId          String                    @unique
+  companyName     String
+  managerName     String
+  email           String
+  phone           String
+  status          ProfessionalAccountStatus @default(ACTIVE)
   // Versions des CGU générales et des CGU Pro acceptées à la création de
   // l'espace (case obligatoire), et date de cette acceptation.
   termsVersion    String
   proTermsVersion String
   termsAcceptedAt DateTime
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
 
   user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscriptions Subscription[]
+  documents     Document[]
   candidates    ProfessionalCandidate[]
 }
 
@@ -154,6 +155,7 @@ model ProfessionalCandidate {
   updatedAt             DateTime        @updatedAt
 
   professionalAccount ProfessionalAccount @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
+  documents           Document[]
 
   @@index([professionalAccountId, status])
 }
@@ -222,7 +224,16 @@ model Document {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Document de l'espace Pro (phase 5) : rattaché au compte Pro et au
+  // candidat. Nuls pour tous les documents particuliers. ⚠️ Les pages
+  // particulier doivent filtrer `professionalAccountId: null` dès que des
+  // documents Pro existent (séparation stricte des deux espaces).
+  professionalAccountId String?
+  candidateId           String?
+
+  user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  professionalAccount ProfessionalAccount?   @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
+  candidate           ProfessionalCandidate? @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   payments Payment[]
   reviews  Review[]
@@ -230,6 +241,8 @@ model Document {
   @@index([userId])
   @@index([status, paidAt])
   @@index([status, updatedAt])
+  @@index([professionalAccountId])
+  @@index([candidateId])
 }
 
 // `documentId` devient nul quand le document est supprimé automatiquement

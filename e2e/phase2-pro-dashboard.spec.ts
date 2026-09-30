@@ -135,7 +135,9 @@ test("navigation : rubriques pas encore construites grisées, menu mobile", asyn
   const nav = page.getByRole("navigation", { name: "Espace professionnel" }).filter({ visible: true });
   await expect(nav.getByRole("link", { name: "Tableau de bord" })).toHaveAttribute("aria-current", "page");
   await expect(nav.getByRole("link", { name: "Aide" })).toBeVisible();
-  for (const label of ["Mes candidats", "Documents", "Nouveau candidat", "Mon abonnement", "Paramètres"]) {
+  await expect(nav.getByRole("link", { name: "Mes candidats" })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Nouveau candidat" })).toBeVisible();
+  for (const label of ["Documents", "Mon abonnement", "Paramètres"]) {
     await expect(nav.getByRole("link", { name: label })).toHaveCount(0);
     await expect(nav.getByText(label, { exact: true })).toBeVisible();
   }
