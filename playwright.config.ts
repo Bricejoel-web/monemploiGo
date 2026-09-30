@@ -1,4 +1,8 @@
+import fs from "node:fs";
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
+
+fs.mkdirSync(path.join(__dirname, "e2e", ".outbox"), { recursive: true });
 
 /**
  * Tests de bout en bout (MonEmploiGo Pro, phases 0 à 12 — voir
@@ -13,8 +17,8 @@ import { defineConfig, devices } from "@playwright/test";
  * construit avec la même valeur de PRO_ENABLED.
  *
  * Sécurité : paiement toujours simulé (jamais d'appel au vrai Notch Pay).
- * ⚠️ La base de données est celle de .env : tant qu'elle pointe vers la
- * production, aucun test ne doit écrire en base.
+ * Base de données : celle de .env.local / .env. Les tests qui écrivent en
+ * base refusent de tourner si c'est la production (voir e2e/db.ts).
  *
  * Navigateur : le Chrome installé sur la machine (pas de téléchargement).
  */
@@ -39,6 +43,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}/fr`,
     timeout: 10 * 60_000,
     reuseExistingServer: true,
-    env: { PRO_ENABLED, PAYMENT_MODE: "mock" },
+    // E-mails écrits dans e2e/.outbox au lieu d'être envoyés (voir mailer.ts).
+    env: { PRO_ENABLED, PAYMENT_MODE: "mock", E2E_EMAIL_OUTBOX: path.join(__dirname, "e2e", ".outbox", "emails.jsonl") },
   },
 });

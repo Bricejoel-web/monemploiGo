@@ -22,6 +22,13 @@ export default function robots(): MetadataRoute.Robots {
         "/*/cv/modele/",
         "/*/lettres-de-motivation/modele/",
         "/*/bewerbungsbrief/modele/",
+        // Espace MonEmploiGo Pro privé (données de candidats, abonnements).
+        "/*/pro/dashboard",
+        "/*/pro/candidats",
+        "/*/pro/documents",
+        "/*/pro/abonnement",
+        "/*/pro/parametres",
+        "/*/pro/aide",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

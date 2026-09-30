@@ -567,6 +567,14 @@
       "title": "MonEmploiGo Pro Terms of Use | monemploiGo",
       "description": "Terms of use of the MonEmploiGo Pro professional space (in French)."
     },
+    "forgotPassword": {
+      "title": "Forgot your password | monemploiGo",
+      "description": "Get an email link to choose a new monemploiGo password."
+    },
+    "resetPassword": {
+      "title": "New password | monemploiGo",
+      "description": "Choose a new password for your monemploiGo account."
+    },
     "privacy": {
       "title": "Privacy Policy | monemploiGo",
       "description": "What data monemploiGo collects, why, who it is shared with, how long it is kept and what your rights are."
@@ -612,5 +620,32 @@
     "signoff": "See you soon,",
     "team": "The monemploiGo team",
     "footer": "You are receiving this email because an account was just created on monemploiGo with this address. If this wasn't you, simply reply to this email to let us know."
+  },
+  "passwordReset": {
+    "forgotLink": "Forgot your password?",
+    "forgotTitle": "Forgot your password",
+    "forgotSubtitle": "Enter your account's email address: we will send you a link to choose a new password.",
+    "submitRequest": "Send the link",
+    "requestSent": "If an account exists with this address, an email has just been sent to it. The link is valid for 1 hour. Remember to check your spam folder.",
+    "tooMany": "Too many requests. Please try again in a few minutes.",
+    "invalidEmail": "Invalid email address.",
+    "backToLogin": "Back to log in",
+    "resetTitle": "New password",
+    "resetSubtitle": "Choose a new password for your account.",
+    "newPassword": "New password",
+    "submitReset": "Save the new password",
+    "invalidLink": "This link is no longer valid: it has already been used or has expired (1 hour). Please make a new request.",
+    "newRequest": "Make a new request",
+    "resetDone": "Your password has been changed. You can now log in.",
+    "email": {
+      "subject": "Reset your monemploiGo password",
+      "greeting": "Hello,",
+      "intro": "We received a request to reset the password of your monemploiGo account ({email}).",
+      "cta": "Choose a new password",
+      "validity": "This link is valid for 1 hour and can only be used once.",
+      "ignore": "If you did not make this request, ignore this email: your current password stays unchanged.",
+      "signoff": "See you soon,",
+      "team": "The monemploiGo team"
+    }
   }
 }

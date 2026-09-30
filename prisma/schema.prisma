@@ -65,6 +65,56 @@ model User {
   documents Document[]
   payments  Payment[]
   review    Review?
+
+  // Espace MonEmploiGo Pro éventuel : même compte (mêmes identifiants),
+  // données strictement séparées de l'espace particulier. Supprimer le
+  // compte supprime l'espace Pro (décision du 2026-09-30).
+  professionalAccount ProfessionalAccount?
+  passwordResetTokens PasswordResetToken[]
+}
+
+enum ProfessionalAccountStatus {
+  ACTIVE
+  // Suspension par MonEmploiGo (CGU Pro, article 15).
+  SUSPENDED
+}
+
+// Espace professionnel MonEmploiGo Pro (voir docs/ROADMAP.md). L'e-mail de
+// connexion et le mot de passe restent ceux du `User` : `email` est
+// l'adresse de contact professionnelle de la structure.
+model ProfessionalAccount {
+  id          String                    @id @default(cuid())
+  userId      String                    @unique
+  companyName String
+  managerName String
+  email       String
+  phone       String
+  status      ProfessionalAccountStatus @default(ACTIVE)
+  // Versions des CGU générales et des CGU Pro acceptées à la création de
+  // l'espace (case obligatoire), et date de cette acceptation.
+  termsVersion    String
+  proTermsVersion String
+  termsAcceptedAt DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Lien « mot de passe oublié » : seule l'empreinte SHA-256 du jeton est
+// stockée (le jeton lui-même n'existe que dans l'e-mail), valable 1 heure,
+// utilisable une seule fois.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // Avis d'un client sur le service (1 à 5 étoiles + commentaire facultatif).

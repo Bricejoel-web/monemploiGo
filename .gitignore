@@ -53,3 +53,4 @@ next-env.d.ts
 # tests Playwright
 /test-results/
 /playwright-report/
+/e2e/.outbox/

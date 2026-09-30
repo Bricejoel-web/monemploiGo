@@ -85,7 +85,7 @@ test.describe("Pro désactivé", () => {
   test.skip(proEnabled, "Pro activé");
 
   test("aucune page Pro n'est publiée", async ({ page }) => {
-    for (const path of ["/fr/pro/conditions-utilisation", "/en/pro/conditions-utilisation", "/fr/pro"]) {
+    for (const path of ["/fr/pro/conditions-utilisation", "/en/pro/conditions-utilisation", "/fr/pro", "/fr/pro/inscription", "/fr/pro/connexion", "/fr/pro/dashboard"]) {
       expect((await page.request.get(path)).status(), path).toBe(404);
     }
   });

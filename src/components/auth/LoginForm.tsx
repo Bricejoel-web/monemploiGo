@@ -7,13 +7,18 @@ import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/components/home/icons";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 
-export function LoginForm({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+export function LoginForm({ locale, dict, passwordJustReset = false }: { locale: Locale; dict: Dictionary; passwordJustReset?: boolean }) {
   const loginWithLocale = login.bind(null, locale);
   const [state, action, pending] = useActionState<AuthFormState, FormData>(loginWithLocale, undefined);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={action} className="flex flex-col gap-4">
+      {passwordJustReset && (
+        <p role="status" className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-200">
+          {dict.passwordReset.resetDone}
+        </p>
+      )}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="email" className="text-xs font-semibold tracking-wide text-white/60 uppercase">
           {dict.auth.email}
@@ -37,6 +42,9 @@ export function LoginForm({ locale, dict }: { locale: Locale; dict: Dictionary }
             {showPassword ? <EyeOffIcon className="h-4.5 w-4.5" /> : <EyeIcon className="h-4.5 w-4.5" />}
           </button>
         </div>
+        <Link href={`/${locale}/mot-de-passe-oublie`} className="self-end text-xs font-medium text-[#f2994a] hover:underline">
+          {dict.passwordReset.forgotLink}
+        </Link>
       </div>
 
       {state?.message && <p className="text-xs text-red-400">{state.message}</p>}

@@ -45,6 +45,15 @@ function getTransporter(): Transporter | null {
 
 /** Renvoie `true` si l'e-mail est parti, `false` sinon (jamais d'exception). */
 export async function sendEmail(email: OutgoingEmail): Promise<boolean> {
+  // Tests de bout en bout uniquement (voir playwright.config.ts) : l'e-mail
+  // est écrit dans un fichier au lieu d'être envoyé. Jamais actif sur Vercel.
+  const outbox = process.env.E2E_EMAIL_OUTBOX;
+  if (outbox && !process.env.VERCEL) {
+    const { appendFile } = await import("node:fs/promises");
+    await appendFile(outbox, `${JSON.stringify({ to: email.to, subject: email.subject, text: email.text })}\n`);
+    return true;
+  }
+
   const transport = getTransporter();
   if (!transport) {
     // Sans le sujet : il peut contenir le prénom du destinataire.

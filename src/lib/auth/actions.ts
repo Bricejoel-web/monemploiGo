@@ -1,8 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { clientKey } from "@/lib/security/client-key";
+import { passwordSchema } from "./password-rules";
 import { prisma } from "@/lib/db/client";
 import { hashPassword, verifyPassword } from "./password";
 import { createSession, deleteSession } from "./session";
@@ -39,13 +40,7 @@ const SignupSchema = z
     firstName: z.string().trim().min(2, { error: "Le prénom doit contenir au moins 2 caractères." }),
     lastName: z.string().trim().min(2, { error: "Le nom doit contenir au moins 2 caractères." }),
     email: z.email({ error: "Adresse e-mail invalide." }).trim(),
-    password: z
-      .string()
-      .min(8, { error: "Le mot de passe doit contenir au moins 8 caractères." })
-      .regex(/[A-Z]/, { error: "Doit contenir au moins une lettre majuscule." })
-      .regex(/[a-z]/, { error: "Doit contenir au moins une lettre minuscule." })
-      .regex(/[0-9]/, { error: "Doit contenir au moins un chiffre." })
-      .regex(/[^A-Za-z0-9]/, { error: "Doit contenir au moins un caractère spécial." }),
+    password: passwordSchema,
     confirmPassword: z.string(),
     terms: z.literal("on", { error: "Merci d'accepter les conditions d'utilisation et la politique de confidentialité." }),
     // Une case à cocher non cochée est absente de FormData : `.get()` renvoie
@@ -62,12 +57,6 @@ const LoginSchema = z.object({
   email: z.email({ error: "Adresse e-mail invalide." }).trim(),
   password: z.string().min(1, { error: "Mot de passe requis." }),
 });
-
-async function clientKey(prefix: string) {
-  const h = await headers();
-  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  return `${prefix}:${ip}`;
-}
 
 export async function signup(locale: string, _state: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const key = await clientKey("signup");

@@ -2,24 +2,13 @@ import "server-only";
 import type { Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { sendEmail, type OutgoingEmail } from "./mailer";
+import { escapeHtml, fill } from "./html";
 
 const NAVY = "#16324f";
 const BRAND = "#eb5757";
 const INK = "#171512";
 const MUTED = "#5f5a52";
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function fill(template: string, values: Record<string, string>): string {
-  return template.replace(/\{(\w+)\}/g, (match, key: string) => values[key] ?? match);
-}
 
 /**
  * E-mail de bienvenue envoyé juste après l'inscription : confirme la

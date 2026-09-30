@@ -10,14 +10,15 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/connexio
   return seoMetadata(locale, "login", "/connexion", { noindex: true });
 }
 
-export default async function LoginPage({ params }: PageProps<"/[locale]/connexion">) {
+export default async function LoginPage({ params, searchParams }: PageProps<"/[locale]/connexion">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const dict = await getDictionary(locale as Locale);
+  const { reinitialise } = await searchParams;
 
   return (
     <AuthLayout title={dict.auth.loginTitle} subtitle={dict.auth.loginSubtitle} dict={dict} variant="login">
-      <LoginForm locale={locale as Locale} dict={dict} />
+      <LoginForm locale={locale as Locale} dict={dict} passwordJustReset={reinitialise === "1"} />
     </AuthLayout>
   );
 }

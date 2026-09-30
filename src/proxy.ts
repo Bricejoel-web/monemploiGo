@@ -11,8 +11,14 @@ const AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS = ["connexion", "inscription"];
 // Éditeurs de modèles (/cv/modele/…, /lettres-de-motivation/modele/…,
 // /bewerbungsbrief/modele/…) : réservés aux utilisateurs connectés.
 const EDITOR_PATH = /^\/(fr|en)\/(cv|lettres-de-motivation|bewerbungsbrief)\/modele\//;
+// Mot de passe oublié : accessible connecté ou non, jamais indexé.
+const PASSWORD_RESET_SEGMENTS = ["mot-de-passe-oublie", "reinitialiser-mot-de-passe"];
 // Pages sans valeur de recherche ou privées : jamais indexées.
-const NOINDEX_SEGMENTS = [...PROTECTED_SEGMENTS, ...AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS];
+const NOINDEX_SEGMENTS = [...PROTECTED_SEGMENTS, ...AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS, ...PASSWORD_RESET_SEGMENTS];
+// Espace Pro (/fr/pro/…) : pages privées (connexion obligatoire) et pages
+// publiques indexables ; tout le reste (connexion, inscription) : noindex.
+const PRO_PRIVATE_SEGMENTS = ["dashboard", "candidats", "documents", "abonnement", "parametres", "aide"];
+const PRO_INDEXABLE_SEGMENTS = [undefined, "conditions-utilisation"];
 
 /**
  * Pourquoi ces redirections sont faites ici et pas seulement dans les pages :
@@ -82,6 +88,12 @@ export async function proxy(request: NextRequest) {
       url.pathname = `/fr/${rest.join("/")}`;
       return NextResponse.redirect(url);
     }
+    if (PRO_PRIVATE_SEGMENTS.includes(rest[1]) && !session?.userId) {
+      return NextResponse.redirect(new URL("/fr/pro/connexion", request.url));
+    }
+    const response = NextResponse.next();
+    if (!PRO_INDEXABLE_SEGMENTS.includes(rest[1])) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
   }
 
   if ((PROTECTED_SEGMENTS.includes(segment) || isEditor) && !session?.userId) {

@@ -14,17 +14,20 @@ export function AuthLayout({
   subtitle,
   dict,
   variant,
+  hero,
   children,
 }: {
   title: string;
   subtitle: string;
   dict: Dictionary;
   variant: "signup" | "login";
+  /** Accroche propre à la page (espace Pro, mot de passe oublié) ; sans la liste d'avantages particuliers. */
+  hero?: { kicker: string; title: string; subtitle: string };
   children: ReactNode;
 }) {
   const portrait = getPortraitById(AUTH_HERO_PHOTO_ID);
-  const heroTitle = variant === "signup" ? dict.auth.signupHeroTitle : dict.auth.loginHeroTitle;
-  const heroSubtitle = variant === "signup" ? dict.auth.signupHeroSubtitle : dict.auth.loginHeroSubtitle;
+  const heroTitle = hero?.title ?? (variant === "signup" ? dict.auth.signupHeroTitle : dict.auth.loginHeroTitle);
+  const heroSubtitle = hero?.subtitle ?? (variant === "signup" ? dict.auth.signupHeroSubtitle : dict.auth.loginHeroSubtitle);
 
   const features = [
     { icon: BoltIcon, title: dict.auth.feature1Title, text: dict.auth.feature1Text },
@@ -45,14 +48,14 @@ export function AuthLayout({
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[1.15fr_1fr]">
         <div className="animate-fade-in-up text-white">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-[#ffb27a] uppercase backdrop-blur-sm">
-            {dict.auth.heroKicker}
+            {hero?.kicker ?? dict.auth.heroKicker}
           </span>
           <h1 className="mt-5 max-w-lg text-3xl leading-[1.15] font-bold sm:text-4xl">
             <BrandedText text={heroTitle} />
           </h1>
           <p className="mt-4 max-w-md text-white/75">{heroSubtitle}</p>
 
-          {variant === "signup" && (
+          {variant === "signup" && !hero && (
             <>
               <ul className="mt-8 flex flex-col gap-4">
                 {features.map(({ icon: Icon, title: fTitle, text }) => (

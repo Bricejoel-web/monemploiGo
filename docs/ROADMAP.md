@@ -98,6 +98,33 @@ correspondre exactement aux textes)** :
 aucune migration Pro ne doit y être exécuté : il faut une base de
 développement séparée (branche Neon) avant de continuer.
 
+### Phase 1 : comptes Pro, inscription, connexion, mot de passe oublié (2026-09-30)
+
+- Tables `ProfessionalAccount` (1 par `User`, versions des CGU générales et
+  Pro + date d'acceptation) et `PasswordResetToken` ; migration
+  `20260930120000_pro_accounts_and_password_reset`, générée hors ligne, **non
+  appliquée** (base locale = production).
+- Même connexion que les particuliers (même `User`, même cookie) : aucune
+  seconde authentification. `src/lib/pro/dal.ts` : le compte Pro est
+  toujours déduit de la session. E-mail déjà inscrit (majuscules comprises)
+  → proposition de connexion, puis création de l'espace sur ce compte.
+- Pages `/fr/pro/inscription`, `/fr/pro/connexion`, `/fr/pro/dashboard`
+  (provisoire : « Votre espace professionnel est prêt », sans bouton
+  d'activation tant que le paiement n'existe pas — phases 7-8).
+- « Mot de passe oublié » pour tous (particuliers FR/EN et Pro) : jeton de
+  32 octets, seule l'empreinte SHA-256 en base, 1 heure, usage unique (même
+  en double envoi), anciens liens annulés, réponse identique que l'adresse
+  existe ou non, e-mail envoyé après la réponse, 5 demandes / 15 min / IP et
+  3 / heure / adresse. Limite connue (phase 10) : changer de mot de passe ne
+  déconnecte pas les autres sessions déjà ouvertes (sessions JWT sans état).
+- Proxy : pages Pro privées → connexion Pro ; pages Pro de connexion et
+  mot de passe oublié en noindex ; robots.txt bloque les pages Pro privées.
+- Tests `e2e/phase1-pro-auth.spec.ts` ; ceux qui écrivent en base sont
+  verrouillés tant que la base est la production (`e2e/db.ts`).
+- ⚠️ **Ordre de mise en ligne** : appliquer la migration AVANT de déployer ce
+  code — « mot de passe oublié » (visible par les particuliers, sans
+  interrupteur) utilise la nouvelle table.
+
 ## Webhook Notch Pay : cause racine trouvée — bug côté plateforme (2026-09-26)
 
 Après un premier paiement réel réussi (voir section précédente) confirmé uniquement par le mécanisme de secours (`checkStatus()` sur la page de retour) et non par le webhook, investigation poussée à la demande explicite de l'utilisateur ("on corrige. Tout dois être parfait").
