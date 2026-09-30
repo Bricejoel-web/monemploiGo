@@ -132,7 +132,7 @@ test.describe("parcours complets (base de développement)", () => {
     await expect(page.getByText("E-mail ou mot de passe incorrect.")).toBeVisible();
     await loginPro(page, proEmail, PASSWORD);
     await expect(page).toHaveURL(/\/fr\/pro\/dashboard$/);
-    await page.getByRole("button", { name: "Déconnexion" }).click();
+    await page.getByRole("main").getByRole("button", { name: "Déconnexion" }).click();
     await expect(page).toHaveURL(/\/fr\/pro\/connexion$/);
     await page.goto("/fr/pro/dashboard");
     await expect(page).toHaveURL(/\/fr\/pro\/connexion$/);

@@ -102,8 +102,10 @@ développement séparée (branche Neon) avant de continuer.
 
 - Tables `ProfessionalAccount` (1 par `User`, versions des CGU générales et
   Pro + date d'acceptation) et `PasswordResetToken` ; migration
-  `20260930120000_pro_accounts_and_password_reset`, générée hors ligne, **non
-  appliquée** (base locale = production).
+  `20260930120000_pro_accounts_and_password_reset`, générée hors ligne,
+  appliquée sur la branche Neon `dev` (`.env.local`) — **toujours non
+  appliquée en production**. `prisma.config.ts` lit désormais `.env.local`
+  avant `.env` (sinon les migrations visaient la production).
 - Même connexion que les particuliers (même `User`, même cookie) : aucune
   seconde authentification. `src/lib/pro/dal.ts` : le compte Pro est
   toujours déduit de la session. E-mail déjà inscrit (majuscules comprises)
@@ -119,7 +121,8 @@ développement séparée (branche Neon) avant de continuer.
   déconnecte pas les autres sessions déjà ouvertes (sessions JWT sans état).
 - Proxy : pages Pro privées → connexion Pro ; pages Pro de connexion et
   mot de passe oublié en noindex ; robots.txt bloque les pages Pro privées.
-- Tests `e2e/phase1-pro-auth.spec.ts` ; ceux qui écrivent en base sont
+- Tests `e2e/phase1-pro-auth.spec.ts` (37 réussis, parcours complets compris,
+  sur `dev`) ; ceux qui écrivent en base sont
   verrouillés tant que la base est la production (`e2e/db.ts`).
 - ⚠️ **Ordre de mise en ligne** : appliquer la migration AVANT de déployer ce
   code — « mot de passe oublié » (visible par les particuliers, sans

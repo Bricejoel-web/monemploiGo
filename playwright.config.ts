@@ -28,6 +28,9 @@ const PRO_ENABLED = process.env.PRO_ENABLED ?? "true";
 export default defineConfig({
   testDir: "e2e",
   timeout: 60_000,
+  // Base Neon qui sort de veille + hachage volontairement lent des mots de
+  // passe : une inscription peut dépasser les 5 s par défaut.
+  expect: { timeout: 15_000 },
   workers: 1,
   reporter: [["list"]],
   use: {
