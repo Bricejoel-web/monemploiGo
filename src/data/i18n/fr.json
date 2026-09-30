@@ -59,6 +59,7 @@
     "privacyPolicy": "Politique de confidentialité",
     "termsOfUse": "Conditions d'utilisation",
     "cookiePolicy": "Politique de cookies",
+    "proTerms": "Conditions MonEmploiGo Pro",
     "rightsReserved": "Tous droits réservés."
   },
   "cookies": {
@@ -561,6 +562,10 @@
     "terms": {
       "title": "Conditions générales d'utilisation | monemploiGo",
       "description": "Conditions d'utilisation de monemploiGo : services, prix, paiement, conservation des documents, remboursement et responsabilités."
+    },
+    "proTerms": {
+      "title": "Conditions d'utilisation de MonEmploiGo Pro | monemploiGo",
+      "description": "Conditions d'utilisation de l'espace professionnel MonEmploiGo Pro : offre Pro Starter, quotas, abonnement, conservation des données et remboursement."
     },
     "privacy": {
       "title": "Politique de confidentialité | monemploiGo",

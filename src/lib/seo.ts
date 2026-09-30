@@ -21,6 +21,8 @@ export const SITE_NAME = "monemploiGo";
  *
  * `path` : chemin SANS la langue, commençant par "/" ("" pour l'accueil).
  * `noindex` : pages sans valeur de recherche (connexion, inscription…).
+ * `frenchOnly` : pages sans version anglaise (MonEmploiGo Pro) — aucune
+ * version `en` n'est alors déclarée, puisque /en/pro/… redirige vers /fr.
  */
 export function pageMetadata({
   locale,
@@ -28,13 +30,16 @@ export function pageMetadata({
   title,
   description,
   noindex = false,
+  frenchOnly = false,
 }: {
   locale: Locale;
   path: string;
   title: string;
   description: string;
   noindex?: boolean;
+  frenchOnly?: boolean;
 }): Metadata {
+  if (frenchOnly) locale = "fr";
   const url = `${SITE_URL}/${locale}${path}`;
   // Indiquée explicitement : l'image générée par opengraph-image.tsx n'est
   // appliquée automatiquement qu'à l'accueil, car l'objet `openGraph` de
@@ -45,11 +50,13 @@ export function pageMetadata({
     description,
     alternates: {
       canonical: url,
-      languages: {
-        fr: `${SITE_URL}/fr${path}`,
-        en: `${SITE_URL}/en${path}`,
-        "x-default": `${SITE_URL}/fr${path}`,
-      },
+      languages: frenchOnly
+        ? { fr: `${SITE_URL}/fr${path}` }
+        : {
+            fr: `${SITE_URL}/fr${path}`,
+            en: `${SITE_URL}/en${path}`,
+            "x-default": `${SITE_URL}/fr${path}`,
+          },
     },
     openGraph: {
       type: "website",
@@ -58,7 +65,7 @@ export function pageMetadata({
       title,
       description,
       locale: locale === "fr" ? "fr_CM" : "en_CM",
-      alternateLocale: locale === "fr" ? ["en_CM"] : ["fr_CM"],
+      alternateLocale: frenchOnly ? [] : locale === "fr" ? ["en_CM"] : ["fr_CM"],
       images: [image],
     },
     twitter: { card: "summary_large_image", title, description, images: [image.url] },

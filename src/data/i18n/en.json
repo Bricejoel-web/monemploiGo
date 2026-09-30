@@ -59,6 +59,7 @@
     "privacyPolicy": "Privacy policy",
     "termsOfUse": "Terms of use",
     "cookiePolicy": "Cookie policy",
+    "proTerms": "MonEmploiGo Pro terms (in French)",
     "rightsReserved": "All rights reserved."
   },
   "cookies": {
@@ -561,6 +562,10 @@
     "terms": {
       "title": "Terms of Use | monemploiGo",
       "description": "monemploiGo terms of use: services, prices, payment, document retention, refunds and liability."
+    },
+    "proTerms": {
+      "title": "MonEmploiGo Pro Terms of Use | monemploiGo",
+      "description": "Terms of use of the MonEmploiGo Pro professional space (in French)."
     },
     "privacy": {
       "title": "Privacy Policy | monemploiGo",

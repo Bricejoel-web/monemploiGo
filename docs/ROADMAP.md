@@ -42,6 +42,62 @@ Stack : Next.js 16 (App Router) + TypeScript + Tailwind CSS + Prisma 7 (SQLite).
 - **Base de données** : SQLite en local pour zéro-configuration ; migration vers PostgreSQL recommandée avant mise en production réelle (changer `provider` dans `prisma/schema.prisma`, garder le reste identique).
 - **Paiement réel** : les intégrations MTN MoMo (Collections/Request-to-Pay) et Orange Money (Web Payment) sont écrites contre la documentation officielle mais **non testées avec de vrais identifiants marchands** (aucun compte fourni). Le mode `mock` permet de valider tout le parcours en attendant.
 
+## MonEmploiGo Pro — phase 0 : textes juridiques (2026-09-30)
+
+Nouvelle offre professionnelle, construite en 12 phases après audit et
+validation de l'utilisateur. **Pro Starter uniquement** (5 000 XAF / 30 jours,
+10 candidats actifs, 30 documents finalisés par période). Business Agency,
+multi-utilisateurs, IA : exclus.
+
+**Phase 0 livrée** : CGU Pro (`src/data/legal/pro-terms-content.ts`, page
+`/fr/pro/conditions-utilisation`), ajouts à la politique de confidentialité
+(`src/data/legal/privacy-pro-content.ts` : section 8 bis + compléments des
+sections 13, 15, 17, 18, en FR et EN), lien dans le pied de page, base de
+tests Playwright (`e2e/`, `npm run test:e2e` et `npm run test:e2e:pro-off`).
+
+**Interrupteur `PRO_ENABLED`** (`src/lib/pro/flag.ts`) : tant qu'il ne vaut
+pas "true", /pro est une vraie 404 et aucun texte Pro n'est publié — les
+textes ne décrivent jamais un service inexistant. Pages légales générées au
+build : changer la variable impose un redéploiement. Au lancement, mettre à
+jour les dates `proTermsLastUpdated` / `privacyWithProLastUpdated` de
+`legal-config.ts`.
+
+**Décisions validées (engagements pour les phases 1 à 12 — le code devra
+correspondre exactement aux textes)** :
+- Un même `User` peut avoir un espace particulier et un espace Pro, données
+  strictement séparées ; e-mail existant à l'inscription Pro → connexion puis
+  création de l'espace, jamais de doublon. Case d'inscription obligatoire :
+  CGU générales + CGU Pro, versions et date d'acceptation enregistrées.
+- Quota : 1 unité à la finalisation (document téléchargeable, puis
+  **verrouillé** côté serveur) ; brouillons gratuits ; téléchargements
+  illimités ; pas de report d'une période à l'autre ; suppression d'un
+  candidat ne rend pas le quota.
+- 10 candidats **actifs simultanément** ; archivés hors limite ; réactivation
+  si place libre ; suppression définitive d'un candidat possible (avec
+  confirmation), y compris en lecture seule.
+- Pas de renouvellement automatique ; renouvellement anticipé = période
+  suivante accolée à la fin de la période en cours.
+- Expiration : lecture seule 90 jours (consultation + téléchargement), puis
+  suppression des candidats, brouillons et documents Pro ; structure conservée
+  tant que le compte existe. Avertissements le jour de l'expiration, J-30 et
+  J-7 avant suppression (tableau de bord + e-mail si configuré). La purge
+  21 jours des particuliers ne s'applique pas aux documents Pro.
+- « Supprimer mon espace professionnel » (paramètres Pro) ne supprime pas le
+  compte particulier ; supprimer le compte supprime l'espace Pro.
+- **Traces de paiement Pro** (référence, montant, devise, date, statut, offre,
+  nom de la structure) conservées sans donnée de candidat, même après
+  suppression de l'espace ou du compte → le paiement Pro doit porter sa
+  propre copie de ces informations et ne pas être supprimé en cascade.
+- Remboursement : possible si aucun document finalisé pendant la période ;
+  sinon seulement cas légaux / erreur imputable à MonEmploiGo ; règle
+  affichée **avant chaque paiement** (phase 7).
+- Pro en français uniquement : /en/pro/… redirige vers /fr/pro/… (proxy).
+
+**Point bloquant avant la phase 1** : le `.env` local pointe vers la base de
+**production** (vérifié en lecture seule). Aucun test écrivant en base ni
+aucune migration Pro ne doit y être exécuté : il faut une base de
+développement séparée (branche Neon) avant de continuer.
+
 ## Webhook Notch Pay : cause racine trouvée — bug côté plateforme (2026-09-26)
 
 Après un premier paiement réel réussi (voir section précédente) confirmé uniquement par le mécanisme de secours (`checkStatus()` sur la page de retour) et non par le webhook, investigation poussée à la demande explicite de l'utilisateur ("on corrige. Tout dois être parfait").

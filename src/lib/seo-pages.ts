@@ -14,14 +14,14 @@ export async function seoMetadata(
   rawLocale: string,
   key: keyof Dictionary["seo"],
   path: string,
-  options: { vars?: Record<string, number>; noindex?: boolean } = {},
+  options: { vars?: Record<string, number>; noindex?: boolean; frenchOnly?: boolean } = {},
 ): Promise<Metadata> {
-  const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
+  const locale = options.frenchOnly ? "fr" : isLocale(rawLocale) ? rawLocale : defaultLocale;
   const { title, description } = (await getDictionary(locale)).seo[key];
   const format = new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US");
   const fill = (text: string) =>
     text.replace(/\{(\w+)\}/g, (match, name: string) =>
       options.vars?.[name] !== undefined ? format.format(options.vars[name]) : match,
     );
-  return pageMetadata({ locale, path, title: fill(title), description: fill(description), noindex: options.noindex });
+  return pageMetadata({ locale, path, title: fill(title), description: fill(description), noindex: options.noindex, frenchOnly: options.frenchOnly });
 }

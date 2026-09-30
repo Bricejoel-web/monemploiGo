@@ -20,6 +20,12 @@ export const LEGAL_CONFIG = {
   // des CGU enregistrée à l'inscription.
   privacyLastUpdated: "29 septembre 2026",
   privacyLastUpdatedEn: "September 29, 2026",
+  // MonEmploiGo Pro (affichés seulement quand PRO_ENABLED=true, voir
+  // src/lib/pro/flag.ts). À REMPLACER par la date réelle de mise en ligne de
+  // Pro le jour où l'interrupteur est activé en production.
+  proTermsLastUpdated: "30 septembre 2026",
+  privacyWithProLastUpdated: "30 septembre 2026",
+  privacyWithProLastUpdatedEn: "September 30, 2026",
   contactEmail: "monemploigo.contact@gmail.com",
   siteUrl: "https://monemploigo.vercel.app",
   contactPhone: "[numéro à compléter]",
@@ -27,3 +33,6 @@ export const LEGAL_CONFIG = {
 };
 
 export const TERMS_VERSION = LEGAL_CONFIG.lastUpdated;
+
+/** Version des CGU Pro, enregistrée sur l'espace Pro à son acceptation. */
+export const PRO_TERMS_VERSION = LEGAL_CONFIG.proTermsLastUpdated;

@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { defaultLocale, isLocale, locales } from "@/i18n/config";
 import { SESSION_COOKIE, decryptSessionToken } from "@/lib/auth/session";
 import { isCategorySlug } from "@/lib/cv/category-routes";
+import { isProEnabled } from "@/lib/pro/flag";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
 const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document"];
@@ -70,6 +71,17 @@ export async function proxy(request: NextRequest) {
   // global-not-found.tsx prend en charge.
   if (segment === "cv" && rest.length === 2 && !isCategorySlug(rest[1])) {
     return NextResponse.rewrite(new URL(`/${locale}/404`, request.url));
+  }
+
+  // MonEmploiGo Pro : introuvable (vraie 404) tant qu'il n'est pas activé,
+  // et en français uniquement (/en/pro/… → /fr/pro/…). Voir src/lib/pro/flag.ts.
+  if (segment === "pro") {
+    if (!isProEnabled()) return NextResponse.rewrite(new URL(`/${locale}/404`, request.url));
+    if (locale !== "fr") {
+      const url = request.nextUrl.clone();
+      url.pathname = `/fr/${rest.join("/")}`;
+      return NextResponse.redirect(url);
+    }
   }
 
   if ((PROTECTED_SEGMENTS.includes(segment) || isEditor) && !session?.userId) {

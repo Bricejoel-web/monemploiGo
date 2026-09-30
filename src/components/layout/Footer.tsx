@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
+import { isProEnabled } from "@/lib/pro/flag";
 
 export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   return (
@@ -69,6 +70,13 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 {dict.footer.cookiePolicy}
               </Link>
             </li>
+            {isProEnabled() && (
+              <li>
+                <Link href="/fr/pro/conditions-utilisation" className="hover:text-foreground hover:underline">
+                  {dict.footer.proTerms}
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>
