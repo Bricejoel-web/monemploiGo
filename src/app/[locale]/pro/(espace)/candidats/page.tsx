@@ -49,6 +49,12 @@ export default async function CandidatesPage({ searchParams }: PageProps<"/[loca
         <ProButton href="/fr/pro/candidats/nouveau" label="+ Nouveau candidat" available={canCreate} primary />
       </div>
 
+      {params.supprime === "1" && (
+        <p role="status" className="rounded-2xl border border-emerald-300/70 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-800/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+          Le candidat et ses documents ont été supprimés définitivement.
+        </p>
+      )}
+
       <div className="max-w-sm">
         <StatCard
           label="Candidats actifs"

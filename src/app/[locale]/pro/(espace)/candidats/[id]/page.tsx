@@ -4,7 +4,9 @@ import { requireProAccount } from "@/lib/pro/dal";
 import { getOwnedCandidate } from "@/lib/pro/candidates";
 import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
-import { ProButton } from "@/components/pro/DashboardParts";
+import { getProAccess } from "@/lib/pro/subscription";
+import { archiveCandidate, reactivateCandidate } from "@/lib/pro/candidate-actions";
+import { Notice, ProButton } from "@/components/pro/DashboardParts";
 
 export const metadata = pageMetadata({
   locale: "fr",
@@ -15,14 +17,26 @@ export const metadata = pageMetadata({
   frenchOnly: true,
 });
 
-// Phase 3 : consultation du dossier. Modifier / Archiver / Supprimer
-// (phase 4) et documents (phase 5) : affichés « Bientôt » d'ici là.
-export default async function CandidatePage({ params }: PageProps<"/[locale]/pro/candidats/[id]">) {
+const NOTICES: Record<string, { tone: "info" | "danger"; text: string }> = {
+  modifie: { tone: "info", text: "Les informations du candidat ont été enregistrées." },
+  archive: { tone: "info", text: "Le candidat a été archivé : il ne compte plus dans la limite des candidats actifs." },
+  reactive: { tone: "info", text: "Le candidat est de nouveau actif." },
+  limite: { tone: "danger", text: "Limite de 10 candidats actifs atteinte : archivez un autre candidat avant de réactiver celui-ci." },
+  inactif: { tone: "danger", text: "Votre abonnement Pro Starter n'est pas actif : ce dossier ne peut plus être modifié." },
+};
+
+// Dossier du candidat. Documents : phase 5 (« Bientôt » d'ici là).
+export default async function CandidatePage({ params, searchParams }: PageProps<"/[locale]/pro/candidats/[id]">) {
   const account = await requireProAccount();
   const { id } = await params;
+  const query = await searchParams;
   // Candidat d'un autre compte (ou inexistant) : introuvable, sans rien révéler.
-  const candidate = await getOwnedCandidate(account.id, id);
+  const [candidate, access] = await Promise.all([getOwnedCandidate(account.id, id), getProAccess(account.id)]);
   if (!candidate) notFound();
+  const canModify = access.state === "active";
+  const noticeKey = ["modifie", "archive", "reactive"].find((k) => query[k] === "1") ?? (typeof query.erreur === "string" ? query.erreur : undefined);
+  const notice = noticeKey ? NOTICES[noticeKey] : undefined;
+  const buttonClass = "rounded-full border border-black/15 px-4 py-2 text-sm font-semibold hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10";
 
   const info: [string, string | null][] = [
     ["Email", candidate.email],
@@ -54,11 +68,33 @@ export default async function CandidatePage({ params }: PageProps<"/[locale]/pro
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <ProButton href="#" label="Modifier" available={false} />
-            <ProButton href="#" label="Archiver" available={false} />
+            {canModify ? (
+              <>
+                <Link href={`/fr/pro/candidats/${candidate.id}/modifier`} className={buttonClass}>
+                  Modifier
+                </Link>
+                {candidate.status === "ACTIVE" ? (
+                  <form action={archiveCandidate.bind(null, candidate.id)}>
+                    <button type="submit" className={buttonClass}>
+                      Archiver
+                    </button>
+                  </form>
+                ) : (
+                  <form action={reactivateCandidate.bind(null, candidate.id)}>
+                    <button type="submit" className={buttonClass}>
+                      Réactiver
+                    </button>
+                  </form>
+                )}
+              </>
+            ) : (
+              <p className="text-xs text-black/55 dark:text-white/55">Abonnement non actif : dossier en lecture seule.</p>
+            )}
           </div>
         </div>
       </div>
+
+      {notice && <Notice tone={notice.tone}>{notice.text}</Notice>}
 
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
         <h2 className="text-lg font-semibold">Informations du candidat</h2>
@@ -78,6 +114,20 @@ export default async function CandidatePage({ params }: PageProps<"/[locale]/pro
           <ProButton href="#" label="Créer un document" available={false} />
         </div>
         {candidate._count.documents === 0 && <p className="mt-3 text-sm text-black/60 dark:text-white/60">Aucun document pour ce candidat.</p>}
+      </section>
+
+      {/* Toujours possible, même en lecture seule : droit à l'effacement. */}
+      <section className="rounded-2xl border border-red-200 p-5 dark:border-red-900/50">
+        <h2 className="font-semibold text-red-700 dark:text-red-300">Supprimer ce candidat</h2>
+        <p className="mt-1 text-sm text-black/65 dark:text-white/65">
+          Supprime définitivement le dossier et tous ses documents, par exemple à la demande du candidat.
+        </p>
+        <Link
+          href={`/fr/pro/candidats/${candidate.id}/supprimer`}
+          className="mt-3 inline-block rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/30"
+        >
+          Supprimer définitivement
+        </Link>
       </section>
     </div>
   );

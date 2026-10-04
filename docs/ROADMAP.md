@@ -171,6 +171,15 @@ développement séparée (branche Neon) avant de continuer.
   structure : page « introuvable » en français (`not-found.tsx` de l'espace
   Pro), aucune donnée révélée. Statut HTTP 200 (page envoyée en flux, même
   limite que le reste du site) — jamais indexée.
+- Phase 4 (2026-10-05) : dossier candidat complet — **Modifier** (même
+  formulaire, prérempli), **Archiver** / **Réactiver** (réactivation sous
+  verrou, refusée s'il y a déjà 10 actifs), **Supprimer définitivement**
+  (page de confirmation avec les trois mentions validées et case
+  obligatoire revérifiée côté serveur ; suppression en cascade des
+  documents ; quota de la période non rendu). Modifier / archiver /
+  réactiver exigent un abonnement actif, y compris depuis un onglet resté
+  ouvert ; la suppression reste possible en lecture seule (droit à
+  l'effacement). Chaque écriture filtre par le compte Pro de la session.
 - Migration `20260930170000_pro_documents_link` (dev uniquement) :
   `Document.professionalAccountId` / `candidateId`, nuls pour les
   particuliers. ⚠️ Phase 5 : filtrer `professionalAccountId: null` dans
