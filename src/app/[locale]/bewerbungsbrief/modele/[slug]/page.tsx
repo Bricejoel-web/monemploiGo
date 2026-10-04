@@ -28,7 +28,7 @@ export default async function BewerbungsbriefEditorPage({ params, searchParams }
 
   if (documentId) {
     const existing = await prisma.document.findFirst({
-      where: { id: documentId, userId: session.userId, type: "BEWERBUNGSBRIEF" },
+      where: { id: documentId, userId: session.userId, professionalAccountId: null, type: "BEWERBUNGSBRIEF" },
     });
     if (existing) {
       initialData = JSON.parse(existing.contentJson) as BewerbungsbriefData;

@@ -137,7 +137,8 @@ test("navigation : rubriques pas encore construites grisées, menu mobile", asyn
   await expect(nav.getByRole("link", { name: "Aide" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Mes candidats" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Nouveau candidat" })).toBeVisible();
-  for (const label of ["Documents", "Mon abonnement", "Paramètres"]) {
+  await expect(nav.getByRole("link", { name: "Documents" })).toBeVisible();
+  for (const label of ["Mon abonnement", "Paramètres"]) {
     await expect(nav.getByRole("link", { name: label })).toHaveCount(0);
     await expect(nav.getByText(label, { exact: true })).toBeVisible();
   }

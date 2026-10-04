@@ -37,11 +37,14 @@ export async function purgeExpiredDocuments(now = new Date()) {
   const cutoff = retentionCutoff(now);
 
   const paid = await prisma.document.deleteMany({
-    where: { status: "PAID", paidAt: { lt: cutoff } },
+    where: { professionalAccountId: null, status: "PAID", paidAt: { lt: cutoff } },
   });
 
+  // Les documents Pro (brouillons compris) suivent leur propre règle de
+  // conservation (abonnement + 90 jours, CGU Pro art. 11), jamais celle-ci.
   const drafts = await prisma.document.deleteMany({
     where: {
+      professionalAccountId: null,
       status: "DRAFT",
       updatedAt: { lt: cutoff },
       payments: { none: { status: { in: ["PENDING", "SUCCESS"] } } },

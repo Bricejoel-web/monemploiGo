@@ -1,18 +1,15 @@
 import "server-only";
 import type { CoverLetterData } from "@/lib/cv/types";
 import type { Locale } from "@/i18n/config";
-import { callOpenAiChat, isOpenAiConfigured } from "./openai-client";
 
 /**
- * Même principe hybride que src/lib/ai/bewerbungsbrief.ts, appliqué aux
+ * Même principe que src/lib/ai/bewerbungsbrief.ts (génération par règles, sans IA), appliqué aux
  * lettres de motivation classiques (françaises et anglaises), avec la même
  * exigence de qualité : le texte doit se lire comme rédigé par un être
  * humain — plusieurs paragraphes courts (une idée chacun), jamais un seul
  * bloc dense, et jamais de formule passe-partout du type "cela m'a bien
  * préparé aux exigences du poste".
  */
-
-export { isOpenAiConfigured };
 
 function hashSeed(seed: string): number {
   let hash = 0;
@@ -138,22 +135,3 @@ export function buildFallbackCoverLetterBody(data: CoverLetterData, locale: Loca
   return locale === "en" ? buildFallbackBodyEn(data) : buildFallbackBodyFr(data);
 }
 
-export async function generateCoverLetterWithOpenAI(
-  data: CoverLetterData,
-  locale: Locale,
-): Promise<{ text: string } | { error: string }> {
-  const lang = locale === "en" ? "English" : "français";
-  const prompt = [
-    `Tu es un rédacteur professionnel de candidatures. Le texte doit se lire comme rédigé par un être humain — un expert de la candidature — jamais comme un modèle rempli automatiquement. Découpe-le en plusieurs paragraphes courts (une idée chacun : accroche, expérience/compétences, motivation, demande d'entretien), jamais un seul bloc dense.`,
-    `Rédige uniquement le corps (paragraphes uniquement — sans formule d'appel, sans formule de politesse finale, sans signature) d'une lettre de motivation en ${lang}, ton professionnel mais naturel, 200 à 300 mots, sans faute.`,
-    "Consignes : évite les ouvertures toutes faites ('I am writing to apply', 'Je me permets de vous adresser ma candidature') ; évite les formules passe-partout du type 'cela correspond à ce que vous recherchez' — tire un enseignement concret de l'expérience mentionnée ; propose explicitement un entretien en présentiel ou à distance ; n'invente aucune information non fournie ci-dessous.",
-    `Poste visé : ${data.jobTitle || "non précisé"}`,
-    `Entreprise destinataire : ${data.recipientCompany || "non précisée"}`,
-    `Source de l'offre : ${data.sourceOfListing || "non précisée"}`,
-    `Expérience : ${data.yearsOfExperience || "non précisée"}`,
-    `Compétences clés : ${data.keySkills || "non précisées"}`,
-    `Notes de motivation de la personne : ${data.motivationNotes || "aucune"}`,
-  ].join("\n");
-
-  return callOpenAiChat(prompt);
-}

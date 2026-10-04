@@ -41,7 +41,7 @@ export async function submitReviewAction(input: {
   const comment = parsed.data.comment || null;
 
   const document = await prisma.document.findFirst({
-    where: { id: documentId, userId: session.userId, status: "PAID" },
+    where: { id: documentId, userId: session.userId, professionalAccountId: null, status: "PAID" },
     select: { id: true, type: true, category: true, templateSlug: true },
   });
   if (!document) return { ok: false, error: "notEligible" };

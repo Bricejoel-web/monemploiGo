@@ -3,8 +3,8 @@
 import { verifySession } from "@/lib/auth/dal";
 import type { BewerbungsbriefData, CoverLetterData } from "@/lib/cv/types";
 import type { Locale } from "@/i18n/config";
-import { buildFallbackBody, generateWithOpenAI, isOpenAiConfigured } from "@/lib/ai/bewerbungsbrief";
-import { buildFallbackCoverLetterBody, generateCoverLetterWithOpenAI } from "@/lib/ai/cover-letter";
+import { buildFallbackBody } from "@/lib/ai/bewerbungsbrief";
+import { buildFallbackCoverLetterBody } from "@/lib/ai/cover-letter";
 import { detectGermanOrFrench } from "@/lib/spellcheck";
 import { rateLimit } from "@/lib/security/rate-limit";
 
@@ -15,14 +15,9 @@ export interface GenerateBodyResult {
   notice?: "notesNotGerman";
 }
 
-export async function isAiGenerationAvailableAction(): Promise<boolean> {
-  return isOpenAiConfigured();
-}
-
-// Limite de débit sur la génération : une fois OPENAI_API_KEY configurée,
-// chaque appel en mode "ai" a un coût réel — sans cette limite, un clic
-// répété (ou scripté) sur "Régénérer avec l'IA" serait un vecteur d'abus
-// direct. Même limite appliquée au mode "rules" par cohérence/simplicité.
+// Génération automatique à partir des informations saisies, par règles
+// uniquement : aucune IA (fonction retirée du projet le 2026-10-05). Limite
+// de débit contre les clics répétés ou scriptés.
 const GENERATE_LIMIT = 20;
 const GENERATE_WINDOW_MS = 5 * 60 * 1000;
 
@@ -31,7 +26,6 @@ const GENERATE_WINDOW_MS = 5 * 60 * 1000;
 // sont signalées dans l'éditeur.
 export async function generateBewerbungsbriefBodyAction(
   data: BewerbungsbriefData,
-  mode: "rules" | "ai",
 ): Promise<GenerateBodyResult> {
   const session = await verifySession();
   if (!session) return { error: "Session expirée, reconnectez-vous." };
@@ -50,19 +44,12 @@ export async function generateBewerbungsbriefBodyAction(
     motivationNotes: notesNotGerman ? "" : data.motivationNotes,
   };
 
-  if (mode === "rules") {
-    return { text: buildFallbackBody(correctedData), ...(notesNotGerman ? { notice: "notesNotGerman" as const } : {}) };
-  }
-
-  const result = await generateWithOpenAI(correctedData);
-  if ("error" in result) return { error: result.error };
-  return { text: result.text };
+  return { text: buildFallbackBody(correctedData), ...(notesNotGerman ? { notice: "notesNotGerman" as const } : {}) };
 }
 
 export async function generateCoverLetterBodyAction(
   data: CoverLetterData,
   locale: Locale,
-  mode: "rules" | "ai",
 ): Promise<GenerateBodyResult> {
   const session = await verifySession();
   if (!session) return { error: "Session expirée, reconnectez-vous." };
@@ -73,11 +60,5 @@ export async function generateCoverLetterBodyAction(
 
   const correctedData: CoverLetterData = data;
 
-  if (mode === "rules") {
-    return { text: buildFallbackCoverLetterBody(correctedData, locale) };
-  }
-
-  const result = await generateCoverLetterWithOpenAI(correctedData, locale);
-  if ("error" in result) return { error: result.error };
-  return { text: result.text };
+  return { text: buildFallbackCoverLetterBody(correctedData, locale) };
 }

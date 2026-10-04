@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { verifySession } from "@/lib/auth/dal";
 import { SESSION_COOKIE } from "@/lib/auth/session";
-import { loadOwnedPaidDocument } from "@/lib/documents/load-document";
+import { loadDownloadableDocument } from "@/lib/documents/load-document";
 import { renderPageToPdf } from "@/lib/pdf/render-pdf";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { isLocale } from "@/i18n/config";
@@ -42,12 +42,15 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/api/document
 
   // Document payé, encore disponible, appartenant au client connecté —
   // sinon la page d'aperçu explique la situation (brouillon, expiré…).
-  const loaded = await loadOwnedPaidDocument(id, session.userId);
+  // Document particulier payé, ou document Pro finalisé (voir load-document.ts).
+  const loaded = await loadDownloadableDocument(id, session.userId);
   if (!loaded) return NextResponse.redirect(previewPage, 303);
+  // Document Pro : en cas d'échec, retour sur sa page dans l'espace Pro.
+  if (loaded.pro) previewPage.pathname = `/fr/pro/documents/${id}`;
 
   if (!rateLimit(`pdf:${session.userId}`, 15, 15 * 60 * 1000).allowed) return backWithError();
 
-  const renderUrl = new URL(previewPage);
+  const renderUrl = new URL(`/${loaded.pro ? "fr" : locale}/document/${id}/apercu`, request.nextUrl.origin);
   renderUrl.searchParams.set("rendu", "pdf");
   const cookies = [SESSION_COOKIE, "_vercel_jwt"]
     .map((name) => ({ name, value: request.cookies.get(name)?.value ?? "" }))

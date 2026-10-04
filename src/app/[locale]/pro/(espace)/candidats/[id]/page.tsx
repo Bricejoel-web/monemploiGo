@@ -7,6 +7,8 @@ import { pageMetadata } from "@/lib/seo";
 import { getProAccess } from "@/lib/pro/subscription";
 import { archiveCandidate, reactivateCandidate } from "@/lib/pro/candidate-actions";
 import { Notice, ProButton } from "@/components/pro/DashboardParts";
+import { prisma } from "@/lib/db/client";
+import { documentLabel } from "@/lib/pro/document-kinds";
 
 export const metadata = pageMetadata({
   locale: "fr",
@@ -25,7 +27,7 @@ const NOTICES: Record<string, { tone: "info" | "danger"; text: string }> = {
   inactif: { tone: "danger", text: "Votre abonnement Pro Starter n'est pas actif : ce dossier ne peut plus être modifié." },
 };
 
-// Dossier du candidat. Documents : phase 5 (« Bientôt » d'ici là).
+// Dossier du candidat : informations, documents, actions.
 export default async function CandidatePage({ params, searchParams }: PageProps<"/[locale]/pro/candidats/[id]">) {
   const account = await requireProAccount();
   const { id } = await params;
@@ -33,6 +35,12 @@ export default async function CandidatePage({ params, searchParams }: PageProps<
   // Candidat d'un autre compte (ou inexistant) : introuvable, sans rien révéler.
   const [candidate, access] = await Promise.all([getOwnedCandidate(account.id, id), getProAccess(account.id)]);
   if (!candidate) notFound();
+  const documents = await prisma.document.findMany({
+    where: { candidateId: candidate.id, professionalAccountId: account.id },
+    orderBy: { updatedAt: "desc" },
+    select: { id: true, type: true, category: true, status: true, updatedAt: true, finalizedAt: true, templateSlug: true },
+  });
+  const canCreateDocument = access.state === "active" && candidate.status === "ACTIVE";
   const canModify = access.state === "active";
   const noticeKey = ["modifie", "archive", "reactive"].find((k) => query[k] === "1") ?? (typeof query.erreur === "string" ? query.erreur : undefined);
   const notice = noticeKey ? NOTICES[noticeKey] : undefined;
@@ -111,9 +119,27 @@ export default async function CandidatePage({ params, searchParams }: PageProps<
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Documents</h2>
-          <ProButton href="#" label="Créer un document" available={false} />
+          <ProButton href={`/fr/pro/candidats/${candidate.id}/document`} label="Créer un document" available={canCreateDocument} primary />
         </div>
-        {candidate._count.documents === 0 && <p className="mt-3 text-sm text-black/60 dark:text-white/60">Aucun document pour ce candidat.</p>}
+        {documents.length === 0 ? (
+          <p className="mt-3 text-sm text-black/60 dark:text-white/60">Aucun document pour ce candidat.</p>
+        ) : (
+          <ul className="mt-4 divide-y divide-black/5 dark:divide-white/10">
+            {documents.map((d) => (
+              <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+                <div className="min-w-0">
+                  <p className="font-medium">{documentLabel(d.type, d.category)}</p>
+                  <p className="text-xs text-black/55 dark:text-white/55">
+                    {d.status === "FINALIZED" ? "Finalisé" : "Brouillon"} · {formatLongDate(d.finalizedAt ?? d.updatedAt, "fr")}
+                  </p>
+                </div>
+                <Link href={`/fr/pro/documents/${d.id}`} className="font-semibold text-[#c94f30] hover:underline">
+                  {d.status === "FINALIZED" ? "Voir / Télécharger" : "Voir"}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {/* Toujours possible, même en lecture seule : droit à l'effacement. */}

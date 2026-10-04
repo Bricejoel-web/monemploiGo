@@ -28,7 +28,7 @@ export default async function CoverLetterEditorPage({ params, searchParams }: Pa
 
   if (documentId) {
     const existing = await prisma.document.findFirst({
-      where: { id: documentId, userId: session.userId, type: "COVER_LETTER" },
+      where: { id: documentId, userId: session.userId, professionalAccountId: null, type: "COVER_LETTER" },
     });
     if (existing) {
       initialData = JSON.parse(existing.contentJson) as CoverLetterData;

@@ -1,9 +1,8 @@
 import "server-only";
 import type { BewerbungsbriefData } from "@/lib/cv/types";
-import { callOpenAiChat, isOpenAiConfigured } from "./openai-client";
 
 /**
- * Génération hybride du corps du Bewerbungsbrief (Einleitung / Hauptteil /
+ * Génération par règles du corps du Bewerbungsbrief (Einleitung / Hauptteil /
  * Schluss), à partir des seules informations structurées saisies par
  * l'utilisateur (infos personnelles + attestations de formation) : voir
  * docs/ROADMAP.md, décision validée avec l'utilisateur.
@@ -34,8 +33,8 @@ import { callOpenAiChat, isOpenAiConfigured } from "./openai-client";
  * (même candidat → même texte à la régénération, candidats différents →
  * formulations différentes), pas d'aléatoire.
  *
- * `generateWithOpenAI` : amélioration optionnelle, activée uniquement si
- * OPENAI_API_KEY est configurée ; dégradation gracieuse sinon.
+ * Aucune IA : la fonction de génération par IA a été retirée du projet
+ * (décision de l'utilisateur du 2026-10-05).
  *
  * Deuxième passe de relecture (retour de l'utilisateur, avec les remarques
  * précises d'un examen ChatGPT d'un exemple réel — Mechatroniker — à
@@ -53,8 +52,6 @@ import { callOpenAiChat, isOpenAiConfigured } from "./openai-client";
  *     comme une première expérience, jamais comme l'équivalent de la
  *     qualification visée.
  */
-
-export { isOpenAiConfigured };
 
 /**
  * Formulations grammaticalement justes pour la formation visée, quelle que
@@ -273,25 +270,3 @@ export function buildFallbackBody(data: BewerbungsbriefData): string {
     .join("\n\n");
 }
 
-export async function generateWithOpenAI(data: BewerbungsbriefData): Promise<{ text: string } | { error: string }> {
-  const prompt = [
-    "Tu es un rédacteur professionnel spécialisé dans les Bewerbungsschreiben (lettres de motivation allemandes) pour les formations Ausbildung — en particulier Pflege et les métiers techniques — à destination de candidats internationaux qui immigrent en Allemagne pour cette formation.",
-    "Le texte doit se lire comme rédigé par un être humain, un expert de la candidature — jamais comme un modèle rempli automatiquement. Découpe le texte en plusieurs paragraphes courts (une idée par paragraphe : accroche, expérience concrète, motivation pour le métier + niveau d'allemand, installation en Allemagne, valeur ajoutée, demande d'entretien), jamais un seul bloc dense.",
-    "Rédige uniquement le corps (Einleitung, Hauptteil, Schluss — sans en-tête, sans Anrede, sans Grußformel, sans Anlagen), en allemand, ton formel mais naturel, 250 à 350 mots, sans aucune faute.",
-    "Consignes impératives : ne commence surtout pas par 'Hiermit bewerbe ich mich' (cliché à éviter) ; utilise 'Ausbildungsplatz zum/zur [métier]' (jamais 'als [métier]' pour cette collocation précise) et accorde correctement zum/zur au genre du métier ; dis 'in Ihrem Unternehmen', jamais 'in Ihrem Haus' (sauf s'il s'agit réellement d'un établissement de santé) ; adapte la motivation au métier précis visé (pour la Pflege : contact humain et accompagnement des patients ; pour un métier technique comme Mechatroniker : combinaison de mécanique/électronique et résolution pratique de problèmes) ; pour l'expérience/les qualifications, ne te contente jamais d'une formule passe-partout du type 'cela m'a bien préparé aux exigences du poste' — tire un enseignement concret (une qualité apprise) de cette expérience, et présente-la clairement comme une PREMIÈRE expérience pratique, jamais comme l'équivalent de la qualification visée (ex. un stage en garage automobile n'équivaut pas à une formation de Mechatroniker) ; si aucune date de disponibilité précise n'est donnée, ne dis pas 'ab sofort' (une Ausbildung a souvent une rentrée fixe) — préfère une formulation flexible du type 'nach Absprache' ; reste concis sur les démarches d'installation (visa, reconnaissance) pour laisser plus de place à la motivation et aux compétences pratiques ; propose explicitement un entretien en présentiel OU en ligne (candidat à l'étranger) ; n'invente aucune information non fournie ci-dessous.",
-    `Poste/formation visé(e) : ${data.targetProgram || "non précisé"}`,
-    `Établissement destinataire : ${data.recipientInstitution || "non précisé"}`,
-    `Source de l'annonce : ${data.sourceOfListing || "non précisée"}`,
-    `Qualifications/attestations : ${
-      data.qualifications
-        .filter((q) => q.title.trim())
-        .map((q) => `${q.title} (${q.institution}, ${q.date})`)
-        .join("; ") || "aucune renseignée"
-    }`,
-    `Niveau d'allemand : ${data.languageLevel || "non précisé"}`,
-    `Disponibilité : ${data.availabilityDate || "dès que possible"}`,
-    `Notes de motivation de la personne : ${data.motivationNotes || "aucune"}`,
-  ].join("\n");
-
-  return callOpenAiChat(prompt);
-}

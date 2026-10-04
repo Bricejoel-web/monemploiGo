@@ -5,6 +5,7 @@ import { verifySession } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
 import { getCvTemplateBySlug, getCoverLetterBySlug, getBewerbungsbriefBySlug } from "@/lib/cv/catalog";
 import type { CvData, CoverLetterData, BewerbungsbriefData } from "@/lib/cv/types";
+import { cleanCvData } from "@/lib/cv/clean-data";
 // Le texte du client est enregistré EXACTEMENT tel qu'il l'a écrit. La
 // correction orthographique automatique qui était appliquée ici a été
 // retirée (2026-09-29) : elle remplaçait tout mot absent du dictionnaire,
@@ -27,20 +28,7 @@ export async function saveCvDocument(
   const template = getCvTemplateBySlug(templateSlug);
   if (!template) throw new Error("Modèle introuvable.");
 
-  const correctedData: CvData = {
-    ...data,
-    // Le formulaire démarre avec une ligne vide par défaut pour chaque
-    // liste (expérience/formation/langue) : les entrées jamais remplies ne
-    // doivent jamais atteindre le document final, sous peine d'un titre de
-    // section vide, voire d'artefacts visibles comme " ()" pour une langue
-    // sans nom (plusieurs mises en page affichent "nom (niveau)").
-    experience: data.experience.filter((exp) => exp.role.trim() || exp.company.trim()),
-    education: data.education.filter((ed) => ed.degree.trim() || ed.school.trim()),
-    languages: data.languages.filter((l) => l.name.trim()),
-    extras: data.extras?.[0]?.title.trim()
-      ? [{ title: data.extras[0].title, content: data.extras[0].content }]
-      : [],
-  };
+  const correctedData: CvData = cleanCvData(data);
 
   const fields = {
     templateSlug: template.slug,
@@ -56,7 +44,7 @@ export async function saveCvDocument(
   // de l'utilisateur ni perdre le lien vers son paiement en cours.
   if (documentId) {
     const existing = await prisma.document.findFirst({
-      where: { id: documentId, userId: session.userId, type: "CV" },
+      where: { id: documentId, userId: session.userId, professionalAccountId: null, type: "CV" },
       select: { id: true },
     });
     if (existing) {
@@ -95,7 +83,7 @@ export async function saveCoverLetterDocument(
 
   if (documentId) {
     const existing = await prisma.document.findFirst({
-      where: { id: documentId, userId: session.userId, type: "COVER_LETTER" },
+      where: { id: documentId, userId: session.userId, professionalAccountId: null, type: "COVER_LETTER" },
       select: { id: true },
     });
     if (existing) {
@@ -136,7 +124,7 @@ export async function saveBewerbungsbriefDocument(
 
   if (documentId) {
     const existing = await prisma.document.findFirst({
-      where: { id: documentId, userId: session.userId, type: "BEWERBUNGSBRIEF" },
+      where: { id: documentId, userId: session.userId, professionalAccountId: null, type: "BEWERBUNGSBRIEF" },
       select: { id: true },
     });
     if (existing) {

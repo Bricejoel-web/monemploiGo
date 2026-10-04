@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db/client";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { requireProAccount } from "./dal";
 import { getProAccess } from "./subscription";
-import { PRO_STARTER } from "./plans";
+import { LOCKED_TRANSACTION, PRO_STARTER } from "./plans";
 import { APPLICATION_TYPES, EDUCATION_LEVELS, GERMAN_LEVELS, germanLevelRelevant } from "./candidate-options";
 
 export type CandidateFormState =
@@ -91,7 +91,7 @@ export async function createCandidate(_state: CandidateFormState, formData: Form
     const active = await tx.professionalCandidate.count({ where: { professionalAccountId: account.id, status: "ACTIVE" } });
     if (active >= PRO_STARTER.maxActiveCandidates) return null;
     return tx.professionalCandidate.create({ data: { ...data, professionalAccountId: account.id }, select: { id: true } });
-  });
+  }, LOCKED_TRANSACTION);
 
   if (!created) {
     return {
@@ -150,7 +150,7 @@ export async function reactivateCandidate(candidateId: string) {
       data: { status: "ACTIVE" },
     });
     return count === 1;
-  });
+  }, LOCKED_TRANSACTION);
   redirect(dossier(candidateId, reactivated ? "reactive=1" : "erreur=limite"));
 }
 

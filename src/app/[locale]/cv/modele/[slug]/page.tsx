@@ -30,7 +30,7 @@ export default async function CvEditorPage({ params, searchParams }: PageProps<"
 
   if (documentId) {
     const existing = await prisma.document.findFirst({
-      where: { id: documentId, userId: session.userId, type: "CV" },
+      where: { id: documentId, userId: session.userId, professionalAccountId: null, type: "CV" },
     });
     if (existing) {
       initialData = JSON.parse(existing.contentJson) as CvData;

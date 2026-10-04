@@ -13,6 +13,7 @@ import { saveCvDocument } from "@/lib/documents/actions";
 import { GrammarHints } from "./GrammarHints";
 import { WarningIcon } from "@/components/home/icons";
 import { capitalizeFirst, capitalizeWords, dateIssues, isSuspiciousAddress, type DateIssue } from "@/lib/cv/quality";
+import { emptyCvData } from "@/lib/cv/empty-data";
 
 // Niveau de langue en menu déroulant plutôt qu'en texte libre, pour un choix
 // plus rapide et cohérent d'un CV à l'autre. Le CV allemand utilise l'échelle
@@ -82,22 +83,6 @@ function presentLabel(locale: Locale, isGerman: boolean): string {
   return locale === "en" ? "Present" : "présent";
 }
 
-function emptyCvData(): CvData {
-  return {
-    fullName: "",
-    jobTitle: "",
-    email: "",
-    phone: "",
-    address: "",
-    summary: "",
-    photoDataUrl: null,
-    experience: [{ role: "", company: "", location: "", start: "", end: "", description: "" }],
-    education: [{ degree: "", school: "", location: "", start: "", end: "", description: "" }],
-    skills: [],
-    languages: [{ name: "", level: "" }],
-  };
-}
-
 export function CvEditor({
   template,
   dict,
@@ -105,6 +90,7 @@ export function CvEditor({
   documentId,
   initialData,
   initialIncludePhoto = false,
+  proSave,
 }: {
   template: CvTemplateMeta;
   dict: Dictionary;
@@ -112,6 +98,8 @@ export function CvEditor({
   documentId?: string;
   initialData?: CvData;
   initialIncludePhoto?: boolean;
+  /** Espace Pro : enregistrement en brouillon pour un candidat, sans prix ni paiement. */
+  proSave?: (templateSlug: string, data: CvData, includePhoto: boolean, documentId?: string) => Promise<void>;
 }) {
   const [data, setData] = useState<CvData>(initialData ?? emptyCvData());
   const [skillsInput, setSkillsInput] = useState(initialData?.skills.join(", ") ?? "");
@@ -231,7 +219,9 @@ export function CvEditor({
     };
     startTransition(async () => {
       try {
-        await saveCvDocument(locale, template.slug, finalData, includePhoto, documentId);
+        await (proSave
+          ? proSave(template.slug, finalData, includePhoto, documentId)
+          : saveCvDocument(locale, template.slug, finalData, includePhoto, documentId));
       } catch (err) {
         // saveCvDocument redirige en cas de succès (via redirect(), qui lève une
         // erreur interne spéciale) : on la relance pour laisser Next.js gérer la
@@ -597,7 +587,7 @@ export function CvEditor({
           )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm">
-              {dict.editor.price}: <strong>{template.priceFcfa} FCFA</strong>
+              {proSave ? "Brouillon : compté dans votre quota seulement à la finalisation." : <>{dict.editor.price}: <strong>{template.priceFcfa} FCFA</strong></>}
             </span>
             <button
               type="button"
@@ -605,11 +595,15 @@ export function CvEditor({
               onClick={handleSubmit}
               className="btn-shine rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#eb5757]/25 transition-transform hover:scale-[1.03] disabled:opacity-60 disabled:hover:scale-100"
             >
-              {pending ? dict.common.loading : dict.editor.saveAndPay}
+              {pending ? dict.common.loading : proSave ? "Enregistrer le brouillon" : dict.editor.saveAndPay}
             </button>
           </div>
           {saveError && <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>}
-          <p className="text-xs text-black/50 dark:text-white/50">{dict.retention.editorDraftHint}</p>
+          <p className="text-xs text-black/50 dark:text-white/50">
+            {proSave
+              ? "Le document est enregistré en brouillon : vous pourrez le relire, puis le finaliser (1 document du quota de la période)."
+              : dict.retention.editorDraftHint}
+          </p>
         </div>
       </div>
 

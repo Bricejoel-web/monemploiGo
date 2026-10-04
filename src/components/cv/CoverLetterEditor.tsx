@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { unstable_rethrow } from "next/navigation";
 import type { CoverLetterData, CoverLetterTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -11,26 +11,8 @@ import { Field } from "./FormField";
 import { saveCoverLetterDocument } from "@/lib/documents/actions";
 import { GrammarHints } from "./GrammarHints";
 import { capitalizeFirst, capitalizeWords } from "@/lib/cv/quality";
-import { generateCoverLetterBodyAction, isAiGenerationAvailableAction } from "@/lib/documents/generate-actions";
-
-function emptyData(): CoverLetterData {
-  return {
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    recipientName: "",
-    recipientCompany: "",
-    date: "",
-    subject: "",
-    body: "",
-    jobTitle: "",
-    sourceOfListing: "",
-    yearsOfExperience: "",
-    keySkills: "",
-    motivationNotes: "",
-  };
-}
+import { generateCoverLetterBodyAction } from "@/lib/documents/generate-actions";
+import { emptyCoverLetterData as emptyData } from "@/lib/cv/empty-data";
 
 export function CoverLetterEditor({
   template,
@@ -38,30 +20,29 @@ export function CoverLetterEditor({
   locale,
   documentId,
   initialData,
+  proSave,
 }: {
   template: CoverLetterTemplateMeta;
   dict: Dictionary;
   locale: Locale;
   documentId?: string;
   initialData?: CoverLetterData;
+  /** Espace Pro : enregistrement en brouillon pour un candidat, sans prix ni paiement. */
+  proSave?: (templateSlug: string, data: CoverLetterData, documentId?: string) => Promise<void>;
 }) {
   const [data, setData] = useState<CoverLetterData>(initialData ?? emptyData());
   const [pending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | undefined>();
   const [generating, setGenerating] = useState(false);
-  const [aiAvailable, setAiAvailable] = useState(false);
 
-  useEffect(() => {
-    void isAiGenerationAvailableAction().then(setAiAvailable);
-  }, []);
 
   const update = <K extends keyof CoverLetterData>(key: K, value: CoverLetterData[K]) =>
     setData((prev) => ({ ...prev, [key]: value }));
 
-  const handleGenerate = (mode: "rules" | "ai") => {
+  const handleGenerate = () => {
     setGenerating(true);
     startTransition(async () => {
-      const result = await generateCoverLetterBodyAction(data, locale, mode);
+      const result = await generateCoverLetterBodyAction(data, locale);
       if (result.text) update("body", result.text);
       else if (result.error) setSaveError(result.error);
       setGenerating(false);
@@ -78,14 +59,16 @@ export function CoverLetterEditor({
           // sur "Générer" : si cette génération de secours échoue (ex.
           // limite de débit atteinte), on doit arrêter et prévenir plutôt
           // que d'enregistrer silencieusement un document au corps vide.
-          const generated = await generateCoverLetterBodyAction(data, locale, "rules");
+          const generated = await generateCoverLetterBodyAction(data, locale);
           if (!generated.text) {
             setSaveError(generated.error ?? dict.editor.saveError);
             return;
           }
           body = generated.text;
         }
-        await saveCoverLetterDocument(locale, template.slug, { ...data, body }, documentId);
+        await (proSave
+          ? proSave(template.slug, { ...data, body }, documentId)
+          : saveCoverLetterDocument(locale, template.slug, { ...data, body }, documentId));
       } catch (err) {
         unstable_rethrow(err);
         setSaveError(dict.editor.saveError);
@@ -155,21 +138,11 @@ export function CoverLetterEditor({
             <button
               type="button"
               disabled={generating}
-              onClick={() => handleGenerate("rules")}
+              onClick={() => handleGenerate()}
               className="btn-shine rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-[#eb5757]/25 transition-transform hover:scale-[1.03] disabled:opacity-60 disabled:hover:scale-100"
             >
               {generating ? dict.common.loading : dict.editor.bbGenerate}
             </button>
-            {aiAvailable && (
-              <button
-                type="button"
-                disabled={generating}
-                onClick={() => handleGenerate("ai")}
-                className="rounded-full border border-black/15 px-4 py-1.5 text-xs font-semibold text-black/70 transition-colors hover:bg-black/5 disabled:opacity-60 dark:border-white/20 dark:text-white/70 dark:hover:bg-white/10"
-              >
-                {dict.editor.bbRegenerateAi}
-              </button>
-            )}
           </div>
           <Field id="cl-body" label={dict.editor.body}>
             <textarea id="cl-body" value={data.body} onChange={(e) => update("body", e.target.value)} className="input min-h-64" />
@@ -186,7 +159,7 @@ export function CoverLetterEditor({
         <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm">
-              {dict.editor.price}: <strong>{template.priceFcfa} FCFA</strong>
+              {proSave ? "Brouillon : compté dans votre quota seulement à la finalisation." : <>{dict.editor.price}: <strong>{template.priceFcfa} FCFA</strong></>}
             </span>
             <button
               type="button"
@@ -194,11 +167,15 @@ export function CoverLetterEditor({
               onClick={handleSubmit}
               className="btn-shine rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#eb5757]/25 transition-transform hover:scale-[1.03] disabled:opacity-60 disabled:hover:scale-100"
             >
-              {pending ? dict.common.loading : dict.editor.saveAndPay}
+              {pending ? dict.common.loading : proSave ? "Enregistrer le brouillon" : dict.editor.saveAndPay}
             </button>
           </div>
           {saveError && <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>}
-          <p className="text-xs text-black/50 dark:text-white/50">{dict.retention.editorDraftHint}</p>
+          <p className="text-xs text-black/50 dark:text-white/50">
+            {proSave
+              ? "Le document est enregistré en brouillon : vous pourrez le relire, puis le finaliser (1 document du quota de la période)."
+              : dict.retention.editorDraftHint}
+          </p>
         </div>
       </div>
 

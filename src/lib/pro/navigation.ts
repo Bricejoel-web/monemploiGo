@@ -7,7 +7,7 @@
 export const PRO_NAV = [
   { href: "/fr/pro/dashboard", label: "Tableau de bord", icon: "home", available: true },
   { href: "/fr/pro/candidats", label: "Mes candidats", icon: "users", available: true },
-  { href: "/fr/pro/documents", label: "Documents", icon: "document", available: false },
+  { href: "/fr/pro/documents", label: "Documents", icon: "document", available: true },
   { href: "/fr/pro/candidats/nouveau", label: "Nouveau candidat", icon: "plus", available: true },
   { href: "/fr/pro/abonnement", label: "Mon abonnement", icon: "card", available: false },
   { href: "/fr/pro/parametres", label: "Paramètres", icon: "settings", available: false },

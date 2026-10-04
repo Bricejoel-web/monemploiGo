@@ -180,6 +180,28 @@ développement séparée (branche Neon) avant de continuer.
   réactiver exigent un abonnement actif, y compris depuis un onglet resté
   ouvert ; la suppression reste possible en lecture seule (droit à
   l'effacement). Chaque écriture filtre par le compte Pro de la session.
+- Phase 5 (2026-10-05) : documents Pro avec les éditeurs existants.
+  Séparation d'abord : les 13 lectures/écritures de documents côté
+  particulier filtrent `professionalAccountId: null` (tableau de bord,
+  éditeurs, paiement, aperçu, avis, purge 21 jours). Création : type (6
+  documents réellement proposés) → modèle (mêmes vignettes que le
+  catalogue) → éditeur du site en mode Pro (`proSave` : brouillon pour le
+  candidat, ni prix ni paiement), prérempli depuis le dossier et le dernier
+  document du candidat (`src/lib/pro/prefill.ts`). Brouillon → « Finaliser »
+  : statut `FINALIZED` + `finalizedAt`, 1 unité de quota consommée sous
+  verrou (deux finalisations simultanées à 29/30 → une seule), document
+  verrouillé. Téléchargement PDF par la même route que les particuliers
+  (`loadDownloadableDocument` : Pro finalisé, accès actif ou lecture
+  seule). Page « Documents » (recherche, filtres type / candidat /
+  période). Candidat archivé : plus de nouveau document (sinon archiver
+  contournerait la limite de 10 actifs). Migration
+  `20261005100000_pro_document_finalization` (dev uniquement).
+- **Fonction IA retirée du projet** (demande de l'utilisateur, 2026-10-05) :
+  client OpenAI supprimé, plus de mode « ai » ni de bouton « Régénérer avec
+  l'IA » dans les éditeurs de lettre et de Bewerbungsbrief (particuliers
+  comme Pro), plus de variable OPENAI dans `.env.example`. Les lettres
+  restent générées automatiquement par règles à partir des informations
+  saisies.
 - Migration `20260930170000_pro_documents_link` (dev uniquement) :
   `Document.professionalAccountId` / `candidateId`, nuls pour les
   particuliers. ⚠️ Phase 5 : filtrer `professionalAccountId: null` dans

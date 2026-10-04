@@ -23,7 +23,7 @@ export default async function PaymentPage({ params, searchParams }: PageProps<"/
   const { processingPaymentId, processingSince } = await refreshPendingPayments({ userId: session.userId, documentId });
 
   const document = await prisma.document.findFirst({
-    where: { id: documentId, userId: session.userId },
+    where: { id: documentId, userId: session.userId, professionalAccountId: null },
   });
   if (!document) notFound();
   if (document.status === "PAID" && document.paidAt && document.paidAt < retentionCutoff()) {

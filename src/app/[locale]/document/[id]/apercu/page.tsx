@@ -4,7 +4,7 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { requireSession } from "@/lib/auth/dal";
 import { prisma } from "@/lib/db/client";
-import { loadOwnedPaidDocument } from "@/lib/documents/load-document";
+import { loadDownloadableDocument } from "@/lib/documents/load-document";
 import { expiresAt } from "@/lib/documents/retention";
 import { formatLongDate } from "@/lib/format-date";
 import { CvRenderer } from "@/components/cv/CvRenderer";
@@ -23,12 +23,12 @@ export default async function DocumentPreviewPage({ params, searchParams }: Page
   const session = await requireSession(locale);
   const dict = await getDictionary(locale as Locale);
 
-  const loaded = await loadOwnedPaidDocument(id, session.userId);
+  const loaded = await loadDownloadableDocument(id, session.userId);
   if (!loaded) {
     // Un brouillon pas encore payé : on renvoie vers le paiement plutôt que
     // d'annoncer à tort une suppression.
     const draft = await prisma.document.findFirst({
-      where: { id, userId: session.userId, status: "DRAFT" },
+      where: { id, userId: session.userId, professionalAccountId: null, status: "DRAFT" },
       select: { id: true },
     });
     if (draft) redirect(`/${locale}/paiement/${draft.id}`);
@@ -71,6 +71,10 @@ export default async function DocumentPreviewPage({ params, searchParams }: Page
       )}
     </div>
   );
+
+  // Document Pro : il se consulte et se télécharge depuis l'espace Pro ;
+  // cette page ne sert que de rendu pour la fabrication de son PDF.
+  if (loaded.pro && rendu !== "pdf") redirect(`/fr/pro/documents/${loaded.document.id}`);
 
   // Page lue par le Chrome sans écran qui fabrique le PDF
   // (api/documents/[id]/pdf) : le document seul, en taille A4 réelle.

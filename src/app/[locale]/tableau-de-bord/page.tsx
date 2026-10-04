@@ -56,7 +56,8 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
   await refreshPendingPayments({ userId: session.userId });
 
   const documents = await prisma.document.findMany({
-    where: { userId: session.userId },
+    // Espace particulier : jamais les documents de l'espace Pro.
+    where: { userId: session.userId, professionalAccountId: null },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -99,7 +100,8 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
     return {
       id: doc.id,
       title: doc.title,
-      status: doc.status,
+      // Uniquement des documents particuliers ici (filtre plus haut) : jamais FINALIZED.
+      status: isPaid ? "PAID" : "DRAFT",
       createdOn: formatLongDate(doc.createdAt, locale as Locale),
       retentionNote,
       category: doc.type === "COVER_LETTER" ? "COVER_LETTER" : doc.type === "BEWERBUNGSBRIEF" ? "BEWERBUNGSBRIEF" : doc.category ?? "STANDARD",

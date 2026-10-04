@@ -29,7 +29,7 @@ const SERVICE_LABELS = {
 
 async function getDocumentAmount(documentId: string, userId: string) {
   const document = await prisma.document.findFirst({
-    where: { id: documentId, userId },
+    where: { id: documentId, userId, professionalAccountId: null },
   });
   if (!document) throw new Error("Document introuvable.");
 

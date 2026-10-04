@@ -27,6 +27,9 @@ enum DocumentType {
 enum DocumentStatus {
   DRAFT
   PAID
+  // Document Pro finalisé : téléchargeable, verrouillé, compté dans le quota
+  // de la période (jamais utilisé pour les documents particuliers).
+  FINALIZED
 }
 
 enum PaymentProvider {
@@ -230,6 +233,8 @@ model Document {
   // documents Pro existent (séparation stricte des deux espaces).
   professionalAccountId String?
   candidateId           String?
+  // Date de finalisation d'un document Pro (consommation du quota).
+  finalizedAt           DateTime?
 
   user                User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   professionalAccount ProfessionalAccount?   @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
