@@ -206,6 +206,75 @@ développement séparée (branche Neon) avant de continuer.
   `Document.professionalAccountId` / `candidateId`, nuls pour les
   particuliers. ⚠️ Phase 5 : filtrer `professionalAccountId: null` dans
   toutes les pages particulier avant de créer le moindre document Pro.
+- Phase 6 (2026-10-07) : quotas 10 candidats actifs / 30 documents par
+  période — déjà livrés pendant les phases 3 (création et réactivation sous
+  verrou) et 5 (finalisation sous verrou, 29/30 → une seule) ; vérifiés,
+  rien à ajouter.
+- Phases 7 et 8 (2026-10-07) : abonnement Pro Starter. Page « Mon
+  abonnement » : situation réelle, récapitulatif (offre, 5 000 FCFA XAF /
+  30 jours, dates exactes de la période payée, quotas, sans renouvellement
+  automatique) et règle de remboursement de l'article 12 avant chaque
+  paiement, case obligatoire, historique des paiements de la structure.
+  `Payment.kind` (DOCUMENT / PRO_SUBSCRIPTION) ; montant et offre fixés côté
+  serveur (`src/lib/pro/billing-actions.ts`). La période n'est créée que dans
+  la transaction PENDING → SUCCESS de `settlePayment`, après contrôle du
+  montant (`activateProSubscription`, verrou sur le compte), une seule fois
+  par paiement (`Subscription.paymentId` unique) ; elle commence à la fin de
+  l'accès en cours (renouvellement anticipé) ou à la confirmation. Traces
+  légales dans `ProPaymentRecord` (sans clé étrangère : survivent à la
+  suppression de l'espace ou du compte). Abonnement exclu du parrainage
+  (aucun document lié). Migration `20261007090000_pro_subscription_payments`.
+- **Bug corrigé au passage (touchait aussi les particuliers)** : le retour
+  Notch Pay `/paiement/retour?ref=<paiement>` était pris pour un lien de
+  parrainage (`?ref=`) par le proxy dès que REFERRAL_ENABLED valait true :
+  le client atterrissait sur /fr/recommandation, sans vérification du
+  paiement au retour. La page de retour est exclue du traitement parrainage.
+- Phase 9 (2026-10-07) : la tâche quotidienne (même cron que la purge,
+  offre Vercel gratuite) envoie les avertissements de l'article 11 (jour de
+  l'expiration, J-30 et J-7 avant suppression ; un seul envoi par échéance,
+  `ProExpiryNotice` ; seul le plus urgent si un passage a été manqué), puis
+  supprime candidats, brouillons et documents des espaces expirés depuis
+  plus de 90 jours (état revérifié sous verrou ; rien si un renouvellement
+  est en cours de paiement). Structure et historique conservés.
+- Phase 10 (2026-10-07) : `User.sessionVersion` incrémentée à chaque
+  réinitialisation du mot de passe ; `verifySession` refuse les cookies
+  d'une version antérieure ou d'un compte supprimé (limite connue de la
+  phase 1 levée). **Boucle de redirection corrigée** : avec un cookie signé
+  mais révoqué, tableau de bord ⇄ connexion tournait sans fin (le proxy ne
+  voit que le cookie) ; la redirection « déjà connecté » est désormais faite
+  par les pages connexion / inscription, après vérification en base. Audit :
+  chaque action serveur Pro déduit le compte de la session. Migration
+  `20261007100000_user_session_version`.
+- Phase 11 (2026-10-07) : rubrique « Paramètres » (informations de la
+  structure, mêmes règles qu'à l'inscription — `space-fields.ts` ;
+  « Supprimer mon espace professionnel » avec confirmation revérifiée,
+  refusée pendant un paiement d'abonnement, compte particulier et traces de
+  paiement conservés). Plus aucune rubrique « Bientôt ». Typographie : « 1er
+  novembre » partout en français.
+- Interprétation retenue (à confirmer par l'utilisateur) : les
+  informations de la structure restent modifiables en lecture seule — ce ne
+  sont pas des données de candidats, et l'e-mail reçoit les avertissements
+  d'expiration.
+
+### Phase 12 : mise en production groupée — à faire avec l'accord de l'utilisateur
+
+Ordre impératif :
+1. Appliquer en production, **avant** le déploiement, les 9 migrations
+   absentes de `main` : `20260930120000_pro_accounts_and_password_reset`,
+   `20260930150000_pro_subscriptions_and_candidates`,
+   `20260930170000_pro_documents_link`,
+   `20261005100000_pro_document_finalization`,
+   `20261006090000_referral_program`,
+   `20261006120000_referral_keep_financial_traces`,
+   `20261006150000_canada_cv`, `20261007090000_pro_subscription_payments`,
+   `20261007100000_user_session_version` (le code de `dev` lit
+   `User.sessionVersion` sur chaque page : sans la dernière, tout le site
+   tombe).
+2. Variables Production réglées par l'utilisateur : `PRO_ENABLED`,
+   `REFERRAL_ENABLED`, `ADMIN_EMAILS` ; vérifier `CRON_SECRET` (sans lui, la
+   tâche quotidienne refuse de tourner) et `APP_BASE_URL`.
+3. Remplacer les dates provisoires de `src/data/legal/legal-config.ts`.
+4. Fusionner `dev` dans `main` seulement après validation de l'aperçu.
 
 ## Webhook Notch Pay : cause racine trouvée — bug côté plateforme (2026-09-26)
 
