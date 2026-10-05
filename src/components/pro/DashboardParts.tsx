@@ -15,13 +15,17 @@ export function ProPageHeader({ title, children }: { title: ReactNode; children?
 
 const buttonBase = "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-colors";
 
-/** Bouton vers une rubrique : grisé avec « Bientôt » tant qu'elle n'existe pas. */
-export function ProButton({ href, label, available, primary = false }: { href: string; label: string; available: boolean; primary?: boolean }) {
+/**
+ * Bouton vers une rubrique : grisé tant qu'elle est inaccessible, avec la
+ * raison (« Bientôt » si elle n'existe pas encore, sinon `lockedReason`,
+ * par exemple quand l'abonnement n'est pas actif).
+ */
+export function ProButton({ href, label, available, primary = false, lockedReason = "Bientôt" }: { href: string; label: string; available: boolean; primary?: boolean; lockedReason?: string }) {
   if (!available) {
     return (
       <span aria-disabled="true" className={`${buttonBase} cursor-not-allowed border border-black/10 text-black/35 dark:border-white/15 dark:text-white/35`}>
         {label}
-        <span className="rounded-full bg-black/[0.05] px-2 py-0.5 text-[10px] dark:bg-white/10">Bientôt</span>
+        <span className="rounded-full bg-black/[0.05] px-2 py-0.5 text-[10px] dark:bg-white/10">{lockedReason}</span>
       </span>
     );
   }

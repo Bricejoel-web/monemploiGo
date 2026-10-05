@@ -56,7 +56,13 @@ export default async function ProDashboardPage() {
           </>
         }
       >
-        <ProButton href={newCandidate.href} label="Nouveau candidat" available={newCandidate.available && access.state === "active"} primary />
+        <ProButton
+          href={newCandidate.href}
+          label="Nouveau candidat"
+          available={newCandidate.available && access.state === "active"}
+          lockedReason={newCandidate.available ? "Abonnement requis" : "Bientôt"}
+          primary
+        />
         <ProButton href={subscription.href} label="Mon abonnement" available={subscription.available} />
       </ProPageHeader>
 
@@ -65,7 +71,7 @@ export default async function ProDashboardPage() {
           <h2 className="text-lg font-semibold">Votre espace professionnel est prêt.</h2>
           <p className="mt-2 text-sm text-black/70 dark:text-white/70">Activez Pro Starter pour commencer à gérer vos candidats et vos documents.</p>
           <p className="mt-4 text-2xl font-bold">
-            {fcfa(PRO_STARTER.priceFcfa)} <span className="text-base font-medium text-black/60 dark:text-white/60">/ mois</span>
+            {fcfa(PRO_STARTER.priceFcfa)} <span className="text-base font-medium text-black/60 dark:text-white/60">/ 30 jours</span>
           </p>
           {!subscription.available && (
             <p className="mt-3 rounded-lg bg-black/[0.04] p-3 text-xs text-black/60 dark:bg-white/10 dark:text-white/60">
@@ -118,7 +124,7 @@ export default async function ProDashboardPage() {
             access.state === "active"
               ? `Jusqu'au ${date(access.accessUntil)}`
               : access.state === "none"
-                ? `${fcfa(PRO_STARTER.priceFcfa)} / mois`
+                ? `${fcfa(PRO_STARTER.priceFcfa)} / 30 jours`
                 : `Depuis le ${date(access.expiredAt)}`
           }
         />

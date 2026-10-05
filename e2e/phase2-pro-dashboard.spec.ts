@@ -41,6 +41,11 @@ test("sans abonnement : « Non activé », aucun chiffre inventé", async ({ pag
   await expect(card(page, "Candidats actifs")).toContainText("0 / 10");
   await expect(card(page, "Documents utilisés")).toContainText("— / 30");
   await expect(card(page, "Documents disponibles")).toContainText("0");
+  // Période de 30 jours, comme dans les CGU Pro (pas « par mois »), et un
+  // bouton verrouillé qui en donne la vraie raison.
+  await expect(card(page, "Abonnement")).toContainText("5 000 FCFA / 30 jours");
+  await expect(page.getByText("/ mois")).toHaveCount(0);
+  await expect(page.getByText("Abonnement requis")).toBeVisible();
   // L'en-tête et le pied de page du site particulier ne sont pas affichés.
   await expect(page.locator("footer")).toHaveCount(0);
   await expectNoHorizontalScroll(page);
