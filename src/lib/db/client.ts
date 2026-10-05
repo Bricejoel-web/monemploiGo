@@ -16,7 +16,12 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createClient() {
   const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
-  return new PrismaClient({ adapter });
+  // Délais de toutes les transactions. Ceux de Prisma par défaut (2 s pour
+  // démarrer, 5 s pour aboutir) ne couvrent pas le réveil d'une base Neon
+  // en veille : P2028 « Unable to start a transaction in the given time »
+  // mesuré sur une réinitialisation de mot de passe, avec une page d'erreur
+  // pour l'utilisateur. Même délais que les transactions sous verrou Pro.
+  return new PrismaClient({ adapter, transactionOptions: { maxWait: 10_000, timeout: 20_000 } });
 }
 
 export const prisma = globalForPrisma.prisma ?? createClient();
