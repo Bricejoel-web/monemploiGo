@@ -16,10 +16,11 @@ export const MIN_WITHDRAWAL_FCFA = 500;
 /** Documents éligibles : tous ceux vendus à l'unité (CV et lettres). */
 export const ELIGIBLE_DOCUMENT_TYPES = ["CV", "COVER_LETTER", "BEWERBUNGSBRIEF"] as const;
 
-/** Domaines de recommandation (paramètre `domain` du lien). Pas de Canada. */
+/** Domaines de recommandation (paramètre `domain` du lien). */
 export const REFERRAL_DOMAINS = {
   cameroun: "CAMEROUN",
   allemagne: "ALLEMAGNE",
+  canada: "CANADA",
   general: "GENERAL",
 } as const;
 export type ReferralDomainSlug = keyof typeof REFERRAL_DOMAINS;

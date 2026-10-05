@@ -24,6 +24,8 @@ const SERVICE_LABELS = {
   PREMIUM: "CV Premium",
   ATS: "CV ATS",
   GERMAN_ATS: "CV Allemagne (ATS)",
+  CANADA: "CV Canadien",
+  CANADA_ATS: "CV Canadien ATS",
   COVER_LETTER: "Lettre de motivation",
   BEWERBUNGSBRIEF: "Bewerbungsbrief",
 } as const;

@@ -4,7 +4,7 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getCvTemplatesByCategory, LAYOUT_LABELS, PRICE_FCFA } from "@/lib/cv/catalog";
 import { seoMetadata } from "@/lib/seo-pages";
-import { SLUG_TO_CATEGORY } from "@/lib/cv/category-routes";
+import { CATEGORY_LABEL_KEYS, SLUG_TO_CATEGORY } from "@/lib/cv/category-routes";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
@@ -49,7 +49,7 @@ function TemplateCard({
               data={{ ...persona, photoDataUrl: portrait.urlSmall }}
               layoutId={template.layoutId}
               theme={template.theme}
-              includePhoto
+              includePhoto={!category.startsWith("CANADA")}
               locale={locale}
             />
           </TemplateThumbnail>
@@ -101,21 +101,21 @@ export default async function CvCategoryPage({ params }: PageProps<"/[locale]/cv
               { name: dict.nav.home, path: "" },
               { name: dict.nav.cvs, path: "/cv" },
               {
-                name: dict.dashboard[category === "GERMAN_ATS" ? "germanAts" : (category.toLowerCase() as "standard" | "premium" | "ats")],
+                name: dict.dashboard[CATEGORY_LABEL_KEYS[category]],
                 path: `/cv/${categorie}`,
               },
             ]}
           />
           <h1 className="mt-3 text-2xl font-bold sm:text-3xl">
-            {dict.dashboard[category === "GERMAN_ATS" ? "germanAts" : (category.toLowerCase() as "standard" | "premium" | "ats")]}
+            {dict.dashboard[CATEGORY_LABEL_KEYS[category]]}
           </h1>
           <span className="mt-3 block h-1 w-16 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
           <p className="mt-4 max-w-2xl text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
         </div>
 
-        {(category === "ATS" || category === "GERMAN_ATS") && (
+        {(category === "ATS" || category === "CANADA_ATS" || category === "GERMAN_ATS") && (
           <div className="animate-fade-in-up px-6" style={{ animationDelay: "0.08s" }}>
-            <AtsGuide variant={category === "ATS" ? "ats" : "german"} dict={dict} locale={locale as Locale} />
+            <AtsGuide variant={category === "GERMAN_ATS" ? "german" : "ats"} dict={dict} locale={locale as Locale} />
           </div>
         )}
 

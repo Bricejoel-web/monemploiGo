@@ -157,6 +157,8 @@
     "premium": "Premium resumes",
     "ats": "ATS resumes",
     "germanAts": "Germany resumes (ATS)",
+    "canada": "Canadian CV",
+    "canadaAts": "Canadian ATS CV",
     "coverLetters": "Cover letters",
     "bewerbungsbrief": "Bewerbungsbrief",
     "myDocuments": "My creations",
@@ -197,7 +199,9 @@
       "STANDARD": "Clean and effective, for any classic application.",
       "PREMIUM": "Elegant, modern layouts to help you stand out.",
       "ATS": "Single column, no clutter: optimized for online applicant tracking systems.",
-      "GERMAN_ATS": "ATS format following German conventions, for training (Ausbildung) applications in Germany."
+      "GERMAN_ATS": "ATS format following German conventions, for training (Ausbildung) applications in Germany.",
+      "CANADA": "A clean, readable CV for your applications in Canada, in French or English. Photo optional.",
+      "CANADA_ATS": "Single column, black and grey, optimised for clear reading by ATS software. In French or English."
     }
   },
   "editor": {
@@ -259,6 +263,20 @@
     "extraSectionTitle": "Section title",
     "extraSectionTitlePlaceholder": "E.g. References",
     "extraSectionContent": "Content",
+    "cvLanguage": "CV language",
+    "cvLanguageHint": "The CV headings and labels will be in this language, whatever the language of the site. Write your content in the same language.",
+    "canadaLocation": "City, country",
+    "canadaLocationHint": "Example: Douala, Cameroon or Toronto, Ontario. Do not give your full postal address, and only the place where you actually live.",
+    "linkedin": "LinkedIn profile",
+    "website": "Portfolio or professional website",
+    "canadaSummaryHint": "2 to 4 lines: your occupation, years of experience, main areas and strengths. Only include accurate information.",
+    "canadaSkillsHint": "Ideally 6 to 10 concrete skills, separated by commas.",
+    "certificationsHeading": "Certifications",
+    "certificationsHint": "Optional. Only add certifications you have actually obtained.",
+    "certName": "Certification name",
+    "certIssuer": "Issuing organization",
+    "certYear": "Year",
+    "addCertification": "Add a certification",
     "price": "Price",
     "loginRequired": "Log in to save and pay for your document.",
     "optional": "(optional)",
@@ -390,6 +408,21 @@
       { "kind": "advice", "text": "Proofread before paying: the live preview shows exactly the document you will download." }
     ]
   },
+  "canadaPage": {
+    "eyebrow": "Applying in Canada",
+    "title": "Prepare your application for Canada",
+    "description": "Create a professional CV suited to your job applications in Canada, in English or French.",
+    "cta": "Create my CV",
+    "productsTitle": "Our documents for Canada",
+    "canadaTitle": "Canadian CV",
+    "canadaText": "Present your background professionally for your applications in Canada. Clean, readable, photo optional.",
+    "canadaAtsTitle": "Canadian ATS CV",
+    "canadaAtsText": "A structured template for online applications, optimised for clear reading by ATS software.",
+    "languageNote": "Each CV can be written in English or French, whatever the language of the site.",
+    "seeTemplates": "See the templates",
+    "priceLabel": "{price} FCFA per document",
+    "disclaimer": "MonEmploiGo is a service for preparing application documents. Our documents are not official documents issued by Canadian authorities and do not guarantee employment, admission, a visa or a permit."
+  },
   "atsGuide": {
     "ats": {
       "title": "Why choose an ATS resume?",
@@ -450,6 +483,8 @@
         "STANDARD": "Standard CV",
         "ATS": "ATS CV",
         "GERMAN_ATS": "Germany (ATS) CV",
+        "CANADA": "Canadian CV",
+        "CANADA_ATS": "Canadian ATS CV",
         "PREMIUM": "Premium CV",
         "COVER_LETTER": "Cover letter",
         "BEWERBUNGSBRIEF": "Bewerbungsbrief (German letter)"
@@ -535,6 +570,18 @@
     "ATS": {
       "title": "ATS CV templates | monemploiGo",
       "description": "{count} single-column ATS CV templates that recruiters' screening software can read. Ideal for online applications. {price} FCFA."
+    },
+    "canadaPage": {
+      "title": "Applying in Canada: Canadian CV and ATS CV | monemploiGo",
+      "description": "Create a CV suited to your job applications in Canada, in English or French: Canadian CV or Canadian ATS CV. PDF download."
+    },
+    "CANADA": {
+      "title": "Canadian CV in English or French | monemploiGo",
+      "description": "{count} clean CV templates for your applications in Canada, in English or French. PDF download for {price} FCFA."
+    },
+    "CANADA_ATS": {
+      "title": "Canadian ATS CV | monemploiGo",
+      "description": "{count} single-column CV templates optimised for clear reading by ATS software, in English or French. {price} FCFA."
     },
     "GERMAN_ATS": {
       "title": "German CV (Lebenslauf) for an Ausbildung | monemploiGo",

@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useTransition } from "react";
 import { unstable_rethrow } from "next/navigation";
-import type { CvData, CvTemplateMeta } from "@/lib/cv/types";
+import type { CvCertification, CvData, CvTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { CvRenderer } from "./CvRenderer";
@@ -14,6 +14,7 @@ import { GrammarHints } from "./GrammarHints";
 import { WarningIcon } from "@/components/home/icons";
 import { capitalizeFirst, capitalizeWords, dateIssues, isSuspiciousAddress, type DateIssue } from "@/lib/cv/quality";
 import { emptyCvData } from "@/lib/cv/empty-data";
+import { CANADA_LEVELS, CEFR_LEVELS_FULL, localizeLevel } from "@/lib/cv/canada-labels";
 
 // Niveau de langue en menu déroulant plutôt qu'en texte libre, pour un choix
 // plus rapide et cohérent d'un CV à l'autre. Le CV allemand utilise l'échelle
@@ -108,8 +109,28 @@ export function CvEditor({
   const [pending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | undefined>();
   const isGerman = template.category === "GERMAN_ATS";
+  const isCanada = template.category === "CANADA" || template.category === "CANADA_ATS";
+  const hasNoPhoto = template.category === "ATS" || template.category === "CANADA_ATS";
+  // CV Canada : langue choisie pour le document, indépendante de l'interface.
+  const docLocale: Locale = isCanada ? (data.cvLanguage ?? locale) : locale;
   // Langue du contenu du CV (même règle que la correction orthographique à l'enregistrement).
-  const contentLanguage = isGerman ? "de" : locale === "en" ? "en" : "fr";
+  const contentLanguage = isGerman ? "de" : docLocale === "en" ? "en" : "fr";
+  // Changer la langue d'un CV Canada traduit aussi les mentions déjà
+  // choisies dans des listes (niveaux de langue, « Présent »).
+  const setCvLanguage = (lang: Locale) =>
+    setData((prev) => {
+      const end = (value: string) => (isPresent(value) ? presentLabel(lang, false) : value);
+      return {
+        ...prev,
+        cvLanguage: lang,
+        languages: prev.languages.map((l) => ({ ...l, level: l.level && localizeLevel(l.level, lang) })),
+        experience: prev.experience.map((x) => ({ ...x, end: end(x.end) })),
+        education: prev.education.map((x) => ({ ...x, end: end(x.end) })),
+      };
+    });
+  const certifications = data.certifications ?? [];
+  const setCert = (i: number, patch: Partial<CvCertification>) =>
+    update("certifications", certifications.map((c, j) => (j === i ? { ...c, ...patch } : c)));
 
   const update = <K extends keyof CvData>(key: K, value: CvData[K]) =>
     setData((prev) => ({ ...prev, [key]: value }));
@@ -237,10 +258,21 @@ export function CvEditor({
     <div className="bg-dot-grid relative bg-[#efe6d8] py-10 dark:bg-white/[0.05]">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 lg:grid-cols-[minmax(0,1fr)_480px]">
       <div className="flex flex-col gap-6">
-        {(template.category === "ATS" || isGerman) && (
+        {(template.category === "ATS" || template.category === "CANADA_ATS" || isGerman) && (
           <p className="rounded-2xl border border-sky-300/60 bg-sky-50 p-4 text-sm text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100">
             {dict.atsGuide.editorTip}
           </p>
+        )}
+        {isCanada && (
+          <section className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+            <Field id="cvLanguage" label={dict.editor.cvLanguage}>
+              <select id="cvLanguage" value={docLocale} onChange={(e) => setCvLanguage(e.target.value as Locale)} className="input">
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+              </select>
+            </Field>
+            <p className="-mt-1 text-xs text-black/50 dark:text-white/50">{dict.editor.cvLanguageHint}</p>
+          </section>
         )}
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           <h2 className="text-base font-semibold tracking-tight">{dict.editor.personalInfo}</h2>
@@ -257,11 +289,23 @@ export function CvEditor({
           <Field id="phone" label={dict.editor.phone}>
             <input id="phone" type="tel" placeholder="+237 6XX XX XX XX" value={data.phone} onChange={(e) => update("phone", e.target.value)} className="input" />
           </Field>
-          <Field id="address" label={dict.editor.address} optionalLabel={dict.editor.optional}>
+          <Field id="address" label={isCanada ? dict.editor.canadaLocation : dict.editor.address} optionalLabel={dict.editor.optional}>
             <input id="address" value={data.address} onChange={(e) => update("address", e.target.value)} onBlur={(e) => update("address", capitalizeWords(e.target.value))} className="input" />
           </Field>
+          {isCanada && (
+            <>
+              <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.canadaLocationHint}</p>
+              <Field id="linkedin" label={dict.editor.linkedin} optionalLabel={dict.editor.optional}>
+                <input id="linkedin" type="url" inputMode="url" placeholder="linkedin.com/in/..." value={data.linkedin ?? ""} onChange={(e) => update("linkedin", e.target.value)} className="input" />
+              </Field>
+              <Field id="website" label={dict.editor.website} optionalLabel={dict.editor.optional}>
+                <input id="website" type="url" inputMode="url" value={data.website ?? ""} onChange={(e) => update("website", e.target.value)} className="input" />
+              </Field>
+            </>
+          )}
           <Field id="summary" label={dict.editor.summary} optionalLabel={dict.editor.optional}>
             <textarea id="summary" value={data.summary} onChange={(e) => update("summary", e.target.value)} className="input min-h-20" />
+            {isCanada && <p className="mt-1 text-xs text-black/50 dark:text-white/50">{dict.editor.canadaSummaryHint}</p>}
             <GrammarHints text={data.summary} language={contentLanguage} onApply={(t) => update("summary", t)} onCountChange={(n) => setGrammarCount(dict.editor.summary, n)} labels={grammarLabels} />
           </Field>
         </section>
@@ -291,7 +335,7 @@ export function CvEditor({
           </section>
         )}
 
-        {template.category === "ATS" ? (
+        {hasNoPhoto ? (
           // Les mises en page ATS n'ont aucun emplacement photo (voir
           // AtsMinimal/AtsExecutif/AtsCompact) : proposer d'en ajouter une
           // serait un bouton sans effet.
@@ -351,7 +395,7 @@ export function CvEditor({
                     </Field>
                     <Field id={`exp-end-${i}`} label={dict.editor.endDate}>
                       {isPresent(exp.end) ? (
-                        <input id={`exp-end-${i}`} disabled value={presentLabel(locale, isGerman)} className="input opacity-60" />
+                        <input id={`exp-end-${i}`} disabled value={presentLabel(docLocale, isGerman)} className="input opacity-60" />
                       ) : (
                         <input
                           id={`exp-end-${i}`}
@@ -374,7 +418,7 @@ export function CvEditor({
                       onChange={(e) =>
                         update(
                           "experience",
-                          data.experience.map((x, j) => (j === i ? { ...x, end: e.target.checked ? presentLabel(locale, isGerman) : "" } : x)),
+                          data.experience.map((x, j) => (j === i ? { ...x, end: e.target.checked ? presentLabel(docLocale, isGerman) : "" } : x)),
                         )
                       }
                     />
@@ -432,7 +476,7 @@ export function CvEditor({
                 </Field>
                 <Field id={`ed-end-${i}`} label={dict.editor.endDate}>
                   {isPresent(ed.end) ? (
-                    <input id={`ed-end-${i}`} disabled value={presentLabel(locale, isGerman)} className="input opacity-60" />
+                    <input id={`ed-end-${i}`} disabled value={presentLabel(docLocale, isGerman)} className="input opacity-60" />
                   ) : (
                     <input
                       id={`ed-end-${i}`}
@@ -455,7 +499,7 @@ export function CvEditor({
                   onChange={(e) =>
                     update(
                       "education",
-                      data.education.map((x, j) => (j === i ? { ...x, end: e.target.checked ? presentLabel(locale, isGerman) : "" } : x)),
+                      data.education.map((x, j) => (j === i ? { ...x, end: e.target.checked ? presentLabel(docLocale, isGerman) : "" } : x)),
                     )
                   }
                 />
@@ -486,6 +530,7 @@ export function CvEditor({
               placeholder={isGerman ? "Erste-Hilfe-Kurs, EDV-Kenntnisse, ..." : "Excel, Communication, ..."}
             />
           </Field>
+          {isCanada && <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.canadaSkillsHint}</p>}
         </section>
 
         <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
@@ -512,7 +557,7 @@ export function CvEditor({
                   <option value="" disabled>
                     {dict.editor.selectLevel}
                   </option>
-                  {(isGerman ? (i === 0 ? CEFR_LEVELS : GERMAN_GENERAL_LEVELS) : GENERAL_LEVELS(dict)).map((lvl) => (
+                  {(isCanada ? [...CANADA_LEVELS[docLocale], ...CEFR_LEVELS_FULL] : isGerman ? (i === 0 ? CEFR_LEVELS : GERMAN_GENERAL_LEVELS) : GENERAL_LEVELS(dict)).map((lvl) => (
                     <option key={lvl} value={lvl}>
                       {lvl}
                     </option>
@@ -537,38 +582,74 @@ export function CvEditor({
           </button>
         </section>
 
-        <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-          <h2 className="text-base font-semibold tracking-tight">{dict.editor.extraSectionHeading}</h2>
-          <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.extraSectionHint}</p>
-          <Field id="extraTitle" label={dict.editor.extraSectionTitle} optionalLabel={dict.editor.optional}>
-            <input
-              id="extraTitle"
-              value={data.extras?.[0]?.title ?? ""}
-              onChange={(e) =>
-                update("extras", e.target.value ? [{ title: e.target.value, content: data.extras?.[0]?.content ?? "" }] : [])
-              }
-              className="input"
-              placeholder={dict.editor.extraSectionTitlePlaceholder}
-            />
-          </Field>
-          {(data.extras?.[0]?.title ?? "") && (
-            <Field id="extraContent" label={dict.editor.extraSectionContent} optionalLabel={dict.editor.optional}>
-              <textarea
-                id="extraContent"
-                value={data.extras?.[0]?.content ?? ""}
-                onChange={(e) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: e.target.value }])}
-                className="input min-h-24"
-              />
-              <GrammarHints
-                text={data.extras?.[0]?.content ?? ""}
-                language={contentLanguage}
-                onApply={(t) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: t }])}
-                onCountChange={(n) => setGrammarCount(dict.editor.extraSectionHeading, n)}
-                labels={grammarLabels}
+        {isCanada ? (
+          <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+            <h2 className="text-base font-semibold tracking-tight">{dict.editor.certificationsHeading}</h2>
+            <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.certificationsHint}</p>
+            {certifications.map((cert, i) => (
+              <div key={i} className="flex flex-col gap-3 rounded-xl border border-black/10 p-3 dark:border-white/10">
+                <Field id={`cert-name-${i}`} label={dict.editor.certName}>
+                  <input id={`cert-name-${i}`} value={cert.name} onChange={(e) => setCert(i, { name: e.target.value })} className="input" />
+                </Field>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_7rem]">
+                  <Field id={`cert-issuer-${i}`} label={dict.editor.certIssuer} optionalLabel={dict.editor.optional}>
+                    <input id={`cert-issuer-${i}`} value={cert.issuer} onChange={(e) => setCert(i, { issuer: e.target.value })} className="input" />
+                  </Field>
+                  <Field id={`cert-year-${i}`} label={dict.editor.certYear} optionalLabel={dict.editor.optional}>
+                    <input id={`cert-year-${i}`} inputMode="numeric" maxLength={4} value={cert.year ?? ""} onChange={(e) => setCert(i, { year: e.target.value.replace(/\D/g, "") })} className="input" />
+                  </Field>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => update("certifications", certifications.filter((_, j) => j !== i))}
+                  className="self-start text-xs font-medium text-red-600 transition-colors hover:text-red-700 dark:text-red-400"
+                >
+                  {dict.editor.remove}
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => update("certifications", [...certifications, { name: "", issuer: "", year: "" }])}
+              className="self-start rounded-full border border-black/15 px-3.5 py-1.5 text-xs font-medium text-black/70 transition-colors hover:bg-black/5 dark:border-white/20 dark:text-white/70 dark:hover:bg-white/10"
+            >
+              + {dict.editor.addCertification}
+            </button>
+          </section>
+        ) : (
+          <section className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+            <h2 className="text-base font-semibold tracking-tight">{dict.editor.extraSectionHeading}</h2>
+            <p className="-mt-2 text-xs text-black/50 dark:text-white/50">{dict.editor.extraSectionHint}</p>
+            <Field id="extraTitle" label={dict.editor.extraSectionTitle} optionalLabel={dict.editor.optional}>
+              <input
+                id="extraTitle"
+                value={data.extras?.[0]?.title ?? ""}
+                onChange={(e) =>
+                  update("extras", e.target.value ? [{ title: e.target.value, content: data.extras?.[0]?.content ?? "" }] : [])
+                }
+                className="input"
+                placeholder={dict.editor.extraSectionTitlePlaceholder}
               />
             </Field>
-          )}
-        </section>
+            {(data.extras?.[0]?.title ?? "") && (
+              <Field id="extraContent" label={dict.editor.extraSectionContent} optionalLabel={dict.editor.optional}>
+                <textarea
+                  id="extraContent"
+                  value={data.extras?.[0]?.content ?? ""}
+                  onChange={(e) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: e.target.value }])}
+                  className="input min-h-24"
+                />
+                <GrammarHints
+                  text={data.extras?.[0]?.content ?? ""}
+                  language={contentLanguage}
+                  onApply={(t) => update("extras", [{ title: data.extras?.[0]?.title ?? "", content: t }])}
+                  onCountChange={(n) => setGrammarCount(dict.editor.extraSectionHeading, n)}
+                  labels={grammarLabels}
+                />
+              </Field>
+            )}
+          </section>
+        )}
 
         <div className="flex flex-col gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
           {qualityWarnings.length > 0 && (

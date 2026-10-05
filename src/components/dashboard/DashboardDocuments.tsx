@@ -12,7 +12,7 @@ const TYPE_ICONS = {
   BEWERBUNGSBRIEF: FlagIcon,
 } as const;
 
-export type DashboardCategory = "ALL" | "STANDARD" | "PREMIUM" | "ATS" | "GERMAN_ATS" | "COVER_LETTER" | "BEWERBUNGSBRIEF";
+export type DashboardCategory = "ALL" | "STANDARD" | "PREMIUM" | "ATS" | "GERMAN_ATS" | "CANADA" | "CANADA_ATS" | "COVER_LETTER" | "BEWERBUNGSBRIEF";
 
 export interface DashboardDocumentItem {
   id: string;
@@ -44,6 +44,8 @@ export function DashboardDocuments({
     { key: "PREMIUM", label: dict.dashboard.premium },
     { key: "ATS", label: dict.dashboard.ats },
     { key: "GERMAN_ATS", label: dict.dashboard.germanAts },
+    { key: "CANADA", label: dict.dashboard.canada },
+    { key: "CANADA_ATS", label: dict.dashboard.canadaAts },
     { key: "COVER_LETTER", label: dict.dashboard.coverLetters },
     { key: "BEWERBUNGSBRIEF", label: dict.dashboard.bewerbungsbrief },
   ];

@@ -18,7 +18,7 @@ import {
 } from "@/components/home/icons";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA } from "@/lib/cv/catalog";
 import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
-import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
+import { CATEGORY_LABEL_KEYS, CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { verifySession } from "@/lib/auth/dal";
 import { getPortraitById, unsplashProfileLink, unsplashSrcSet } from "@/lib/photos/unsplash";
 import type { CvCategory } from "@/lib/cv/types";
@@ -26,13 +26,15 @@ import { seoMetadata } from "@/lib/seo-pages";
 import { websiteJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
 
-const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS"];
+const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS", "CANADA", "CANADA_ATS"];
 
 const CATEGORY_ICONS: Record<CvCategory, typeof BoltIcon> = {
   STANDARD: DocumentIcon,
   PREMIUM: StarIcon,
   ATS: ShieldCheckIcon,
   GERMAN_ATS: FlagIcon,
+  CANADA: FlagIcon,
+  CANADA_ATS: ShieldCheckIcon,
 };
 
 // Choix éditorial fixe (pas une photo de démonstration de CV) — voir les
@@ -235,7 +237,7 @@ export default async function HomePage({
                       <CategoryIcon className="h-5 w-5" />
                     </div>
                     <span className="mt-2 font-semibold">
-                      {dict.dashboard[category === "GERMAN_ATS" ? "germanAts" : (category.toLowerCase() as "standard" | "premium" | "ats")]}
+                      {dict.dashboard[CATEGORY_LABEL_KEYS[category]]}
                     </span>
                     <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
                     <div className="mt-2 flex items-center justify-between">

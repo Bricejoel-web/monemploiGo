@@ -2,9 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import { GlobeIcon } from "@/components/home/icons";
-import { ChatIcon, CopyIcon, FlagCameroon, FlagGermany } from "./icons";
+import { ChatIcon, CopyIcon, FlagCameroon, FlagCanada, FlagGermany } from "./icons";
 
-type Domain = "cameroun" | "allemagne" | "general";
+type Domain = "cameroun" | "allemagne" | "canada" | "general";
 
 const DOMAINS: { value: Domain; title: string; text: string; icon: ReactNode }[] = [
   { value: "cameroun", title: "Emploi au Cameroun", text: "Pour les personnes qui recherchent un emploi au Cameroun.", icon: <FlagCameroon /> },
@@ -14,6 +14,12 @@ const DOMAINS: { value: Domain; title: string; text: string; icon: ReactNode }[]
     text: "Pour les personnes qui souhaitent préparer une candidature dans le cadre d'un projet professionnel en Allemagne.",
     icon: <FlagGermany />,
   },
+  {
+    value: "canada",
+    title: "Projet professionnel au Canada",
+    text: "Pour les personnes qui souhaitent préparer un CV pour leurs candidatures au Canada.",
+    icon: <FlagCanada />,
+  },
   { value: "general", title: "Recommandation générale", text: "Pour les personnes qui souhaitent simplement découvrir les services de MonEmploiGo.", icon: <GlobeIcon className="h-6 w-6 text-[#16324f] dark:text-white" /> },
 ];
 
@@ -21,6 +27,9 @@ const DOMAINS: { value: Domain; title: string; text: string; icon: ReactNode }[]
 function whatsappMessage(domain: Domain, link: string): string {
   if (domain === "allemagne") {
     return `👋 Salut !\n\nSi tu prépares un projet professionnel en Allemagne et que tu as besoin d'un CV ou d'une lettre de motivation, je te recommande MonEmploiGo.\n\nTu peux découvrir leurs services ici 👇\n\n${link}\n\nJ'espère que ça pourra t'aider dans ta démarche. 😊`;
+  }
+  if (domain === "canada") {
+    return `👋 Salut !\n\nSi tu prépares des candidatures au Canada et que tu as besoin d'un CV adapté, en français ou en anglais, je te recommande MonEmploiGo.\n\nTu peux découvrir leurs services ici 👇\n\n${link}\n\nJ'espère que ça pourra t'aider dans ta démarche. 😊`;
   }
   if (domain === "cameroun") {
     return `👋 Salut !\n\nSi tu recherches un emploi au Cameroun et que tu as besoin d'un CV professionnel ou d'une lettre de motivation, je te recommande MonEmploiGo.\n\nDécouvre les services ici 👇\n\n${link}\n\nBonne chance pour ta recherche d'emploi ! 😊`;

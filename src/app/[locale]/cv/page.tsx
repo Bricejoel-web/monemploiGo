@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { PRICE_FCFA, getCvTemplatesByCategory } from "@/lib/cv/catalog";
-import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
+import { CATEGORY_LABEL_KEYS, CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
@@ -14,7 +14,7 @@ import { seoMetadata } from "@/lib/seo-pages";
 import { allCvTemplates } from "@/lib/cv/catalog";
 import { CvFonts } from "@/components/cv/CvFonts";
 
-const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS"];
+const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS", "CANADA", "CANADA_ATS"];
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/cv">) {
   const { locale } = await params;
@@ -62,14 +62,14 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
                         data={{ ...persona, photoDataUrl: portrait.urlSmall }}
                         layoutId={first.layoutId}
                         theme={first.theme}
-                        includePhoto
+                        includePhoto={!category.startsWith("CANADA")}
                         locale={locale as Locale}
                       />
                     </TemplateThumbnail>
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col justify-center gap-1.5">
-                  <h2 className="text-lg font-semibold">{dict.dashboard[category === "GERMAN_ATS" ? "germanAts" : (category.toLowerCase() as "standard" | "premium" | "ats")]}</h2>
+                  <h2 className="text-lg font-semibold">{dict.dashboard[CATEGORY_LABEL_KEYS[category]]}</h2>
                   <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
                   <div className="mt-2 flex items-center justify-between gap-2">
                     <FlatPriceBadge label={dict.catalog.allTemplatesAt} priceFcfa={PRICE_FCFA[category]} />

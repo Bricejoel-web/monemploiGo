@@ -157,6 +157,8 @@
     "premium": "CV Premium",
     "ats": "CV ATS",
     "germanAts": "CV Allemagne (ATS)",
+    "canada": "CV Canadien",
+    "canadaAts": "CV Canadien ATS",
     "coverLetters": "Lettres de motivation",
     "bewerbungsbrief": "Bewerbungsbrief",
     "myDocuments": "Mes créations",
@@ -197,7 +199,9 @@
       "STANDARD": "Sobres et efficaces, pour toutes les candidatures classiques.",
       "PREMIUM": "Mises en page élégantes et modernes pour vous démarquer.",
       "ATS": "Une seule colonne, sans fioritures : optimisés pour les logiciels de recrutement en ligne.",
-      "GERMAN_ATS": "Format ATS conforme aux usages allemands, pour vos candidatures de formation (Ausbildung) en Allemagne."
+      "GERMAN_ATS": "Format ATS conforme aux usages allemands, pour vos candidatures de formation (Ausbildung) en Allemagne.",
+      "CANADA": "CV sobre et lisible pour vos candidatures au Canada, en français ou en anglais. Photo facultative.",
+      "CANADA_ATS": "Une seule colonne, en noir et gris, optimisé pour une lecture claire par les systèmes ATS. En français ou en anglais."
     }
   },
   "editor": {
@@ -259,6 +263,20 @@
     "extraSectionTitle": "Titre de la rubrique",
     "extraSectionTitlePlaceholder": "Ex. Références",
     "extraSectionContent": "Contenu",
+    "cvLanguage": "Langue du CV",
+    "cvLanguageHint": "Les titres et les mentions du CV seront dans cette langue, quelle que soit la langue du site. Rédigez votre contenu dans la même langue.",
+    "canadaLocation": "Ville, pays",
+    "canadaLocationHint": "Exemple : Douala, Cameroun ou Toronto, Ontario. N'indiquez pas votre adresse postale complète, et seulement le lieu où vous vivez réellement.",
+    "linkedin": "Profil LinkedIn",
+    "website": "Portfolio ou site professionnel",
+    "canadaSummaryHint": "2 à 4 lignes : votre métier, vos années d'expérience, vos principaux domaines et vos forces. N'indiquez que des informations exactes.",
+    "canadaSkillsHint": "Idéalement 6 à 10 compétences concrètes, séparées par des virgules.",
+    "certificationsHeading": "Certifications",
+    "certificationsHint": "Facultatif. N'ajoutez que les certifications que vous avez réellement obtenues.",
+    "certName": "Nom de la certification",
+    "certIssuer": "Organisme",
+    "certYear": "Année",
+    "addCertification": "Ajouter une certification",
     "price": "Prix",
     "loginRequired": "Connectez-vous pour enregistrer et payer votre document.",
     "optional": "(optionnel)",
@@ -390,6 +408,21 @@
       { "kind": "advice", "text": "Relisez-vous avant de payer : l'aperçu en direct montre exactement le document que vous téléchargerez." }
     ]
   },
+  "canadaPage": {
+    "eyebrow": "Candidature Canada",
+    "title": "Préparez votre candidature pour le Canada",
+    "description": "Créez un CV professionnel adapté à vos candidatures au Canada, en français ou en anglais.",
+    "cta": "Créer mon CV",
+    "productsTitle": "Nos documents pour le Canada",
+    "canadaTitle": "CV Canadien",
+    "canadaText": "Présentez votre parcours de manière professionnelle pour vos candidatures au Canada. Sobre, lisible, photo facultative.",
+    "canadaAtsTitle": "CV Canadien ATS",
+    "canadaAtsText": "Un modèle structuré pour les candidatures en ligne, optimisé pour une lecture claire par les systèmes ATS.",
+    "languageNote": "Chaque CV peut être rédigé en français ou en anglais, quelle que soit la langue du site.",
+    "seeTemplates": "Voir les modèles",
+    "priceLabel": "{price} FCFA par document",
+    "disclaimer": "MonEmploiGo est un service de préparation de documents de candidature. Nos documents ne sont pas des documents officiels délivrés par les autorités canadiennes et ne garantissent ni emploi, ni admission, ni visa, ni permis."
+  },
   "atsGuide": {
     "ats": {
       "title": "Pourquoi choisir un CV au format ATS ?",
@@ -450,6 +483,8 @@
         "STANDARD": "CV Standard",
         "ATS": "CV ATS",
         "GERMAN_ATS": "CV Allemagne (ATS)",
+        "CANADA": "CV Canadien",
+        "CANADA_ATS": "CV Canadien ATS",
         "PREMIUM": "CV Premium",
         "COVER_LETTER": "Lettre de motivation",
         "BEWERBUNGSBRIEF": "Bewerbungsbrief (lettre allemande)"
@@ -535,6 +570,18 @@
     "ATS": {
       "title": "Modèles de CV ATS | monemploiGo",
       "description": "{count} modèles de CV au format ATS, en une colonne, lisibles par les logiciels de tri des recruteurs. Idéal pour les candidatures en ligne. {price} FCFA."
+    },
+    "canadaPage": {
+      "title": "Candidature Canada : CV Canadien et CV ATS | monemploiGo",
+      "description": "Créez un CV adapté à vos candidatures au Canada, en français ou en anglais : CV Canadien ou CV Canadien ATS. Téléchargement en PDF."
+    },
+    "CANADA": {
+      "title": "CV Canadien en français ou en anglais | monemploiGo",
+      "description": "{count} modèles de CV sobres pour vos candidatures au Canada, en français ou en anglais. Téléchargement en PDF pour {price} FCFA."
+    },
+    "CANADA_ATS": {
+      "title": "CV Canadien ATS | monemploiGo",
+      "description": "{count} modèles de CV en une colonne, optimisés pour une lecture claire par les systèmes ATS, en français ou en anglais. {price} FCFA."
     },
     "GERMAN_ATS": {
       "title": "CV allemand (Lebenslauf) pour une Ausbildung | monemploiGo",

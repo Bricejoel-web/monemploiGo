@@ -3,6 +3,8 @@ import {
   premiumLayouts,
   atsLayouts,
   germanAtsLayouts,
+  canadaLayouts,
+  canadaAtsLayouts,
   coverLetterLayouts,
   bewerbungsbriefLayouts,
 } from "./layouts";
@@ -21,6 +23,10 @@ export const PRICE_FCFA: Record<CvCategory, number> = {
   PREMIUM: 2000,
   ATS: 1000,
   GERMAN_ATS: 1500,
+  // Prix validés par l'utilisateur (2026-10-06), alignés sur le CV
+  // Allemagne : document spécialisé pour un pays. Pas de pack ni de remise.
+  CANADA: 1500,
+  CANADA_ATS: 1500,
 };
 
 export const COVER_LETTER_PRICE_FCFA = 1500;
@@ -51,6 +57,10 @@ export const LAYOUT_LABELS: Record<CvLayoutId, string> = {
   "de-tabellarisch": "Lebenslauf tabellarisch",
   "de-blockschema": "Lebenslauf par blocs",
   "de-kompakt": "Lebenslauf compact",
+  "ca-sobre": "Sobre, deux colonnes",
+  "ca-repere": "Une colonne, repères",
+  "ca-ats-standard": "ATS standard",
+  "ca-ats-compact": "ATS compact",
 };
 
 export const BB_LAYOUT_LABELS: Record<BewerbungsbriefLayoutId, string> = {
@@ -86,6 +96,7 @@ function buildCategory(
   namePrefix: string,
   maxCount?: number,
   includeThemeName = true,
+  supportsPhoto = true,
 ): CvTemplateMeta[] {
   const items: CvTemplateMeta[] = [];
   for (const layoutId of layouts) {
@@ -101,7 +112,7 @@ function buildCategory(
         priceFcfa: PRICE_FCFA[category],
         layoutId,
         theme,
-        supportsPhoto: true,
+        supportsPhoto,
       });
     }
   }
@@ -133,11 +144,25 @@ export const germanAtsCvCatalog = buildCategory(
   "CV Allemagne (ATS)",
 );
 
+// 2 mises en page × 5 couleurs sobres = 10 modèles. Photo facultative,
+// absente par défaut.
+export const canadaCvCatalog = buildCategory(
+  "CANADA",
+  canadaLayouts,
+  themes.filter((t) => ["navy", "teal", "slateBlue", "graphite", "forest"].includes(t.key)),
+  "CV Canadien",
+);
+
+// 2 mises en page × 3 nuances de gris = 6 modèles, sans photo.
+export const canadaAtsCvCatalog = buildCategory("CANADA_ATS", canadaAtsLayouts, atsThemes.slice(0, 3), "CV Canadien ATS", undefined, true, false);
+
 export const allCvTemplates: CvTemplateMeta[] = [
   ...standardCvCatalog,
   ...premiumCvCatalog,
   ...atsCvCatalog,
   ...germanAtsCvCatalog,
+  ...canadaCvCatalog,
+  ...canadaAtsCvCatalog,
 ];
 
 export function getCvTemplateBySlug(slug: string): CvTemplateMeta | undefined {

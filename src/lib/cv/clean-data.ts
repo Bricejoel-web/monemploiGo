@@ -15,5 +15,6 @@ export function cleanCvData(data: CvData): CvData {
     education: data.education.filter((ed) => ed.degree.trim() || ed.school.trim()),
     languages: data.languages.filter((l) => l.name.trim()),
     extras: data.extras?.[0]?.title.trim() ? [{ title: data.extras[0].title, content: data.extras[0].content }] : [],
+    certifications: data.certifications?.filter((c) => c.name.trim()),
   };
 }

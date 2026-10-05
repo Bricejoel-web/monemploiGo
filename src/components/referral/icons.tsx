@@ -24,6 +24,21 @@ export function FlagGermany({ className = "h-5 w-7" }: IconProps) {
   );
 }
 
+// Drapeau du Canada simplifié (bandes rouges et feuille d'érable stylisée).
+export function FlagCanada({ className = "h-5 w-7" }: IconProps) {
+  return (
+    <svg viewBox="0 0 40 20" className={`${className} shrink-0 overflow-hidden rounded-[3px] ring-1 ring-black/10`} aria-hidden="true">
+      <rect width="40" height="20" fill="#fff" />
+      <rect width="10" height="20" fill="#d52b1e" />
+      <rect x="30" width="10" height="20" fill="#d52b1e" />
+      <polygon
+        fill="#d52b1e"
+        points="20,3.2 21.2,5.6 22.6,5.1 22.2,8.1 24.3,6.4 24.8,7.6 26.6,7.2 26,9.1 26.9,9.6 23.4,12.4 23.8,13.6 20.4,13.2 20.5,16.6 19.5,16.6 19.6,13.2 16.2,13.6 16.6,12.4 13.1,9.6 14,9.1 13.4,7.2 15.2,7.6 15.7,6.4 17.8,8.1 17.4,5.1 18.8,5.6"
+      />
+    </svg>
+  );
+}
+
 export function GiftIcon({ className = "h-6 w-6" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">

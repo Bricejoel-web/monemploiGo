@@ -16,6 +16,8 @@ enum CvCategory {
   PREMIUM
   ATS
   GERMAN_ATS
+  CANADA
+  CANADA_ATS
 }
 
 enum DocumentType {
@@ -95,6 +97,7 @@ model User {
 enum ReferralDomain {
   CAMEROUN
   ALLEMAGNE
+  CANADA
   GENERAL
 }
 

@@ -2,10 +2,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { COVER_LETTER_PRICE_FCFA, PRICE_FCFA } from "@/lib/cv/catalog";
-import { REFERRAL_COMMISSION_FCFA, domainSlug, isReferralEnabled } from "@/lib/referral/config";
+import { REFERRAL_COMMISSION_FCFA, domainSlug, isReferralEnabled, type ReferralDomainSlug } from "@/lib/referral/config";
 import { pageMetadata } from "@/lib/seo";
 import { CheckIcon, GlobeIcon } from "@/components/home/icons";
-import { FlagCameroon, FlagGermany, GiftIcon } from "@/components/referral/icons";
+import { FlagCameroon, FlagCanada, FlagGermany, GiftIcon } from "@/components/referral/icons";
 
 export const metadata = pageMetadata({
   locale: "fr",
@@ -19,8 +19,9 @@ export const metadata = pageMetadata({
 const fcfa = (n: number) => `${new Intl.NumberFormat("fr-FR").format(n).replace(/ /g, " ")} FCFA`;
 const minPrice = Math.min(...Object.values(PRICE_FCFA), COVER_LETTER_PRICE_FCFA);
 
-// Uniquement des services réellement proposés aujourd'hui (pas de Canada).
-const CONTENT: Record<"cameroun" | "allemagne" | "general", { flag: ReactNode; title: string; subtitle: string; services: string[]; note?: string }> = {
+// Uniquement des services réellement proposés aujourd'hui. Canada : CV
+// seulement, jamais de document d'immigration.
+const CONTENT: Record<ReferralDomainSlug, { flag: ReactNode; title: string; subtitle: string; services: string[]; note?: string; cta?: { label: string; href: string } }> = {
   cameroun: {
     flag: <FlagCameroon className="h-6 w-9" />,
     title: "Préparez votre candidature professionnelle",
@@ -33,6 +34,18 @@ const CONTENT: Record<"cameroun" | "allemagne" | "general", { flag: ReactNode; t
     subtitle: "Préparez votre candidature pour votre projet professionnel en Allemagne.",
     services: ["CV Allemagne (ATS), au format Lebenslauf", "Bewerbungsbrief : la lettre de motivation allemande", "CV et lettre de motivation en français"],
     note: "MonEmploiGo vous aide à préparer vos documents de candidature. Ce n'est pas une agence d'immigration : aucun visa, emploi ou Ausbildung n'est garanti.",
+  },
+  canada: {
+    flag: <FlagCanada className="h-6 w-12" />,
+    title: "Vous avez été recommandé sur MonEmploiGo",
+    subtitle: "Préparez votre candidature pour le Canada.",
+    services: [
+      "CV Canadien : présentez votre parcours de manière professionnelle pour vos candidatures au Canada.",
+      "CV Canadien ATS : un modèle structuré pour les candidatures en ligne et une lecture claire par les systèmes ATS.",
+      "En français ou en anglais, au choix.",
+    ],
+    note: "MonEmploiGo est un service de préparation de documents de candidature. Nos documents ne sont pas des documents officiels délivrés par les autorités canadiennes et ne garantissent ni emploi, ni admission, ni visa, ni permis.",
+    cta: { label: "Voir les CV Canada", href: "/fr/canada" },
   },
   general: {
     flag: <GlobeIcon className="h-7 w-7 text-[#16324f] dark:text-white" />,
@@ -64,8 +77,8 @@ export default async function ReferralLandingPage({ searchParams }: PageProps<"/
             <Link href="/fr/inscription" className="rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#eb5757]/30">
               Créer mon CV
             </Link>
-            <Link href="/fr/cv" className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">
-              Voir les modèles
+            <Link href={content.cta?.href ?? "/fr/cv"} className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">
+              {content.cta?.label ?? "Voir les modèles"}
             </Link>
           </div>
         </section>

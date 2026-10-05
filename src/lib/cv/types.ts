@@ -1,4 +1,6 @@
-export type CvCategory = "STANDARD" | "PREMIUM" | "ATS" | "GERMAN_ATS";
+import type { Locale } from "@/i18n/config";
+
+export type CvCategory = "STANDARD" | "PREMIUM" | "ATS" | "GERMAN_ATS" | "CANADA" | "CANADA_ATS";
 
 // Chaque id correspond à un composant de mise en page dédié et
 // entièrement dessiné à la main (voir src/components/cv/layouts/) —
@@ -20,7 +22,11 @@ export type CvLayoutId =
   | "ats-compact"
   | "de-tabellarisch"
   | "de-blockschema"
-  | "de-kompakt";
+  | "de-kompakt"
+  | "ca-sobre"
+  | "ca-repere"
+  | "ca-ats-standard"
+  | "ca-ats-compact";
 
 export interface CvTheme {
   key: string;
@@ -75,6 +81,21 @@ export interface CvData {
   birthDate?: string;
   birthPlace?: string;
   nationality?: string;
+  // Champs des CV Canada (catégories CANADA et CANADA_ATS), tous
+  // facultatifs : langue du document, indépendante de celle du site, liens
+  // professionnels et certifications structurées. Jamais d'autorisation de
+  // travail ni de statut d'immigration : rien n'est ajouté que
+  // l'utilisateur n'a pas saisi.
+  cvLanguage?: Locale;
+  linkedin?: string;
+  website?: string;
+  certifications?: CvCertification[];
+}
+
+export interface CvCertification {
+  name: string;
+  issuer: string;
+  year?: string;
 }
 
 export interface CvTemplateMeta {
