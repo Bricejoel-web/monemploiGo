@@ -6,6 +6,7 @@ import { coverLetterCatalog, CL_LAYOUT_LABELS } from "@/lib/cv/catalog";
 import { CoverLetterRenderer } from "@/components/cv/CoverLetterRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
+import { FlagCanada } from "@/components/referral/icons";
 import { getSampleCoverLetterData } from "@/lib/cv/sample-data";
 import type { CoverLetterTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -80,6 +81,17 @@ export default async function CoverLetterCatalogPage({ params }: PageProps<"/[lo
           <span className="mx-auto mt-3 block h-1 w-16 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
           <p className="mt-4 text-black/60 dark:text-white/60">{dict.catalog.letterSubtitle}</p>
         </div>
+        {/* Lettre de présentation Canada : parcours dédié, utilisable sans CV MonEmploiGo. */}
+        <Link
+          href={`/${locale}/lettre-canada`}
+          className="mx-6 flex items-center gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/[0.06]"
+        >
+          <FlagCanada className="h-7 w-14" />
+          <span>
+            <span className="block font-semibold">{dict.canadaLetter.entry}</span>
+            <span className="block text-sm text-black/60 dark:text-white/60">{dict.canadaLetter.entryHint}</span>
+          </span>
+        </Link>
         <div className="flex flex-col gap-10">
           {[...groups.entries()].map(([layoutKey, templates]) => (
             <CatalogSection key={layoutKey} title={CL_LAYOUT_LABELS[layoutKey] ?? layoutKey}>

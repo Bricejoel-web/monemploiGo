@@ -7,7 +7,7 @@ import { CATEGORY_LABEL_KEYS, CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
-import { pickPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
+import { pickPersona, pickCanadaPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
 import { pickSamplePortrait, seedFromString } from "@/lib/photos/unsplash";
 import type { CvCategory } from "@/lib/cv/types";
 import { seoMetadata } from "@/lib/seo-pages";
@@ -46,7 +46,9 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
             const persona =
               category === "GERMAN_ATS"
                 ? pickGermanPersona(first.slug, gender, ethnicity)
-                : pickPersona(locale as Locale, first.slug, gender, ethnicity);
+                : category === "CANADA" || category === "CANADA_ATS"
+                  ? pickCanadaPersona(locale as Locale, first.slug, gender, ethnicity)
+                  : pickPersona(locale as Locale, first.slug, gender, ethnicity);
             return (
               <Link
                 key={category}

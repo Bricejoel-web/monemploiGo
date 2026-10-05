@@ -28,6 +28,9 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
             <Link href={`/${locale}/bewerbungsbrief`} className={navLinkClass}>
               {dict.nav.bewerbungsbrief}
             </Link>
+            <Link href={`/${locale}/canada`} className={navLinkClass}>
+              {dict.nav.canada}
+            </Link>
             {session && (
               <Link href={`/${locale}/tableau-de-bord`} className={navLinkClass}>
                 {dict.nav.dashboard}
@@ -59,6 +62,7 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
             cvLabel={dict.nav.cvs}
             coverLettersLabel={dict.nav.coverLetters}
             bewerbungsbriefLabel={dict.nav.bewerbungsbrief}
+            canadaLabel={dict.nav.canada}
             dashboardLabel={dict.nav.dashboard}
             loginLabel={dict.nav.login}
             signupLabel={dict.nav.signup}

@@ -1,3 +1,4 @@
+import { CANADA_SAMPLE_CONTENT } from "./canada/sample-personas";
 import type { CvData } from "./types";
 import type { Locale } from "@/i18n/config";
 import type { PortraitGroup } from "@/lib/photos/unsplash";
@@ -445,6 +446,12 @@ const germanContent: Record<Gender, PersonaContent> = {
     languages: [{ name: "Deutsch", level: "B1 (Goethe-Institut)" }, { name: "Französisch", level: "Muttersprache" }],
   },
 };
+
+/** CV Canada : profils d'exemple complets (voir canada/sample-personas.ts). */
+export function pickCanadaPersona(locale: Locale, seed: string, gender: Gender, ethnicity: Ethnicity): CvData {
+  const fullName = buildName(seed, gender, ethnicity, locale);
+  return { ...CANADA_SAMPLE_CONTENT[locale === "en" ? "en" : "fr"][gender], fullName };
+}
 
 export function pickGermanPersona(seed: string, gender: Gender, ethnicity: Ethnicity): CvData {
   const fullName = buildName(seed, gender, ethnicity, "fr");

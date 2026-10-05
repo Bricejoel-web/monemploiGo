@@ -31,6 +31,11 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
               </Link>
             </li>
             <li>
+              <Link href={`/${locale}/canada`} className="hover:text-foreground hover:underline">
+                {dict.nav.canada}
+              </Link>
+            </li>
+            <li>
               <Link href={`/${locale}/tarifs`} className="hover:text-foreground hover:underline">
                 {dict.nav.pricing}
               </Link>

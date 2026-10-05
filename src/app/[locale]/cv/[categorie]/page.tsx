@@ -10,7 +10,7 @@ import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
 import { AtsGuide } from "@/components/cv/AtsGuide";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
-import { pickPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
+import { pickPersona, pickCanadaPersona, pickGermanPersona, genderOfPortraitGroup, ethnicityOfPortraitGroup } from "@/lib/cv/personas";
 import { pickSamplePortrait, seedFromString, unsplashSiteLink } from "@/lib/photos/unsplash";
 import type { CvCategory, CvTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -33,7 +33,11 @@ function TemplateCard({
   const gender = genderOfPortraitGroup(portrait.group);
   const ethnicity = ethnicityOfPortraitGroup(portrait.group);
   const persona =
-    category === "GERMAN_ATS" ? pickGermanPersona(template.slug, gender, ethnicity) : pickPersona(locale, template.slug, gender, ethnicity);
+    category === "GERMAN_ATS"
+      ? pickGermanPersona(template.slug, gender, ethnicity)
+      : category === "CANADA" || category === "CANADA_ATS"
+        ? pickCanadaPersona(locale as Locale, template.slug, gender, ethnicity)
+        : pickPersona(locale, template.slug, gender, ethnicity);
 
   return (
     <Link
