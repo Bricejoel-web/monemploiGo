@@ -25,11 +25,8 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
             <Link href={`/${locale}/lettres-de-motivation`} className={navLinkClass}>
               {dict.nav.coverLetters}
             </Link>
-            <Link href={`/${locale}/bewerbungsbrief`} className={navLinkClass}>
-              {dict.nav.bewerbungsbrief}
-            </Link>
-            <Link href={`/${locale}/canada`} className={navLinkClass}>
-              {dict.nav.canada}
+            <Link href={`/${locale}/etranger`} className={navLinkClass}>
+              {dict.nav.abroad}
             </Link>
             {session && (
               <Link href={`/${locale}/tableau-de-bord`} className={navLinkClass}>
@@ -61,8 +58,7 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
             locale={locale}
             cvLabel={dict.nav.cvs}
             coverLettersLabel={dict.nav.coverLetters}
-            bewerbungsbriefLabel={dict.nav.bewerbungsbrief}
-            canadaLabel={dict.nav.canada}
+            abroadLabel={dict.nav.abroad}
             dashboardLabel={dict.nav.dashboard}
             loginLabel={dict.nav.login}
             signupLabel={dict.nav.signup}

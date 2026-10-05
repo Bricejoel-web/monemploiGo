@@ -16,8 +16,7 @@ export function MobileNav({
   locale,
   cvLabel,
   coverLettersLabel,
-  bewerbungsbriefLabel,
-  canadaLabel,
+  abroadLabel,
   dashboardLabel,
   loginLabel,
   signupLabel,
@@ -27,8 +26,7 @@ export function MobileNav({
   locale: Locale;
   cvLabel: string;
   coverLettersLabel: string;
-  bewerbungsbriefLabel: string;
-  canadaLabel: string;
+  abroadLabel: string;
   dashboardLabel: string;
   loginLabel: string;
   signupLabel: string;
@@ -69,11 +67,8 @@ export function MobileNav({
             <Link href={`/${locale}/lettres-de-motivation`} className={linkClass} onClick={() => setOpen(false)}>
               {coverLettersLabel}
             </Link>
-            <Link href={`/${locale}/bewerbungsbrief`} className={linkClass} onClick={() => setOpen(false)}>
-              {bewerbungsbriefLabel}
-            </Link>
-            <Link href={`/${locale}/canada`} className={linkClass} onClick={() => setOpen(false)}>
-              {canadaLabel}
+            <Link href={`/${locale}/etranger`} className={linkClass} onClick={() => setOpen(false)}>
+              {abroadLabel}
             </Link>
             {isLoggedIn ? (
               <>

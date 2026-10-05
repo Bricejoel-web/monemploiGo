@@ -90,6 +90,7 @@ export const INDEXABLE_PAGES: { path: string; priority: number; changeFrequency:
   { path: "/cv/canada", priority: 0.8, changeFrequency: "monthly" },
   { path: "/cv/canada-ats", priority: 0.8, changeFrequency: "monthly" },
   { path: "/canada", priority: 0.8, changeFrequency: "monthly" },
+  { path: "/etranger", priority: 0.8, changeFrequency: "monthly" },
   { path: "/lettres-de-motivation", priority: 0.8, changeFrequency: "monthly" },
   { path: "/bewerbungsbrief", priority: 0.8, changeFrequency: "monthly" },
   { path: "/tarifs", priority: 0.6, changeFrequency: "monthly" },

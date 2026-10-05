@@ -44,6 +44,7 @@
     "coverLetters": "Cover letters",
     "bewerbungsbrief": "Bewerbungsbrief",
     "canada": "Canada",
+    "abroad": "Apply abroad",
     "pricing": "Pricing",
     "dashboard": "Dashboard",
     "login": "Log in",
@@ -185,6 +186,16 @@
     "welcomeEmailSent": "We sent a welcome email to {email}. Can't find it? Check your “Spam” or “Junk” folder, then click “Not spam” so you receive our next messages normally."
   },
   "catalog": {
+    "cvGroups": {
+      "general": "General CVs",
+      "byCountry": "CVs by country"
+    },
+    "letterGroups": {
+      "byCountry": "Letters by country",
+      "general": "General letters",
+      "bewerbungsbrief": "Bewerbungsbrief (Germany)",
+      "bewerbungsbriefHint": "The German cover letter, for Ausbildung and job applications in Germany."
+    },
     "cvTitle": "Resume templates",
     "cvSubtitle": "Choose a category and personalize your resume in minutes.",
     "letterTitle": "Cover letters",
@@ -519,6 +530,22 @@
     "required": "Required field",
     "saveError": "An error occurred while saving. Check your connection and try again."
   },
+  "abroadPage": {
+    "eyebrow": "Apply abroad",
+    "title": "Prepare your application abroad",
+    "description": "CVs and letters suited to each country's conventions, created from Cameroon.",
+    "germanyTitle": "Germany",
+    "germanyText": "For training (Ausbildung) and job applications in Germany.",
+    "germanyCv": "Germany CV (Lebenslauf)",
+    "germanyLetter": "Bewerbungsbrief, the German cover letter",
+    "canadaTitle": "Canada",
+    "canadaText": "For applications to Canadian employers, in English or French.",
+    "canadaCv": "Canadian CV",
+    "canadaCvAts": "Canadian ATS CV",
+    "canadaLetter": "Canadian cover letter",
+    "canadaMore": "Discover the Canada offer",
+    "disclaimer": "MonEmploiGo is a service for preparing application documents. It is not an immigration agency: our documents do not guarantee employment, admission, a visa or a permit."
+  },
   "canadaPage": {
     "eyebrow": "Applying in Canada",
     "title": "Prepare your application for Canada",
@@ -684,6 +711,10 @@
     "ATS": {
       "title": "ATS CV templates | monemploiGo",
       "description": "{count} single-column ATS CV templates that recruiters' screening software can read. Ideal for online applications. {price} FCFA."
+    },
+    "abroadPage": {
+      "title": "Apply abroad: Germany and Canada | monemploiGo",
+      "description": "CVs and cover letters suited to Germany and Canada, created online from Cameroon."
     },
     "canadaPage": {
       "title": "Applying in Canada: Canadian CV and ATS CV | monemploiGo",

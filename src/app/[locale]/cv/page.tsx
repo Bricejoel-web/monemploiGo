@@ -14,7 +14,12 @@ import { seoMetadata } from "@/lib/seo-pages";
 import { allCvTemplates } from "@/lib/cv/catalog";
 import { CvFonts } from "@/components/cv/CvFonts";
 
-const CATEGORIES: CvCategory[] = ["STANDARD", "PREMIUM", "ATS", "GERMAN_ATS", "CANADA", "CANADA_ATS"];
+// Deux groupes : CV généraux, puis CV par pays (organisation validée par
+// l'utilisateur : par type de document, avec une section « par pays »).
+const GROUPS: { key: "general" | "byCountry"; categories: CvCategory[] }[] = [
+  { key: "general", categories: ["STANDARD", "PREMIUM", "ATS"] },
+  { key: "byCountry", categories: ["GERMAN_ATS", "CANADA", "CANADA_ATS"] },
+];
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/cv">) {
   const { locale } = await params;
@@ -36,8 +41,11 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
           <p className="mt-4 text-black/60 dark:text-white/60">{dict.catalog.cvSubtitle}</p>
         </div>
 
+        {GROUPS.map((group) => (
+        <section key={group.key} className="flex flex-col gap-4">
+        <h2 className="px-1 text-xl font-semibold">{dict.catalog.cvGroups[group.key]}</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {CATEGORIES.map((category, index) => {
+          {group.categories.map((category, index) => {
             const templates = getCvTemplatesByCategory(category);
             const first = templates[0];
             const portrait = pickSamplePortrait(seedFromString(first.slug));
@@ -71,7 +79,7 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col justify-center gap-1.5">
-                  <h2 className="text-lg font-semibold">{dict.dashboard[CATEGORY_LABEL_KEYS[category]]}</h2>
+                  <h3 className="text-lg font-semibold">{dict.dashboard[CATEGORY_LABEL_KEYS[category]]}</h3>
                   <p className="text-sm text-black/60 dark:text-white/60">{dict.catalog.categoryDescriptions[category]}</p>
                   <div className="mt-2 flex items-center justify-between gap-2">
                     <FlatPriceBadge label={dict.catalog.allTemplatesAt} priceFcfa={PRICE_FCFA[category]} />
@@ -87,6 +95,8 @@ export default async function CvCatalogPage({ params }: PageProps<"/[locale]/cv"
             );
           })}
         </div>
+        </section>
+        ))}
       </div>
     </div>
   );

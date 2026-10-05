@@ -113,6 +113,35 @@ test.describe("pages publiques Canada", () => {
     await page.goto("/en/canada");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prepare your application for Canada");
   });
+
+  test("navigation : catalogues par type, entrée « Candidater à l'étranger »", async ({ page, isMobile }) => {
+    await gotoReady(page, "/fr/cv");
+    await expect(page.getByRole("heading", { level: 2, name: "CV généraux" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "CV par pays" })).toBeVisible();
+
+    await gotoReady(page, "/fr/lettres-de-motivation");
+    await expect(page.getByRole("heading", { level: 2, name: "Lettres par pays" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Lettres générales" })).toBeVisible();
+    await expect(page.locator('main a[href="/fr/bewerbungsbrief"]')).toBeVisible();
+    await expect(page.locator('main a[href="/fr/lettre-canada"]')).toBeVisible();
+
+    // Le menu n'a plus d'entrées « Bewerbungsbrief » ni « Canada » séparées.
+    if (isMobile) await page.getByRole("button", { name: /menu/i }).click();
+    const nav = page.locator("header");
+    await expect(nav.getByRole("link", { name: "Candidater à l'étranger" }).first()).toBeVisible();
+    await expect(nav.locator('a[href="/fr/canada"]')).toHaveCount(0);
+    await expect(nav.locator('a[href="/fr/bewerbungsbrief"]')).toHaveCount(0);
+
+    expect((await page.goto("/fr/etranger"))?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Préparez votre candidature à l'étranger");
+    for (const href of ["/fr/cv/allemagne", "/fr/bewerbungsbrief", "/fr/cv/canada", "/fr/cv/canada-ats", "/fr/lettre-canada", "/fr/canada"]) {
+      await expect(page.locator(`main a[href="${href}"]`)).toBeVisible();
+    }
+    await expect(page.getByText("Ce n'est pas une agence d'immigration", { exact: false })).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    await page.goto("/en/etranger");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Prepare your application abroad");
+  });
 });
 
 test.describe("CV Canada", () => {

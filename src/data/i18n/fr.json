@@ -44,6 +44,7 @@
     "coverLetters": "Lettres de motivation",
     "bewerbungsbrief": "Bewerbungsbrief",
     "canada": "Canada",
+    "abroad": "Candidater à l'étranger",
     "pricing": "Tarifs",
     "dashboard": "Tableau de bord",
     "login": "Connexion",
@@ -185,6 +186,16 @@
     "welcomeEmailSent": "Nous vous avons envoyé un e-mail de bienvenue à {email}. Vous ne le trouvez pas ? Regardez dans le dossier « Spam » ou « Courrier indésirable », puis cliquez sur « Non spam » : vous recevrez ainsi nos prochains messages normalement."
   },
   "catalog": {
+    "cvGroups": {
+      "general": "CV généraux",
+      "byCountry": "CV par pays"
+    },
+    "letterGroups": {
+      "byCountry": "Lettres par pays",
+      "general": "Lettres générales",
+      "bewerbungsbrief": "Bewerbungsbrief (Allemagne)",
+      "bewerbungsbriefHint": "La lettre de motivation allemande, pour vos candidatures d'Ausbildung et d'emploi en Allemagne."
+    },
     "cvTitle": "Modèles de CV",
     "cvSubtitle": "Choisissez une catégorie et personnalisez votre CV en quelques minutes.",
     "letterTitle": "Lettres de motivation",
@@ -519,6 +530,22 @@
     "required": "Champ obligatoire",
     "saveError": "Une erreur est survenue lors de l'enregistrement. Vérifiez votre connexion et réessayez."
   },
+  "abroadPage": {
+    "eyebrow": "Candidater à l'étranger",
+    "title": "Préparez votre candidature à l'étranger",
+    "description": "Des CV et des lettres adaptés aux usages de chaque pays, créés depuis le Cameroun.",
+    "germanyTitle": "Allemagne",
+    "germanyText": "Pour vos candidatures de formation (Ausbildung) et d'emploi en Allemagne.",
+    "germanyCv": "CV Allemagne (Lebenslauf)",
+    "germanyLetter": "Bewerbungsbrief, la lettre de motivation allemande",
+    "canadaTitle": "Canada",
+    "canadaText": "Pour vos candidatures auprès d'employeurs canadiens, en français ou en anglais.",
+    "canadaCv": "CV Canadien",
+    "canadaCvAts": "CV Canadien ATS",
+    "canadaLetter": "Lettre de présentation Canada",
+    "canadaMore": "Découvrir l'offre Canada",
+    "disclaimer": "MonEmploiGo est un service de préparation de documents de candidature. Ce n'est pas une agence d'immigration : nos documents ne garantissent ni emploi, ni admission, ni visa, ni permis."
+  },
   "canadaPage": {
     "eyebrow": "Candidature Canada",
     "title": "Préparez votre candidature pour le Canada",
@@ -684,6 +711,10 @@
     "ATS": {
       "title": "Modèles de CV ATS | monemploiGo",
       "description": "{count} modèles de CV au format ATS, en une colonne, lisibles par les logiciels de tri des recruteurs. Idéal pour les candidatures en ligne. {price} FCFA."
+    },
+    "abroadPage": {
+      "title": "Candidater à l'étranger : Allemagne et Canada | monemploiGo",
+      "description": "CV et lettres de motivation adaptés à l'Allemagne et au Canada, à créer en ligne depuis le Cameroun."
     },
     "canadaPage": {
       "title": "Candidature Canada : CV Canadien et CV ATS | monemploiGo",
