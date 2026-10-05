@@ -143,10 +143,10 @@ test("navigation : rubriques pas encore construites grisées, menu mobile", asyn
   await expect(nav.getByRole("link", { name: "Mes candidats" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Nouveau candidat" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Documents" })).toBeVisible();
-  for (const label of ["Mon abonnement", "Paramètres"]) {
-    await expect(nav.getByRole("link", { name: label })).toHaveCount(0);
-    await expect(nav.getByText(label, { exact: true })).toBeVisible();
-  }
+  await expect(nav.getByRole("link", { name: "Mon abonnement" })).toBeVisible();
+  // Rubrique pas encore construite : grisée, sans lien.
+  await expect(nav.getByRole("link", { name: "Paramètres" })).toHaveCount(0);
+  await expect(nav.getByText("Paramètres", { exact: true })).toBeVisible();
   await nav.getByRole("link", { name: "Aide" }).click();
   await expect(page).toHaveURL(/\/fr\/pro\/aide$/);
   await expect(page.getByRole("heading", { name: "Aide" })).toBeVisible();

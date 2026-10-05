@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/db/client";
 import { markDocumentPaid } from "@/lib/documents/retention";
 import { recordReferralCommission } from "@/lib/referral/commissions";
+import { activateProSubscription, syncProPaymentRecord } from "@/lib/pro/billing";
 import { getGateway } from "./index";
 import type { CheckPaymentStatusResult } from "./types";
 
@@ -51,6 +52,10 @@ export async function settlePayment(
       if (payment.documentId) await markDocumentPaid(payment.documentId, tx);
       // Parrainage : dans la MÊME transaction, donc une seule fois par paiement.
       await recordReferralCommission(tx, payment.id);
+      // Abonnement Pro : la période n'est activée qu'ici, après confirmation
+      // par la passerelle et contrôle du montant (CGU Pro, article 7).
+      await activateProSubscription(tx, payment.id);
+      await syncProPaymentRecord(tx, payment.id);
       return true;
     });
     return paid ? "paid" : "unchanged";
@@ -66,6 +71,7 @@ export async function settlePayment(
 /** Sort un paiement de l'état PENDING, seulement s'il y est encore. */
 async function leavePending(paymentId: string, status: "FAILED"): Promise<boolean> {
   const { count } = await prisma.payment.updateMany({ where: { id: paymentId, status: "PENDING" }, data: { status } });
+  if (count === 1) await syncProPaymentRecord(prisma, paymentId);
   return count === 1;
 }
 
@@ -100,13 +106,14 @@ export const STALE_PROCESSING_MS = 10 * 60 * 1000;
  * confirmation chez l'opérateur, s'il y en a un : pendant ce temps, on ne
  * propose pas de repayer.
  */
-export async function refreshPendingPayments(filter: { userId?: string; documentId?: string; limit?: number }): Promise<{ processingPaymentId?: string; processingSince?: string }> {
+export async function refreshPendingPayments(filter: { userId?: string; documentId?: string; kind?: "DOCUMENT" | "PRO_SUBSCRIPTION"; limit?: number }): Promise<{ processingPaymentId?: string; processingSince?: string }> {
   const pending = await prisma.payment.findMany({
     where: {
       status: "PENDING",
       providerRef: { not: null },
       ...(filter.userId ? { userId: filter.userId } : {}),
       ...(filter.documentId ? { documentId: filter.documentId } : {}),
+      ...(filter.kind ? { kind: filter.kind } : {}),
       ...(filter.userId || filter.documentId ? { createdAt: { gte: new Date(Date.now() - RECENT_PENDING_MS) } } : {}),
     },
     orderBy: { createdAt: "desc" },

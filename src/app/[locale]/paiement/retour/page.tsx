@@ -34,11 +34,14 @@ export default async function PaymentReturnPage({
     stillPendingAtNotchPay = result.status === "pending";
   }
 
-  if (!payment.documentId) redirect(`/${locale}/tableau-de-bord`);
-
   // Sans ce retour, un client dont le paiement avait échoué revenait sur la
   // page de paiement sans aucune explication.
   const { status } = (await prisma.payment.findUnique({ where: { id: payment.id }, select: { status: true } }))!;
   const notice = status === "FAILED" ? "?paiement=echec" : status === "PENDING" && stillPendingAtNotchPay ? "?paiement=non-finalise" : "";
+  // Abonnement Pro : retour sur la page « Mon abonnement » (français seul).
+  if (payment.kind === "PRO_SUBSCRIPTION") {
+    redirect(`/fr/pro/abonnement${status === "SUCCESS" ? "?paiement=confirme" : notice}`);
+  }
+  if (!payment.documentId) redirect(`/${locale}/tableau-de-bord`);
   redirect(`/${locale}/paiement/${payment.documentId}${notice}`);
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireProAccount } from "@/lib/pro/dal";
 import { getProOverview } from "@/lib/pro/subscription";
 import { PRO_STARTER, QUOTA_WARNING_RATIO } from "@/lib/pro/plans";
@@ -73,11 +74,12 @@ export default async function ProDashboardPage() {
           <p className="mt-4 text-2xl font-bold">
             {fcfa(PRO_STARTER.priceFcfa)} <span className="text-base font-medium text-black/60 dark:text-white/60">/ 30 jours</span>
           </p>
-          {!subscription.available && (
-            <p className="mt-3 rounded-lg bg-black/[0.04] p-3 text-xs text-black/60 dark:bg-white/10 dark:text-white/60">
-              L&apos;activation de Pro Starter par paiement Mobile Money sera disponible dans une prochaine étape.
-            </p>
-          )}
+          <Link
+            href={subscription.href}
+            className="mt-4 inline-flex rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#eb5757]/25 hover:opacity-95"
+          >
+            Activer Pro Starter
+          </Link>
         </div>
       )}
 
@@ -89,6 +91,9 @@ export default async function ProDashboardPage() {
             {daysUntil(access.deletionAt) <= 30 && ` (dans ${daysUntil(access.deletionAt)} jour${daysUntil(access.deletionAt) > 1 ? "s" : ""})`}, puis ils seront
             supprimés définitivement. Renouvelez votre abonnement pour continuer à utiliser MonEmploiGo Pro.
           </p>
+          <Link href={subscription.href} className="mt-3 inline-flex font-semibold underline">
+            Renouveler mon abonnement
+          </Link>
         </Notice>
       )}
 
@@ -96,6 +101,9 @@ export default async function ProDashboardPage() {
         <Notice tone="warning">
           <p className="font-semibold">Votre abonnement Pro Starter a expiré le {date(access.expiredAt)}.</p>
           <p className="mt-1">Renouvelez votre abonnement pour utiliser de nouveau MonEmploiGo Pro.</p>
+          <Link href={subscription.href} className="mt-3 inline-flex font-semibold underline">
+            Renouveler mon abonnement
+          </Link>
         </Notice>
       )}
 

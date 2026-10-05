@@ -22,6 +22,9 @@ export const mockGateway: PaymentGateway = {
     // paiement resté en cours chez l'opérateur, ou refusé par lui.
     if (providerRef.startsWith("MOCK-PROCESSING")) return { status: "processing" };
     if (providerRef.startsWith("MOCK-FAILED")) return { status: "failed" };
+    // Confirmation avec le montant payé (« MOCK-AMOUNT-5000-… ») : pour tester
+    // le contrôle du montant de settlePayment, exact ou non.
+    if (providerRef.startsWith("MOCK-AMOUNT-")) return { status: "success", amount: Number(providerRef.split("-")[2]), currency: "XAF" };
     return { status: "success" };
   },
 };

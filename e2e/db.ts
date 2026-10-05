@@ -56,6 +56,10 @@ export async function deleteTestUsers() {
   await db.referralAuditLog.deleteMany({ where: { adminEmail: { endsWith: `@${TEST_EMAIL_DOMAIN}` } } });
   await db.referralCommission.deleteMany({ where: { OR: [{ referrerId: { in: ids } }, { referredUserId: { in: ids } }] } });
   await db.withdrawalRequest.deleteMany({ where: { userId: { in: ids } } });
+  // Traces de paiement Pro : sans clé étrangère (conservées à la suppression
+  // d'un compte réel), donc effacées ici explicitement pour les comptes de test.
+  const paymentIds = (await db.payment.findMany({ where: { userId: { in: ids } }, select: { id: true } })).map((p) => p.id);
+  await db.proPaymentRecord.deleteMany({ where: { paymentId: { in: paymentIds } } });
   await db.user.deleteMany({ where });
 }
 

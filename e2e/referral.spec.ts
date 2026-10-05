@@ -367,3 +367,30 @@ test("textes juridiques : conditions du programme, confidentialité 8 ter, cooki
   await page.goto("/fr/parrainage");
   await expect(page.locator('a[href="/fr/conditions-parrainage"]').first()).toBeVisible();
 });
+
+test("retour de paiement Notch Pay (?ref=…) : jamais pris pour un lien de parrainage", async ({ page, context }) => {
+  // Régression : le paramètre `ref` du retour de paiement était intercepté
+  // comme un lien de recommandation, et le client atterrissait sur
+  // /fr/recommandation au lieu de son document.
+  const { getCvTemplatesByCategory } = await import("../src/lib/cv/catalog");
+  const buyer = await createUser("Retour Paiement");
+  const doc = await testDb().document.create({
+    data: {
+      userId: buyer.userId,
+      type: "CV",
+      category: "STANDARD",
+      templateSlug: getCvTemplatesByCategory("STANDARD")[0].slug,
+      title: "CV — retour",
+      contentJson: JSON.stringify({ fullName: "Retour Paiement", jobTitle: "", email: "", phone: "", summary: "", experience: [], education: [], skills: [], languages: [] }),
+    },
+  });
+  const payment = await testDb().payment.create({
+    data: { userId: buyer.userId, documentId: doc.id, provider: "NOTCHPAY", amountFcfa: 1000, status: "PENDING", providerRef: "MOCK-AMOUNT-1000-retour" },
+  });
+  await loginAs(context, buyer.userId, BASE_URL);
+  // Adresse exacte du `callback` envoyé à Notch Pay : sans langue.
+  await page.goto(`/paiement/retour?ref=${payment.id}`);
+  await expect(page).toHaveURL(new RegExp(`/(fr|en)/paiement/${doc.id}$`));
+  expect((await testDb().payment.findUniqueOrThrow({ where: { id: payment.id } })).status).toBe("SUCCESS");
+  expect((await context.cookies()).some((c) => c.name === "monemploigo_ref")).toBe(false);
+});

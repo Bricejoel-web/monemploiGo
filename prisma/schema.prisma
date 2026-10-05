@@ -48,9 +48,16 @@ enum PaymentStatus {
   FAILED
 }
 
+// Objet d'un paiement : un document à l'unité (particulier) ou une période
+// d'abonnement Pro Starter (espace Pro).
+enum PaymentKind {
+  DOCUMENT
+  PRO_SUBSCRIPTION
+}
+
 model User {
-  id               String    @id @default(cuid())
-  email            String    @unique
+  id               String          @id @default(cuid())
+  email            String          @unique
   passwordHash     String
   name             String?
   // Consentement explicite (case décochée par défaut) pour recevoir des
@@ -58,7 +65,7 @@ model User {
   // l'envoi de ce type d'e-mail n'est pas encore implémenté, pour ne pas
   // avoir à redemander ce consentement rétroactivement le jour où la
   // fonctionnalité existera.
-  marketingConsent Boolean   @default(false)
+  marketingConsent Boolean         @default(false)
   // Version des CGU (voir src/data/legal/legal-config.ts, TERMS_VERSION)
   // acceptées à l'inscription, et date de cette acceptation — permet de
   // savoir quelle version un utilisateur a acceptée si les CGU évoluent.
@@ -68,12 +75,12 @@ model User {
   // première visite de la page « Parrainer & gagner » ; et, pour une
   // personne recommandée, son parrain et le domaine du lien, fixés une fois
   // pour toutes à l'inscription (jamais modifiables ensuite).
-  referralCode     String?          @unique
+  referralCode     String?         @unique
   referredById     String?
   referralDomain   ReferralDomain?
   referredAt       DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   documents Document[]
   payments  Payment[]
@@ -85,11 +92,11 @@ model User {
   professionalAccount ProfessionalAccount?
   passwordResetTokens PasswordResetToken[]
 
-  referredBy          User?                @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
-  referredUsers       User[]               @relation("Referrals")
-  commissionsEarned   ReferralCommission[] @relation("CommissionReferrer")
-  commissionsCaused   ReferralCommission[] @relation("CommissionReferred")
-  withdrawalRequests  WithdrawalRequest[]
+  referredBy         User?                @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referredUsers      User[]               @relation("Referrals")
+  commissionsEarned  ReferralCommission[] @relation("CommissionReferrer")
+  commissionsCaused  ReferralCommission[] @relation("CommissionReferred")
+  withdrawalRequests WithdrawalRequest[]
 
   @@index([referredById])
 }
@@ -126,9 +133,9 @@ model ReferralCommission {
   cancelReason   String?
   createdAt      DateTime                 @default(now())
 
-  referrer     User?    @relation("CommissionReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
-  referredUser User?    @relation("CommissionReferred", fields: [referredUserId], references: [id], onDelete: SetNull)
-  payment      Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  referrer     User?              @relation("CommissionReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
+  referredUser User?              @relation("CommissionReferred", fields: [referredUserId], references: [id], onDelete: SetNull)
+  payment      Payment?           @relation(fields: [paymentId], references: [id], onDelete: SetNull)
   auditLogs    ReferralAuditLog[]
 
   @@index([referrerId, status])
@@ -223,6 +230,8 @@ model ProfessionalAccount {
   subscriptions Subscription[]
   documents     Document[]
   candidates    ProfessionalCandidate[]
+  payments      Payment[]
+  expiryNotices ProExpiryNotice[]
 }
 
 enum SubscriptionPlan {
@@ -244,9 +253,13 @@ model Subscription {
   startsAt              DateTime
   expiresAt             DateTime
   documentsUsed         Int              @default(0)
+  // Paiement qui a activé cette période : unique, car un même paiement ne
+  // peut activer qu'une seule période (CGU Pro, article 7).
+  paymentId             String?          @unique
   createdAt             DateTime         @default(now())
 
   professionalAccount ProfessionalAccount @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
+  payment             Payment?            @relation(fields: [paymentId], references: [id], onDelete: SetNull)
 
   @@index([professionalAccountId, expiresAt])
 }
@@ -373,22 +386,66 @@ model Document {
 // référence prestataire, utilisateur) est conservée pour la comptabilité et
 // les éventuels litiges, sans garder le contenu du document lui-même.
 model Payment {
-  id          String          @id @default(cuid())
-  userId      String
-  documentId  String?
-  provider    PaymentProvider
-  amountFcfa  Int
-  status      PaymentStatus   @default(PENDING)
-  providerRef String?
-  phoneNumber String?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id                    String          @id @default(cuid())
+  userId                String
+  kind                  PaymentKind     @default(DOCUMENT)
+  // Renseigné pour un abonnement Pro (kind = PRO_SUBSCRIPTION).
+  professionalAccountId String?
+  documentId            String?
+  provider              PaymentProvider
+  amountFcfa            Int
+  status                PaymentStatus   @default(PENDING)
+  providerRef           String?
+  phoneNumber           String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document            Document?            @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  professionalAccount ProfessionalAccount? @relation(fields: [professionalAccountId], references: [id], onDelete: SetNull)
 
   referralCommission ReferralCommission?
+  subscription       Subscription?
 
   @@index([userId])
   @@index([documentId])
+  @@index([professionalAccountId])
+}
+
+// Traces de paiement Pro (référence, montant, devise, date, statut, offre et
+// nom de la structure), conservées séparément, sans clé étrangère et sans
+// aucune donnée de candidat : elles survivent à la suppression de l'espace
+// Pro ou du compte (politique de confidentialité, section 17).
+model ProPaymentRecord {
+  id          String           @id @default(cuid())
+  paymentId   String           @unique
+  providerRef String?
+  amountFcfa  Int
+  currency    String           @default("XAF")
+  status      PaymentStatus
+  plan        SubscriptionPlan @default(PRO_STARTER)
+  companyName String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+// Avertissements d'expiration Pro déjà envoyés (jour de l'expiration, puis
+// 30 et 7 jours avant la suppression) : un seul envoi par échéance.
+enum ProExpiryNoticeKind {
+  EXPIRED
+  DELETION_IN_30_DAYS
+  DELETION_IN_7_DAYS
+}
+
+model ProExpiryNotice {
+  id                    String              @id @default(cuid())
+  professionalAccountId String
+  kind                  ProExpiryNoticeKind
+  expiredAt             DateTime
+  emailSent             Boolean             @default(false)
+  createdAt             DateTime            @default(now())
+
+  professionalAccount ProfessionalAccount @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([professionalAccountId, kind, expiredAt])
 }
