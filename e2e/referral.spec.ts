@@ -58,7 +58,10 @@ test("TEST 1 & 2 : liens Cameroun et Allemagne, copie et partage WhatsApp", asyn
   referrer = await createUser("Brice Test");
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await loginAs(context, referrer.userId, BASE_URL);
-  await gotoReady(page, "/fr/parrainage");
+  // Point d'entrée : lien du menu, réservé aux personnes connectées.
+  await gotoReady(page, "/fr/cv");
+  await page.locator("header").getByRole("link", { name: "Parrainer & gagner" }).click();
+  await expect(page).toHaveURL(/\/fr\/parrainage$/);
 
   await expect(page.getByRole("heading", { name: "Parrainer & gagner" })).toBeVisible();
   code = (await testDb().user.findUniqueOrThrow({ where: { id: referrer.userId } })).referralCode!;

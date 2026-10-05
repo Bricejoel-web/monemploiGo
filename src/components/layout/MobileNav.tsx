@@ -22,6 +22,8 @@ export function MobileNav({
   signupLabel,
   logoutLabel,
   isLoggedIn,
+  showReferral,
+  showPro,
 }: {
   locale: Locale;
   cvLabel: string;
@@ -32,6 +34,8 @@ export function MobileNav({
   signupLabel: string;
   logoutLabel: string;
   isLoggedIn: boolean;
+  showReferral: boolean;
+  showPro: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -75,6 +79,11 @@ export function MobileNav({
                 <Link href={`/${locale}/tableau-de-bord`} className={linkClass} onClick={() => setOpen(false)}>
                   {dashboardLabel}
                 </Link>
+                {showReferral && (
+                  <Link href="/fr/parrainage" className={linkClass} onClick={() => setOpen(false)}>
+                    Parrainer & gagner
+                  </Link>
+                )}
                 <div className="border-t border-black/[0.06] pt-1 dark:border-white/10">
                   <LogoutButton locale={locale} label={logoutLabel} />
                 </div>
@@ -92,6 +101,11 @@ export function MobileNav({
                   {signupLabel}
                 </Link>
               </div>
+            )}
+            {showPro && (
+              <Link href="/fr/pro/connexion" className={`${linkClass} mt-1 border-t border-black/[0.06] pt-3 dark:border-white/10`} onClick={() => setOpen(false)}>
+                Espace Pro
+              </Link>
             )}
           </nav>
         </div>

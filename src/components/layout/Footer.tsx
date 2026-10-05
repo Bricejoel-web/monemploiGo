@@ -3,6 +3,7 @@ import { Logo } from "@/components/layout/Logo";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { isProEnabled } from "@/lib/pro/flag";
+import { isReferralEnabled } from "@/lib/referral/config";
 
 export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   return (
@@ -40,6 +41,13 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 {dict.nav.pricing}
               </Link>
             </li>
+            {locale === "fr" && isProEnabled() && (
+              <li>
+                <Link href="/fr/pro/connexion" className="hover:text-foreground hover:underline">
+                  Espace Pro
+                </Link>
+              </li>
+            )}
             <li>
               <Link href={`/${locale}/a-propos`} className="hover:text-foreground hover:underline">
                 {dict.footer.about}
@@ -75,6 +83,13 @@ export function Footer({ locale, dict }: { locale: Locale; dict: Dictionary }) {
                 {dict.footer.cookiePolicy}
               </Link>
             </li>
+            {locale === "fr" && isReferralEnabled() && (
+              <li>
+                <Link href="/fr/conditions-parrainage" className="hover:text-foreground hover:underline">
+                  Conditions du parrainage
+                </Link>
+              </li>
+            )}
             {isProEnabled() && (
               <li>
                 <Link href="/fr/pro/conditions-utilisation" className="hover:text-foreground hover:underline">

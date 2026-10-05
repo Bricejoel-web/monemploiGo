@@ -6,9 +6,17 @@ import { Logo } from "@/components/layout/Logo";
 import { MobileNav } from "@/components/layout/MobileNav";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
+import { isProEnabled } from "@/lib/pro/flag";
+import { isReferralEnabled } from "@/lib/referral/config";
 
 export async function Header({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const session = await verifySession();
+  // Parrainage et Pro : français uniquement, visibles seulement quand leur
+  // interrupteur est activé. Le parrainage est une fonction du compte (lien
+  // pour les personnes connectées) ; le Pro s'adresse aux structures, d'où un
+  // lien à part, à côté de la connexion, hors du menu des candidats.
+  const showReferral = locale === "fr" && isReferralEnabled() && Boolean(session);
+  const showPro = locale === "fr" && isProEnabled();
 
   const navLinkClass =
     "rounded-full px-3 py-2 text-foreground transition-colors hover:bg-[#f2994a]/15 hover:text-[#c94f30] dark:hover:bg-white/[0.08] dark:hover:text-[#f2994a]";
@@ -33,11 +41,24 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
                 {dict.nav.dashboard}
               </Link>
             )}
+            {showReferral && (
+              <Link href="/fr/parrainage" className={navLinkClass}>
+                Parrainer & gagner
+              </Link>
+            )}
           </nav>
         </div>
         <div className="flex items-center gap-2">
           <LocaleSwitcher currentLocale={locale} />
           <div className="hidden items-center gap-2 md:flex">
+            {showPro && (
+              <Link
+                href="/fr/pro/connexion"
+                className="rounded-full border border-[#16324f]/25 px-3 py-1.5 text-sm font-semibold text-[#16324f] transition-colors hover:bg-[#16324f]/[0.06] dark:border-white/25 dark:text-white dark:hover:bg-white/[0.08]"
+              >
+                Espace Pro
+              </Link>
+            )}
             {session ? (
               <LogoutButton locale={locale} label={dict.nav.logout} />
             ) : (
@@ -64,6 +85,8 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
             signupLabel={dict.nav.signup}
             logoutLabel={dict.nav.logout}
             isLoggedIn={Boolean(session)}
+            showReferral={showReferral}
+            showPro={showPro}
           />
         </div>
       </div>

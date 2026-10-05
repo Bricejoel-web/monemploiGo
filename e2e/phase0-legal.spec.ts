@@ -51,6 +51,23 @@ test.describe("pages légales existantes", () => {
       expect((await page.request.get(href)).status(), href).toBe(200);
     }
     expect(hrefs.includes("/fr/pro/conditions-utilisation")).toBe(proEnabled);
+    expect(hrefs.includes("/fr/conditions-parrainage")).toBe(referralEnabled);
+  });
+
+  test("points d'entrée Pro et parrainage : visibles seulement si activés, en français", async ({ page, isMobile }) => {
+    await page.goto("/fr");
+    if (isMobile) await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+    const header = page.locator("header");
+    await expect(header.getByRole("link", { name: "Espace Pro" })).toHaveCount(proEnabled ? 1 : 0);
+    if (proEnabled) await expect(header.getByRole("link", { name: "Espace Pro" })).toHaveAttribute("href", "/fr/pro/connexion");
+    // Parrainage : fonction du compte, jamais proposée à un visiteur non connecté.
+    await expect(header.getByRole("link", { name: "Parrainer & gagner" })).toHaveCount(0);
+    expect(await page.locator('footer a[href="/fr/pro/connexion"]').count()).toBe(proEnabled ? 1 : 0);
+
+    await page.goto("/en");
+    if (isMobile) await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+    await expect(page.locator("header").getByRole("link", { name: "Espace Pro" })).toHaveCount(0);
+    expect(await page.locator('footer a[href="/fr/conditions-parrainage"], footer a[href="/fr/pro/connexion"]').count()).toBe(0);
   });
 });
 
