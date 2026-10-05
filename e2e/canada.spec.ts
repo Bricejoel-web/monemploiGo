@@ -214,6 +214,15 @@ test.describe("CV Canada", () => {
     await page.getByLabel("Langue du CV").selectOption("en");
     await expect(preview).toContainText("Professional Summary");
 
+    // Photo déconseillée au Canada : avertissement avant tout choix de fichier.
+    const warning = page.getByText("Photo non recommandée pour les candidatures au Canada.", { exact: false });
+    await expect(warning).toHaveCount(0);
+    await page.getByRole("button", { name: "Ajouter ma photo" }).last().click();
+    await expect(warning).toBeVisible();
+    await page.getByRole("button", { name: "Continuer sans photo" }).click();
+    await expect(warning).toHaveCount(0);
+    await expect(preview.locator("img")).toHaveCount(0);
+
     await gotoReady(page, `/fr/cv/modele/${slugOf("ca-ats-standard")}`);
     await expect(page.getByText("Les CV ATS n'ont pas de photo", { exact: false })).toBeVisible();
   });

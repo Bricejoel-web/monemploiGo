@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { CameraIcon } from "@/components/home/icons";
+import { CameraIcon, WarningIcon } from "@/components/home/icons";
 
 /**
  * Ajout de la photo du CV. Remplace l'ancienne case "Inclure ma photo" +
@@ -21,6 +21,7 @@ export function PhotoPicker({
   onRemove,
   onScaleChange,
   labels,
+  discouraged = false,
 }: {
   photoDataUrl: string | null | undefined;
   photoScale: number;
@@ -29,15 +30,20 @@ export function PhotoPicker({
   onRemove: () => void;
   onScaleChange: (scale: number) => void;
   labels: Dictionary["editor"];
+  /** CV Canada : photo déconseillée (recommandation officielle canadienne).
+   * Présentation neutre, et avertissement avant d'ouvrir le choix du fichier. */
+  discouraged?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const openPicker = () => inputRef.current?.click();
   const hasPhoto = Boolean(photoDataUrl);
+  const [warning, setWarning] = useState(false);
+  const requestPicker = () => (discouraged && !hasPhoto ? setWarning(true) : openPicker());
 
   return (
     <section
       className={`flex flex-col gap-4 rounded-2xl p-5 shadow-sm ${
-        hasPhoto
+        hasPhoto || discouraged
           ? "border border-black/10 bg-[#fbfaf8] dark:border-white/10 dark:bg-white/[0.06]"
           : "border-2 border-dashed border-[#eb5757]/45 bg-gradient-to-br from-[#f2994a]/10 to-[#eb5757]/10"
       }`}
@@ -47,7 +53,7 @@ export function PhotoPicker({
       <div className="flex items-center gap-4">
         <button
           type="button"
-          onClick={openPicker}
+          onClick={requestPicker}
           aria-label={hasPhoto ? labels.changePhoto : labels.addPhoto}
           className="relative shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#eb5757]"
         >
@@ -56,7 +62,7 @@ export function PhotoPicker({
             <img src={photoDataUrl!} alt="" className="h-20 w-20 rounded-full object-cover shadow-md ring-2 ring-white" />
           ) : (
             <>
-              <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#eb5757]/25 motion-safe:animate-ping" />
+              {!discouraged && <span aria-hidden="true" className="absolute inset-0 rounded-full bg-[#eb5757]/25 motion-safe:animate-ping" />}
               <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white text-[#c94f30] shadow-md ring-2 ring-[#eb5757]/40 dark:bg-white/10 dark:text-[#f2994a]">
                 <CameraIcon className="h-9 w-9" />
               </span>
@@ -71,9 +77,39 @@ export function PhotoPicker({
         </button>
         <div className="min-w-0">
           <p className="font-semibold">{hasPhoto ? labels.photoAdded : labels.addPhotoTitle}</p>
-          <p className="mt-0.5 text-xs text-black/60 dark:text-white/60">{hasPhoto ? labels.photoAddedHint : labels.addPhotoHint}</p>
+          <p className="mt-0.5 text-xs text-black/60 dark:text-white/60">
+            {discouraged ? labels.canadaPhotoHint : hasPhoto ? labels.photoAddedHint : labels.addPhotoHint}
+          </p>
         </div>
       </div>
+
+      {warning && !hasPhoto && (
+        <div role="alert" className="rounded-xl border border-amber-300/70 bg-amber-50 p-4 text-amber-950 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-100">
+          <p className="flex items-start gap-2 text-sm font-medium">
+            <WarningIcon className="mt-0.5 h-4 w-4 shrink-0" />
+            {labels.canadaPhotoWarning}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setWarning(false)}
+              className="rounded-full bg-[#16324f] px-4 py-2 text-sm font-semibold text-white"
+            >
+              {labels.canadaPhotoCancel}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setWarning(false);
+                openPicker();
+              }}
+              className="rounded-full border border-amber-400/70 px-4 py-2 text-sm font-medium"
+            >
+              {labels.canadaPhotoConfirm}
+            </button>
+          </div>
+        </div>
+      )}
 
       <input
         ref={inputRef}
@@ -127,6 +163,17 @@ export function PhotoPicker({
             />
           </div>
         </>
+      ) : discouraged ? (
+        !warning && (
+          <button
+            type="button"
+            onClick={requestPicker}
+            className="inline-flex items-center gap-2 self-start rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-black/75 transition-colors hover:bg-black/5 dark:border-white/20 dark:text-white/75 dark:hover:bg-white/10"
+          >
+            <CameraIcon className="h-4 w-4" />
+            {labels.addPhoto}
+          </button>
+        )
       ) : (
         <button
           type="button"
@@ -138,7 +185,7 @@ export function PhotoPicker({
         </button>
       )}
 
-      <p className="text-xs text-black/55 dark:text-white/55">{labels.photoTip}</p>
+      {!discouraged && <p className="text-xs text-black/55 dark:text-white/55">{labels.photoTip}</p>}
 
       {error && (
         <p role="alert" className="text-sm text-red-600 dark:text-red-400">

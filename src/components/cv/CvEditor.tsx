@@ -352,6 +352,7 @@ export function CvEditor({
             onRemove={removePhoto}
             onScaleChange={(scale) => update("photoScale", scale)}
             labels={dict.editor}
+            discouraged={isCanada}
           />
         )}
 
