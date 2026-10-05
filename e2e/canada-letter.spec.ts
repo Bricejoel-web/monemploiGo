@@ -176,7 +176,11 @@ test.describe("parcours de la lettre Canada", () => {
 
     // Un fichier qui n'est pas un PDF est refusé.
     await gotoReady(page, "/fr/lettre-canada");
+    // Bouton d'import bien visible, nom du fichier sur sa propre ligne.
+    await expect(page.getByRole("button", { name: "Choisir mon CV (PDF)" })).toBeVisible();
+    await expect(page.getByText("Aucun fichier choisi")).toBeVisible();
     await page.locator('input[type="file"]').setInputFiles({ name: "cv.pdf", mimeType: "application/pdf", buffer: Buffer.from("pas un pdf") });
     await expect(page.getByText("Choisissez un fichier PDF.")).toBeVisible();
+    await expect(page.getByText("cv.pdf", { exact: true })).toBeVisible();
   });
 });

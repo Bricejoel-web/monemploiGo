@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { unstable_rethrow } from "next/navigation";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
@@ -216,6 +216,10 @@ export function CanadaLetterWizard({ locale, t, pageLabels, priceFcfa, cvs, init
   const [uncertain, setUncertain] = useState<string[]>([]);
   const [error, setError] = useState<string | undefined>();
   const [importing, startImport] = useTransition();
+  // Champ fichier natif masqué : un vrai bouton bien visible l'ouvre, et le
+  // nom du fichier choisi s'affiche sur sa propre ligne.
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
   const [saving, startSave] = useTransition();
 
   // Toute modification des informations remet le texte généré à jour.
@@ -323,11 +327,34 @@ export function CanadaLetterWizard({ locale, t, pageLabels, priceFcfa, cvs, init
                     </div>
                   )}
                 </div>
-                <label className="cursor-pointer rounded-xl border border-black/10 p-4 hover:bg-black/[0.02] dark:border-white/10">
-                  <p className="font-semibold">{importing ? t.importing : t.sourceImport}</p>
+                <div className="rounded-xl border border-black/10 p-4 dark:border-white/10">
+                  <p className="font-semibold">{t.sourceImport}</p>
                   <p className="text-xs text-black/60 dark:text-white/60">{t.sourceImportHint}</p>
-                  <input type="file" accept="application/pdf" className="mt-3 text-sm" disabled={importing} onChange={(e) => e.target.files?.[0] && importCv(e.target.files[0])} />
-                </label>
+                  <input
+                    ref={fileInput}
+                    id="cv-file"
+                    type="file"
+                    accept="application/pdf"
+                    className="sr-only"
+                    disabled={importing}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setFileName(file.name);
+                      importCv(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={importing}
+                    onClick={() => fileInput.current?.click()}
+                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#16324f] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1f4470] disabled:opacity-60"
+                  >
+                    {importing ? t.importing : t.chooseFile}
+                  </button>
+                  <p className="mt-2 text-xs text-black/60 dark:text-white/60">{fileName || t.noFile}</p>
+                </div>
                 <button type="button" className="rounded-xl border border-black/10 p-4 text-left hover:bg-black/[0.02] dark:border-white/10" onClick={() => start("manual", emptyProfile())}>
                   <span className="block font-semibold">{t.sourceManual}</span>
                   <span className="block text-xs text-black/60 dark:text-white/60">{t.sourceManualHint}</span>

@@ -431,6 +431,8 @@
     "sourceCvHint": "Vos informations sont reprises, vous pourrez les vérifier.",
     "sourceCvNone": "Vous n'avez pas encore de CV MonEmploiGo.",
     "sourceImport": "Importer mon CV",
+    "chooseFile": "Choisir mon CV (PDF)",
+    "noFile": "Aucun fichier choisi",
     "sourceImportHint": "Fichier PDF, 4 Mo maximum. Votre fichier est lu puis oublié : il n'est jamais enregistré. Un CV Word peut être enregistré en PDF depuis Word.",
     "sourceManual": "Renseigner mes informations manuellement",
     "sourceManualHint": "Un formulaire court, sans CV.",

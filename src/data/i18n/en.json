@@ -431,6 +431,8 @@
     "sourceCvHint": "Your details are reused, and you can review them.",
     "sourceCvNone": "You don't have a MonEmploiGo CV yet.",
     "sourceImport": "Import my CV",
+    "chooseFile": "Choose my CV (PDF)",
+    "noFile": "No file chosen",
     "sourceImportHint": "PDF file, 4 MB maximum. Your file is read then discarded: it is never stored. A Word CV can be saved as PDF from Word.",
     "sourceManual": "Enter my details manually",
     "sourceManualHint": "A short form, no CV needed.",
