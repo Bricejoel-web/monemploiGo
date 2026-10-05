@@ -1170,6 +1170,13 @@ après 48 h).
   commissions et retraits conservés, détachés du compte.
 - Migrations `20261006090000_referral_program` et
   `20261006120000_referral_keep_financial_traces` : dev uniquement.
-- Reste avant mise en ligne : conditions du programme, ajout à la politique
-  de confidentialité et à la politique de cookies (cookie
-  `monemploigo_ref`), à faire valider par l'utilisateur.
+- Remboursement après un retrait déjà payé : le solde peut devenir négatif
+  (« solde de récupération », détaillé sur /fr/parrainage) et se déduit
+  automatiquement des récompenses suivantes ; aucun retrait possible tant
+  qu'il est négatif.
+- Textes validés par l'utilisateur, publiés seulement si l'interrupteur est
+  activé : /fr/conditions-parrainage (publique), section « 8 ter.
+  Parrainage » (EN « 8b ») et conservation des traces en section 17 de la
+  politique de confidentialité (date « 6 octobre 2026 »), cookie
+  `monemploigo_ref` dans la politique de cookies. Dates provisoires de
+  `legal-config.ts` à remplacer au lancement.

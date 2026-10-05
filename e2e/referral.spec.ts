@@ -154,6 +154,8 @@ test("TEST 7 : le même webhook reçu deux fois → une seule commission", async
 });
 
 test("TEST 8 : retrait de 500 sur 800 → 300 disponibles, 500 en attente ; double demande simultanée refusée", async ({ browser }) => {
+  // Nombreux allers-retours vers la base de dev distante : plus de temps.
+  test.slow();
   // 4e achat éligible : solde de 800 FCFA.
   const buyer = await browser.newContext({ baseURL: BASE_URL });
   await acceptCookies(buyer);
@@ -185,6 +187,8 @@ test("TEST 8 : retrait de 500 sur 800 → 300 disponibles, 500 en attente ; doub
 });
 
 test("TEST 9 & 10 : l'administrateur paie un retrait, puis en refuse un autre (montant restauré)", async ({ browser, page, context }) => {
+  // Nombreux allers-retours vers la base de dev distante : plus de temps.
+  test.slow();
   const admin = await createUser("Admin Test", ADMIN_EMAIL);
   // Un compte non administrateur n'a pas accès à l'administration.
   await loginAs(context, referrer.userId, BASE_URL);
@@ -299,4 +303,63 @@ test("suppression du compte : refusée si retrait en attente, avertissement si g
   expect((await testDb().referralCommission.findUniqueOrThrow({ where: { id: commission.id } })).referrerId).toBeNull();
   await testDb().withdrawalRequest.delete({ where: { id: withdrawal.id } });
   await testDb().referralCommission.delete({ where: { id: commission.id } });
+});
+
+test("solde de récupération : récompense annulée après un retrait payé → solde négatif, puis déduit de la récompense suivante", async ({ page, context }) => {
+  const user = await createUser("Recup Test");
+  const valid = await Promise.all([1, 2, 3].map(() => testDb().referralCommission.create({ data: { referrerId: user.userId, documentType: "CV", amountFcfa: 200 } })));
+  await testDb().withdrawalRequest.create({ data: { userId: user.userId, userCode: "RECUP", amountFcfa: 500, method: "MTN_MOMO", phoneNumber: "+237677000002", status: "PAID", processedAt: new Date() } });
+  await loginAs(context, user.userId, BASE_URL);
+  const recover = "Montant à récupérer sur vos prochaines récompenses (récompense annulée après un remboursement).";
+
+  let { value } = await stats(page);
+  await expect(value("Solde disponible")).toContainText("100 FCFA");
+  await expect(page.getByText(recover)).toHaveCount(0);
+
+  // Remboursement après le retrait : 400 gagnés, 500 versés → -100.
+  await testDb().referralCommission.update({ where: { id: valid[0].id }, data: { status: "CANCELLED", cancelledAt: new Date(), cancelReason: "Remboursement (test)" } });
+  ({ value } = await stats(page));
+  await expect(value("Solde disponible")).toContainText(/[-−]100 FCFA/);
+  await expect(page.getByText(recover)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Demander le paiement" })).toBeDisabled();
+
+  // Nouvelle récompense : les 100 FCFA sont déduits automatiquement.
+  await testDb().referralCommission.create({ data: { referrerId: user.userId, documentType: "COVER_LETTER", amountFcfa: 200 } });
+  ({ value } = await stats(page));
+  await expect(value("Solde disponible")).toContainText("100 FCFA");
+  await expect(value("Solde disponible")).not.toContainText(/[-−]/);
+  await expect(page.getByText(recover)).toHaveCount(0);
+});
+
+test("textes juridiques : conditions du programme, confidentialité 8 ter, cookie de parrainage, liens", async ({ page, context }) => {
+  const terms = await page.goto("/fr/conditions-parrainage");
+  expect(terms?.status()).toBe(200);
+  await expect(page.locator("h1")).toBeVisible();
+  await expect(page.getByText("Les demandes de retrait sont traitées manuellement dans un délai pouvant aller jusqu'à 72 heures, week-end compris.", { exact: false }).first()).toBeVisible();
+  await expectNoHorizontalScroll(page);
+  await page.goto("/en/conditions-parrainage");
+  await expect(page).toHaveURL(/\/fr\/conditions-parrainage$/);
+
+  await page.goto("/fr/confidentialite");
+  await expect(page.getByRole("heading", { name: "8 ter. Parrainage" })).toBeVisible();
+  await expect(
+    page.getByText("Après la suppression du compte, les informations nécessaires relatives aux récompenses et aux retraits peuvent être conservées sous une forme permettant leur traçabilité comptable et leur audit, conformément aux obligations applicables."),
+  ).toBeVisible();
+  const headings = await page.locator("main h2").allTextContents();
+  expect(headings.indexOf("8 ter. Parrainage")).toBe(headings.findIndex((h) => h.startsWith("9.")) - 1);
+  expect((await page.request.get("/fr/conditions-parrainage")).status()).toBe(200);
+  await page.goto("/en/confidentialite");
+  await expect(page.getByRole("heading", { name: "8b. Referral programme" })).toBeVisible();
+
+  await page.goto("/fr/cookies");
+  await expect(page.getByText("« monemploigo_ref »", { exact: false })).toBeVisible();
+
+  await page.goto("/fr/recommandation?domaine=cameroun");
+  await page.getByRole("link", { name: "Conditions du programme de recommandation" }).click();
+  await expect(page).toHaveURL(/\/fr\/conditions-parrainage$/);
+
+  const user = await createUser("Liens Test");
+  await loginAs(context, user.userId, BASE_URL);
+  await page.goto("/fr/parrainage");
+  await expect(page.locator('a[href="/fr/conditions-parrainage"]').first()).toBeVisible();
 });

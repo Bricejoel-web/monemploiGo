@@ -73,7 +73,11 @@ export default async function ReferralPage({ searchParams }: PageProps<"/[locale
         )}
 
         <section aria-label="Mes gains" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard label="Solde disponible" value={fcfa(balance.available)} />
+          <StatCard
+            label="Solde disponible"
+            value={fcfa(balance.available)}
+            detail={balance.toRecover > 0 ? "Montant à récupérer sur vos prochaines récompenses (récompense annulée après un remboursement)." : undefined}
+          />
           <StatCard label="En attente" value={fcfa(balance.pending)} />
           <StatCard label="Personnes recommandées" value={String(referredCount)} />
           <StatCard label="Total gagné" value={fcfa(balance.totalEarned)} />
@@ -85,6 +89,13 @@ export default async function ReferralPage({ searchParams }: PageProps<"/[locale
             Choisissez le contexte qui correspond à la personne à qui vous allez envoyer votre lien. Sa page d&apos;arrivée sera adaptée à son besoin.
           </p>
           <ReferralShare code={code} siteUrl={SITE_URL} />
+          <p className="mt-4 text-xs text-black/55 dark:text-white/55">
+            En partageant votre lien, vous acceptez les{" "}
+            <Link href="/fr/conditions-parrainage" className="font-medium underline">
+              conditions du programme « Parrainer &amp; gagner »
+            </Link>
+            .
+          </p>
         </section>
 
         <section className={section}>

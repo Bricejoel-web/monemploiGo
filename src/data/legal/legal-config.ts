@@ -26,6 +26,11 @@ export const LEGAL_CONFIG = {
   proTermsLastUpdated: "30 septembre 2026",
   privacyWithProLastUpdated: "30 septembre 2026",
   privacyWithProLastUpdatedEn: "September 30, 2026",
+  // Parrainage (affichés seulement quand REFERRAL_ENABLED=true). À REMPLACER
+  // par la date réelle de lancement du programme.
+  referralTermsLastUpdated: "6 octobre 2026",
+  privacyWithReferralLastUpdated: "6 octobre 2026",
+  privacyWithReferralLastUpdatedEn: "October 6, 2026",
   contactEmail: "monemploigo.contact@gmail.com",
   siteUrl: "https://monemploigo.vercel.app",
   contactPhone: "[numéro à compléter]",

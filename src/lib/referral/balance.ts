@@ -12,6 +12,10 @@ type Db = Prisma.TransactionClient | typeof prisma;
  *  - en attente = retraits demandés, pas encore traités (montant réservé) ;
  *  - disponible = total gagné − retraits payés − retraits en attente.
  * Un retrait refusé ne compte plus : son montant redevient disponible.
+ * Le disponible peut être NÉGATIF (décision de l'utilisateur du
+ * 2026-10-06) : récompense annulée après avoir été retirée (achat
+ * remboursé). Le montant à récupérer est alors déduit des récompenses
+ * suivantes, automatiquement puisque tout est recalculé.
  */
 export async function getReferralBalance(userId: string, db: Db = prisma) {
   // Requêtes l'une après l'autre : ce calcul tourne aussi dans une
@@ -22,9 +26,8 @@ export async function getReferralBalance(userId: string, db: Db = prisma) {
   const totalEarned = earned._sum.amountFcfa ?? 0;
   const paidOut = paid._sum.amountFcfa ?? 0;
   const reserved = pending._sum.amountFcfa ?? 0;
-  // Peut devenir négatif si une commission déjà retirée est annulée
-  // (remboursement) : affiché à 0, et aucun retrait possible d'ici là.
-  return { totalEarned, paidOut, pending: reserved, available: Math.max(0, totalEarned - paidOut - reserved), rawAvailable: totalEarned - paidOut - reserved };
+  const available = totalEarned - paidOut - reserved;
+  return { totalEarned, paidOut, pending: reserved, available, rawAvailable: available, toRecover: Math.max(0, -available) };
 }
 
 /** Identifiant anonyme et stable d'une personne recommandée (« Utilisateur recommandé #2841 »). */

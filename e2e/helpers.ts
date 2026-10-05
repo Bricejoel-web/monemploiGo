@@ -15,3 +15,6 @@ export async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow, "défilement horizontal involontaire").toBeLessThanOrEqual(0);
 }
+
+/** Parrainage activé côté serveur de test (voir playwright.config.ts). */
+export const referralEnabled = (process.env.REFERRAL_ENABLED ?? "true") === "true";

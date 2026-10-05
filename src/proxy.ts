@@ -12,7 +12,7 @@ const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document", "parraina
 // Parrainage (français uniquement) : introuvable tant que REFERRAL_ENABLED
 // n'est pas activé. « admin » ne contient pour l'instant que les retraits
 // de parrainage (accès réservé aux e-mails de ADMIN_EMAILS, vérifié par la page).
-const REFERRAL_SEGMENTS = ["parrainage", "recommandation", "admin"];
+const REFERRAL_SEGMENTS = ["parrainage", "recommandation", "admin", "conditions-parrainage"];
 const AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS = ["connexion", "inscription"];
 // Éditeurs de modèles (/cv/modele/…, /lettres-de-motivation/modele/…,
 // /bewerbungsbrief/modele/…) : réservés aux utilisateurs connectés.

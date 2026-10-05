@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectNoHorizontalScroll, proEnabled } from "./helpers";
+import { expectNoHorizontalScroll, proEnabled, referralEnabled } from "./helpers";
 
 // Phase 0 (MonEmploiGo Pro) : textes juridiques. Vérifie que les pages
 // légales existantes sont intactes, que les CGU Pro et la section Pro de la
@@ -9,8 +9,8 @@ import { expectNoHorizontalScroll, proEnabled } from "./helpers";
 const EXISTING = [
   { path: "/fr/conditions-utilisation", title: "Conditions générales d'utilisation — MonEmploiGo", sections: 27 },
   { path: "/en/conditions-utilisation", title: "Terms of Use — MonEmploiGo", sections: 27 },
-  { path: "/fr/confidentialite", title: "Politique de confidentialité — MonEmploiGo", sections: 29, proHeading: "8 bis. MonEmploiGo Pro" },
-  { path: "/en/confidentialite", title: "Privacy Policy — MonEmploiGo", sections: 29, proHeading: "8a. MonEmploiGo Pro" },
+  { path: "/fr/confidentialite", title: "Politique de confidentialité — MonEmploiGo", sections: 29, proHeading: "8 bis. MonEmploiGo Pro", referralHeading: "8 ter. Parrainage" },
+  { path: "/en/confidentialite", title: "Privacy Policy — MonEmploiGo", sections: 29, proHeading: "8a. MonEmploiGo Pro", referralHeading: "8b. Referral programme" },
   { path: "/fr/mentions-legales" },
   { path: "/fr/cookies" },
 ];
@@ -22,11 +22,14 @@ test.describe("pages légales existantes", () => {
       expect(response?.status()).toBe(200);
       if (page.title) await expect(p.locator("h1")).toHaveText(page.title);
       if (page.sections) {
-        const expected = page.sections + (page.proHeading && proEnabled ? 1 : 0);
+        const expected = page.sections + (page.proHeading && proEnabled ? 1 : 0) + (page.referralHeading && referralEnabled ? 1 : 0);
         await expect(p.locator("main h2")).toHaveCount(expected);
       }
       if (page.proHeading) {
         await expect(p.getByRole("heading", { name: page.proHeading })).toHaveCount(proEnabled ? 1 : 0);
+      }
+      if (page.referralHeading) {
+        await expect(p.getByRole("heading", { name: page.referralHeading })).toHaveCount(referralEnabled ? 1 : 0);
       }
       await expectNoHorizontalScroll(p);
     });
@@ -34,7 +37,7 @@ test.describe("pages légales existantes", () => {
 
   test("la date de la politique de confidentialité suit la version publiée", async ({ page }) => {
     await page.goto("/fr/confidentialite");
-    const date = proEnabled ? "30 septembre 2026" : "29 septembre 2026";
+    const date = referralEnabled ? "6 octobre 2026" : proEnabled ? "30 septembre 2026" : "29 septembre 2026";
     // En haut de la page et dans « 29. Entrée en vigueur ».
     await expect(page.getByText(`Dernière mise à jour : ${date}`)).toHaveCount(2);
   });
@@ -89,4 +92,14 @@ test.describe("Pro désactivé", () => {
       expect((await page.request.get(path)).status(), path).toBe(404);
     }
   });
+});
+
+test("les textes du parrainage n'existent que lorsque le parrainage est activé", async ({ page }) => {
+  for (const path of ["/fr/conditions-parrainage", "/fr/recommandation", "/fr/parrainage"]) {
+    const status = (await page.request.get(path, { maxRedirects: 0 })).status();
+    if (referralEnabled) expect(status, path).not.toBe(404);
+    else expect(status, path).toBe(404);
+  }
+  await page.goto("/fr/cookies");
+  await expect(page.getByText("« monemploigo_ref »", { exact: false })).toHaveCount(referralEnabled ? 1 : 0);
 });

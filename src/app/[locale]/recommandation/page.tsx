@@ -103,6 +103,11 @@ export default async function ReferralLandingPage({ searchParams }: PageProps<"/
             </p>
             <p>Cette récompense n&apos;augmente pas le prix que vous payez.</p>
             <p>Vous êtes totalement libre d&apos;utiliser ou non MonEmploiGo.</p>
+            <p>
+              <Link href="/fr/conditions-parrainage" className="font-medium underline">
+                Conditions du programme de recommandation
+              </Link>
+            </p>
           </div>
         </section>
       </div>
