@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { verifySession } from "@/lib/auth/dal";
 import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
-import { LogoutButton } from "@/components/auth/LogoutButton";
+import { AccountMenu } from "@/components/layout/AccountMenu";
 import { Logo } from "@/components/layout/Logo";
 import { MobileNav } from "@/components/layout/MobileNav";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -19,14 +19,14 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
   const showPro = locale === "fr" && isProEnabled();
 
   const navLinkClass =
-    "rounded-full px-3 py-2 text-foreground transition-colors hover:bg-[#f2994a]/15 hover:text-[#c94f30] dark:hover:bg-white/[0.08] dark:hover:text-[#f2994a]";
+    "rounded-full px-2.5 py-2 text-foreground transition-colors hover:bg-[#f2994a]/15 hover:text-[#c94f30] dark:hover:bg-white/[0.08] dark:hover:text-[#f2994a]";
 
   return (
     <header className="print-hide sticky top-0 z-50 border-b border-black/[0.06] bg-background/75 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 dark:border-white/10">
-      <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-3.5">
-        <div className="flex items-center gap-8">
+      <div className="relative mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-3.5">
+        <div className="flex items-center gap-6">
           <Logo locale={locale} siteName={dict.site.name} />
-          <nav className="hidden items-center gap-1 text-[15px] font-semibold md:flex">
+          <nav className="hidden items-center gap-0.5 text-[15px] font-semibold xl:flex">
             <Link href={`/${locale}/cv`} className={navLinkClass}>
               {dict.nav.cvs}
             </Link>
@@ -50,8 +50,8 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
         </div>
         <div className="flex items-center gap-2">
           <LocaleSwitcher currentLocale={locale} />
-          <div className="hidden items-center gap-2 md:flex">
-            {showPro && (
+          <div className="hidden items-center gap-2 xl:flex">
+            {showPro && !session && (
               <Link
                 href="/fr/pro/connexion"
                 className="rounded-full border border-[#16324f]/25 px-3 py-1.5 text-sm font-semibold text-[#16324f] transition-colors hover:bg-[#16324f]/[0.06] dark:border-white/25 dark:text-white dark:hover:bg-white/[0.08]"
@@ -60,7 +60,14 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
               </Link>
             )}
             {session ? (
-              <LogoutButton locale={locale} label={dict.nav.logout} />
+              <AccountMenu
+                locale={locale}
+                name={session.name}
+                email={session.email}
+                labels={{ account: dict.nav.account, dashboard: dict.nav.dashboard, logout: dict.nav.logout }}
+                showReferral={showReferral}
+                showPro={showPro}
+              />
             ) : (
               <>
                 <Link href={`/${locale}/connexion`} className={`text-sm ${navLinkClass}`}>

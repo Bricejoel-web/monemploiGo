@@ -15,9 +15,11 @@ import { prisma } from "@/lib/db/client";
 export const verifySession = cache(async () => {
   const session = await getSession();
   if (!session?.userId) return null;
-  const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { sessionVersion: true } });
+  const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { sessionVersion: true, name: true, email: true } });
   if (!user || (session.v ?? 0) !== user.sessionVersion) return null;
-  return { isAuth: true as const, userId: session.userId };
+  // Nom et e-mail lus dans la même requête : l'en-tête (menu « Mon compte »)
+  // n'ajoute aucun aller-retour vers la base.
+  return { isAuth: true as const, userId: session.userId, name: user.name, email: user.email };
 });
 
 export const requireSession = cache(async (locale: string) => {

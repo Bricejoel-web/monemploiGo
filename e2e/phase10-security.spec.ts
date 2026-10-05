@@ -92,3 +92,28 @@ test("pages Pro privées : connexion obligatoire, jamais indexées, en-têtes de
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["content-security-policy"]).toBeTruthy();
 });
+
+test("en-tête : une seule ligne à 1 280 px, menu « Mon compte » pour une personne connectée", async ({ page, context }) => {
+  const headerHeight = () => page.evaluate(() => document.querySelector("header > div")!.getBoundingClientRect().height);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/fr/etranger");
+  expect(await headerHeight()).toBeLessThan(80);
+
+  const user = await createUser("Menu Compte");
+  await loginAs(context, user.userId, BASE_URL);
+  await page.goto("/fr/etranger");
+  expect(await headerHeight()).toBeLessThan(80);
+  const header = page.locator("header");
+  await expect(header.getByRole("link", { name: "Tableau de bord" })).toBeVisible();
+
+  await header.getByRole("button", { name: "Mon compte" }).click();
+  const menu = header.getByRole("menu");
+  await expect(menu.getByText(user.email)).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Tableau de bord" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+
+  await header.getByRole("button", { name: "Mon compte" }).click();
+  await menu.getByRole("button", { name: "Déconnexion" }).click();
+  await expect(header.getByRole("link", { name: "Connexion" })).toBeVisible();
+});

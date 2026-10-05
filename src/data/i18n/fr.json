@@ -44,6 +44,7 @@
     "coverLetters": "Lettres de motivation",
     "bewerbungsbrief": "Bewerbungsbrief",
     "canada": "Canada",
+    "account": "Mon compte",
     "abroad": "Candidater à l'étranger",
     "pricing": "Tarifs",
     "dashboard": "Tableau de bord",
@@ -543,6 +544,8 @@
     "canadaCv": "CV Canadien",
     "canadaCvAts": "CV Canadien ATS",
     "canadaLetter": "Lettre de présentation Canada",
+    "seeTemplates": "Voir les modèles",
+    "writeLetter": "Rédiger ma lettre",
     "canadaMore": "Découvrir l'offre Canada",
     "disclaimer": "MonEmploiGo est un service de préparation de documents de candidature. Ce n'est pas une agence d'immigration : nos documents ne garantissent ni emploi, ni admission, ni visa, ni permis."
   },

@@ -43,7 +43,7 @@ export function MobileNav({
     "block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.08]";
 
   return (
-    <div className="md:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
