@@ -23,10 +23,10 @@ export type CvLayoutId =
   | "de-tabellarisch"
   | "de-blockschema"
   | "de-kompakt"
-  | "ca-sobre"
-  | "ca-repere"
-  | "ca-ats-standard"
-  | "ca-ats-compact";
+  // CV Canada : un identifiant par modèle du registre (can-std-01 à
+  // can-std-21, can-ats-01 à can-ats-20), tous rendus par le même moteur
+  // (src/components/cv/canada/CanadaCv.tsx).
+  | `can-${string}`;
 
 export interface CvTheme {
   key: string;
@@ -107,6 +107,8 @@ export interface CvTemplateMeta {
   layoutId: CvLayoutId;
   theme: CvTheme;
   supportsPhoto: boolean;
+  /** Groupe d'affichage dans le catalogue (famille des modèles Canada). */
+  group?: string;
 }
 
 export interface CoverLetterData {

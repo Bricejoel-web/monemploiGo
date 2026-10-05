@@ -84,7 +84,7 @@ export default async function CvCategoryPage({ params }: PageProps<"/[locale]/cv
 
   const groups = new Map<string, CvTemplateMeta[]>();
   for (const template of templates) {
-    const key = template.layoutId;
+    const key = template.group ?? template.layoutId;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(template);
   }
@@ -121,7 +121,7 @@ export default async function CvCategoryPage({ params }: PageProps<"/[locale]/cv
 
         <div className="flex flex-col gap-10">
           {[...groups.entries()].map(([layoutId, items]) => (
-            <CatalogSection key={layoutId} title={LAYOUT_LABELS[layoutId as keyof typeof LAYOUT_LABELS] ?? layoutId}>
+            <CatalogSection key={layoutId} title={items[0].group ?? LAYOUT_LABELS[layoutId as keyof typeof LAYOUT_LABELS] ?? layoutId}>
               {items.map((template, index) => (
                 <TemplateCard key={template.slug} template={template} category={category} locale={locale as Locale} dict={dict} index={index} />
               ))}

@@ -2,6 +2,7 @@ import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { extractText, getDocumentProxy } from "unpdf";
 import type { CvData } from "../src/lib/cv/types";
 import { getCvTemplatesByCategory } from "../src/lib/cv/catalog";
+import { CANADA_MODELS } from "../src/lib/cv/canada/models";
 import { expectNoHorizontalScroll, gotoReady, referralEnabled } from "./helpers";
 import { DB_WRITES_SKIP_REASON, createUser, dbWritesAllowed, deleteTestUsers, loginAs, testDb } from "./db";
 
@@ -16,6 +17,10 @@ test.beforeEach(({ context }) => acceptCookies(context));
 const canada = getCvTemplatesByCategory("CANADA");
 const canadaAts = getCvTemplatesByCategory("CANADA_ATS");
 const slugOf = (layoutId: string) => [...canada, ...canadaAts].find((t) => t.layoutId === layoutId)!.slug;
+// Modèles à colonne secondaire : compétences et langues sont lues à part.
+const SIDEBAR = new Set(CANADA_MODELS.filter((m) => m.layout.columns === "sidebar").map((m) => m.id.toLowerCase()));
+// Échantillon représentatif : une colonne, colonne secondaire, deux ATS.
+const SAMPLE_LAYOUTS = ["can-std-01", "can-std-02", "can-ats-01", "can-ats-20"];
 
 // Petite photo valide (1 × 1 px) : seul son affichage compte.
 const PHOTO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
@@ -97,8 +102,8 @@ test.describe("pages publiques Canada", () => {
       // Pas de photo d'exemple sur les CV Canada : elle reste facultative.
       await expect(page.locator("article.a4-page img")).toHaveCount(0);
     }
-    expect(canada.length).toBe(10);
-    expect(canadaAts.length).toBe(6);
+    expect(canada.length).toBe(21);
+    expect(canadaAts.length).toBe(20);
 
     expect((await page.goto("/fr/canada"))?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Préparez votre candidature pour le Canada");
@@ -123,14 +128,14 @@ test.describe("CV Canada", () => {
 
   test("TEST 1, 7, 8 : profil débutant, sans expérience, certification ni LinkedIn → sections masquées", async ({ page, context }) => {
     await loginAs(context, user.userId, BASE_URL);
-    for (const layout of ["ca-sobre", "ca-repere", "ca-ats-standard", "ca-ats-compact"]) {
+    for (const layout of SAMPLE_LAYOUTS) {
       const text = await cvText(page, (await paidCv(user.userId, layout, beginner)).id);
-      // Modèle 1 : compétences et langues sont dans la colonne étroite, lue
-      // après la colonne principale ; les modèles en une colonne suivent
-      // strictement l'ordre validé.
-      if (layout === "ca-sobre") {
-        expectInOrder(text, ["Awa Débutante", "Assistante administrative", "Yaoundé, Cameroun", "Résumé professionnel", "Formation"]);
+      // Colonne secondaire : coordonnées, compétences et langues y sont lues
+      // à part ; les modèles en une colonne suivent strictement l'ordre validé.
+      if (SIDEBAR.has(layout)) {
+        expectInOrder(text, ["Awa Débutante", "Assistante administrative", "Résumé professionnel", "Formation"]);
         expectInOrder(text, ["Compétences", "Langues"]);
+        expect(text).toContain("Yaoundé, Cameroun");
       } else {
         expectInOrder(text, ["Awa Débutante", "Assistante administrative", "Yaoundé, Cameroun", "Résumé professionnel", "Compétences", "Formation", "Langues"]);
       }
@@ -140,7 +145,7 @@ test.describe("CV Canada", () => {
 
   test("TEST 2, 3, 9 : professionnel expérimenté, en français, expériences du plus récent au plus ancien", async ({ page, context }) => {
     await loginAs(context, user.userId, BASE_URL);
-    for (const layout of ["ca-sobre", "ca-repere", "ca-ats-standard", "ca-ats-compact"]) {
+    for (const layout of SAMPLE_LAYOUTS) {
       const text = await cvText(page, (await paidCv(user.userId, layout, experienced)).id);
       expectInOrder(text, ["Littoral Trading", "Groupe Beta", "Cabinet Alpha"]);
       expectInOrder(text, ["Formation", "Certifications"]);
@@ -153,7 +158,7 @@ test.describe("CV Canada", () => {
 
   test("TEST 4 : CV en anglais alors que le site est en français", async ({ page, context }) => {
     await loginAs(context, user.userId, BASE_URL);
-    const text = await cvText(page, (await paidCv(user.userId, "ca-sobre", { ...experienced, cvLanguage: "en" })).id);
+    const text = await cvText(page, (await paidCv(user.userId, "can-std-01", { ...experienced, cvLanguage: "en" })).id);
     expectInOrder(text, ["Professional Summary", "Professional Experience", "Education", "Certifications"]);
     expect(text).toContain("Present");
     expect(text).toContain("Français — Native");
@@ -163,19 +168,29 @@ test.describe("CV Canada", () => {
   test("TEST 5 et 6 : photo facultative sur le CV Canadien, jamais sur le CV ATS", async ({ page, context }) => {
     await loginAs(context, user.userId, BASE_URL);
     const withPhoto = { ...experienced, photoDataUrl: PHOTO };
-    await cvText(page, (await paidCv(user.userId, "ca-sobre", withPhoto, true)).id);
+    await cvText(page, (await paidCv(user.userId, "can-std-01", withPhoto, true)).id);
     await expect(page.locator("article.a4-page img")).toHaveCount(1);
-    await cvText(page, (await paidCv(user.userId, "ca-sobre", withPhoto, false)).id);
+    await cvText(page, (await paidCv(user.userId, "can-std-01", withPhoto, false)).id);
     await expect(page.locator("article.a4-page img")).toHaveCount(0);
-    await cvText(page, (await paidCv(user.userId, "ca-ats-standard", withPhoto, true)).id);
+    await cvText(page, (await paidCv(user.userId, "can-ats-01", withPhoto, true)).id);
     await expect(page.locator("article.a4-page img")).toHaveCount(0);
   });
 
-  test("TEST 10 : extraction du texte du PDF ATS, ordre strict et rien de perdu", async ({ page, context }) => {
-    test.slow();
+  test("TEST 10 : extraction du texte du PDF des 20 modèles ATS, ordre strict et rien de perdu", async ({ page, context }) => {
+    // Un vrai PDF par modèle ATS (rendu Chromium du site) : long.
+    test.setTimeout(20 * 60_000);
     await loginAs(context, user.userId, BASE_URL);
-    for (const [layout, lang] of [["ca-ats-standard", "en"], ["ca-ats-compact", "fr"]] as const) {
-      const document = await paidCv(user.userId, layout, { ...experienced, cvLanguage: lang });
+    let owner = user;
+    for (const [index, template] of canadaAts.entries()) {
+      // Le site limite chaque compte à 15 PDF par quart d'heure (protection
+      // anti-abus) : un nouveau compte de test toutes les 10 générations.
+      if (index > 0 && index % 10 === 0) {
+        owner = await createUser(`Canada ATS ${index}`);
+        await loginAs(context, owner.userId, BASE_URL);
+      }
+      const layout = template.layoutId;
+      const lang = index % 2 === 0 ? "fr" : "en";
+      const document = await paidCv(owner.userId, layout, { ...experienced, cvLanguage: lang });
       const response = await page.request.get(`/api/documents/${document.id}/pdf?lang=fr`);
       expect(response.headers()["content-type"]).toContain("application/pdf");
       const pdf = await getDocumentProxy(new Uint8Array(await response.body()));
@@ -197,7 +212,7 @@ test.describe("CV Canada", () => {
 
   test("formulaire : langue du CV, LinkedIn, certifications, rubrique libre masquée, pas de photo en ATS", async ({ page, context }) => {
     await loginAs(context, user.userId, BASE_URL);
-    await gotoReady(page, `/fr/cv/modele/${slugOf("ca-sobre")}`);
+    await gotoReady(page, `/fr/cv/modele/${slugOf("can-std-01")}`);
     await expect(page.getByLabel("Langue du CV")).toBeVisible();
     await expect(page.getByLabel("Ville, pays")).toBeVisible();
     await expect(page.getByText("Rubrique supplémentaire")).toHaveCount(0);
@@ -223,7 +238,7 @@ test.describe("CV Canada", () => {
     await expect(warning).toHaveCount(0);
     await expect(preview.locator("img")).toHaveCount(0);
 
-    await gotoReady(page, `/fr/cv/modele/${slugOf("ca-ats-standard")}`);
+    await gotoReady(page, `/fr/cv/modele/${slugOf("can-ats-01")}`);
     await expect(page.getByText("Les CV ATS n'ont pas de photo", { exact: false })).toBeVisible();
   });
 
@@ -234,7 +249,7 @@ test.describe("CV Canada", () => {
     const buyer = await createUser("Filleul Canada");
     await testDb().user.update({ where: { id: buyer.userId }, data: { referredById: referrer.userId, referralDomain: "CANADA", referredAt: new Date() } });
     const draft = await testDb().document.create({
-      data: { userId: buyer.userId, type: "CV", category: "CANADA_ATS", templateSlug: slugOf("ca-ats-compact"), title: "CV Canada — test", contentJson: JSON.stringify(experienced) },
+      data: { userId: buyer.userId, type: "CV", category: "CANADA_ATS", templateSlug: slugOf("can-ats-20"), title: "CV Canada — test", contentJson: JSON.stringify(experienced) },
     });
     await loginAs(context, buyer.userId, BASE_URL);
     await gotoReady(page, `/fr/paiement/${draft.id}`);

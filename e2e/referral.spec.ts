@@ -75,8 +75,9 @@ test("TEST 1 & 2 : liens Cameroun et Allemagne, copie et partage WhatsApp", asyn
   await page.getByRole("button", { name: "Copier le lien" }).click();
   await expect(page.getByText("✓ Lien copié !")).toBeVisible();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(`ref=${code}&domain=allemagne`);
-  // Aucun émoji en guise d'icône, aucun Canada.
-  await expect(page.getByText(/Canada/)).toHaveCount(0);
+  // Domaine Canada proposé (ajouté le 2026-10-06), lien dédié.
+  await page.getByLabel(/Projet professionnel au Canada/).check();
+  await expect(link).toHaveValue(`https://monemploigo.vercel.app/?ref=${code}&domain=canada`);
   await expectNoHorizontalScroll(page);
 
   // Le code reste le même d'une visite à l'autre.

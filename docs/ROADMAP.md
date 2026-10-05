@@ -1180,3 +1180,36 @@ après 48 h).
   politique de confidentialité (date « 6 octobre 2026 »), cookie
   `monemploigo_ref` dans la politique de cookies. Dates provisoires de
   `legal-config.ts` à remplacer au lancement.
+
+## Canada : CV Canadien et CV Canadien ATS (2026-10-06)
+
+Décisions de l'utilisateur : extension volontairement simple, centrée sur
+les documents de candidature ; aucun pack, aucune remise, aucun document
+d'immigration ou gouvernemental. Prix validés : CV Canadien 1 500 FCFA,
+CV Canadien ATS 1 500 FCFA (la lettre Canada, 1 500 FCFA, reste à faire).
+
+- Contenu et ordre validés : nom, titre, coordonnées (ville et pays,
+  téléphone, e-mail, LinkedIn et portfolio facultatifs), résumé,
+  compétences, expérience (du plus récent au plus ancien), formation,
+  certifications (nom, organisme, année), langues. Sections vides masquées,
+  rien d'inventé, jamais d'autorisation de travail, de statut migratoire ni
+  de donnée personnelle (âge, nationalité, etc.). Pas de champ
+  « relocalisation » (refusé pour cette version), rubrique libre masquée.
+- Langue du CV (français / anglais) indépendante de celle du site ;
+  « Présent » et les niveaux de langue suivent la langue du CV.
+- Photo : déconseillée au Canada (recommandation officielle Guichet-Emplois,
+  pas une loi). Modèles et catalogue sans photo ; sur les CV standards,
+  avertissement au clic sur « Ajouter ma photo » ; jamais de photo en ATS.
+- 41 modèles (CAN-STD-01 à 21 en trois familles, CAN-ATS-01 à 20), validés
+  famille par famille sur captures et PDF A4 : un registre de
+  configurations (src/lib/cv/canada/models.ts) et un moteur unique
+  (src/components/cv/canada/CanadaCv.tsx). Marges 12 mm sur les côtés et
+  10,5 mm en haut et en bas (demande de l'utilisateur), répétées sur chaque
+  page ; une expérience n'est jamais coupée entre deux pages.
+- ATS : une colonne, noir et gris, ni ligatures ni espacement des lettres,
+  ordre d'extraction vérifié automatiquement sur le vrai PDF des 20 modèles
+  (outil `unpdf`, dépendance de développement uniquement).
+- Page /canada (avertissement : pas de document officiel, aucune garantie
+  d'emploi, d'admission, de visa ou de permis) ; domaine « canada » dans le
+  parrainage. Migration `20261006150000_canada_cv` (ajouts d'enum) : dev
+  uniquement, à appliquer en production avant le déploiement.

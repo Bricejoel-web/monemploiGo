@@ -17,10 +17,8 @@ import { AtsCompact } from "./layouts/AtsCompact";
 import { DeTabellarisch } from "./layouts/DeTabellarisch";
 import { DeBlockschema } from "./layouts/DeBlockschema";
 import { DeKompakt } from "./layouts/DeKompakt";
-import { CaSobre } from "./layouts/CaSobre";
-import { CaRepere } from "./layouts/CaRepere";
-import { CaAtsStandard } from "./layouts/CaAtsStandard";
-import { CaAtsCompact } from "./layouts/CaAtsCompact";
+import { CanadaCv } from "./canada/CanadaCv";
+import { canadaModelById } from "@/lib/cv/canada/models";
 
 interface CvRendererProps {
   data: CvData;
@@ -48,14 +46,12 @@ const LAYOUT_COMPONENTS = {
   "de-tabellarisch": DeTabellarisch,
   "de-blockschema": DeBlockschema,
   "de-kompakt": DeKompakt,
-  "ca-sobre": CaSobre,
-  "ca-repere": CaRepere,
-  "ca-ats-standard": CaAtsStandard,
-  "ca-ats-compact": CaAtsCompact,
 } as const;
 
 export function CvRenderer({ data, layoutId, theme, includePhoto, locale = "fr" }: CvRendererProps) {
-  const Layout = LAYOUT_COMPONENTS[layoutId];
-  // CV Canada : la langue choisie pour le document l'emporte sur celle du site.
-  return <Layout data={data} theme={theme} includePhoto={includePhoto} locale={layoutId.startsWith("ca-") ? (data.cvLanguage ?? locale) : locale} />;
+  // CV Canada : moteur commun, et langue choisie pour le document plutôt que celle du site.
+  const canadaModel = layoutId.startsWith("can-") ? canadaModelById(layoutId.toUpperCase()) : undefined;
+  if (canadaModel) return <CanadaCv data={data} model={canadaModel} includePhoto={includePhoto} locale={data.cvLanguage ?? locale} />;
+  const Layout = LAYOUT_COMPONENTS[layoutId as keyof typeof LAYOUT_COMPONENTS];
+  return <Layout data={data} theme={theme} includePhoto={includePhoto} locale={locale} />;
 }

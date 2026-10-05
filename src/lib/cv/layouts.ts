@@ -25,12 +25,6 @@ export const atsLayouts: CvLayoutId[] = ["ats-executif", "ats-minimal", "ats-com
 // tabellarisch (tableau date/libellé), par blocs narratifs, et compact.
 export const germanAtsLayouts: CvLayoutId[] = ["de-tabellarisch", "de-blockschema", "de-kompakt"];
 
-// 2 mises en page Canada et 2 Canada ATS, validées une par une avec
-// l'utilisateur (2026-10-06). Même contenu et même ordre des sections ;
-// seules les versions ATS sont strictement en une colonne, noir et gris.
-export const canadaLayouts: CvLayoutId[] = ["ca-sobre", "ca-repere"];
-export const canadaAtsLayouts: CvLayoutId[] = ["ca-ats-standard", "ca-ats-compact"];
-
 const clBase = (overrides: Partial<CoverLetterLayoutConfig> & { key: string }): CoverLetterLayoutConfig => ({
   headingStyle: "plain",
   showSenderBlock: "left",

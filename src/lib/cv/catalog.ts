@@ -3,12 +3,11 @@ import {
   premiumLayouts,
   atsLayouts,
   germanAtsLayouts,
-  canadaLayouts,
-  canadaAtsLayouts,
   coverLetterLayouts,
   bewerbungsbriefLayouts,
 } from "./layouts";
 import { themes, atsThemes, getThemeByKey } from "./themes";
+import { CANADA_MODELS, type CanadaModel } from "./canada/models";
 import type {
   CvCategory,
   CvLayoutId,
@@ -57,10 +56,6 @@ export const LAYOUT_LABELS: Record<CvLayoutId, string> = {
   "de-tabellarisch": "Lebenslauf tabellarisch",
   "de-blockschema": "Lebenslauf par blocs",
   "de-kompakt": "Lebenslauf compact",
-  "ca-sobre": "Sobre, deux colonnes",
-  "ca-repere": "Une colonne, repères",
-  "ca-ats-standard": "ATS standard",
-  "ca-ats-compact": "ATS compact",
 };
 
 export const BB_LAYOUT_LABELS: Record<BewerbungsbriefLayoutId, string> = {
@@ -144,17 +139,45 @@ export const germanAtsCvCatalog = buildCategory(
   "CV Allemagne (ATS)",
 );
 
-// 2 mises en page × 5 couleurs sobres = 10 modèles. Photo facultative,
-// absente par défaut.
-export const canadaCvCatalog = buildCategory(
-  "CANADA",
-  canadaLayouts,
-  themes.filter((t) => ["navy", "teal", "slateBlue", "graphite", "forest"].includes(t.key)),
-  "CV Canadien",
-);
+// CV Canada : 21 modèles standards et 20 ATS, validés un par un avec
+// l'utilisateur (2026-10-06). Chaque modèle du registre est un modèle du
+// catalogue, avec ses propres couleurs (jamais une simple recoloration).
+// Photo déconseillée au Canada : facultative sur les standards, jamais en ATS.
+const CANADA_FAMILY_LABELS: Record<CanadaModel["family"], string> = {
+  corporate: "Corporate & Professional",
+  modern: "Modern Professional",
+  executive: "Elegant & Executive",
+  ats: "Modèles ATS",
+};
 
-// 2 mises en page × 3 nuances de gris = 6 modèles, sans photo.
-export const canadaAtsCvCatalog = buildCategory("CANADA_ATS", canadaAtsLayouts, atsThemes.slice(0, 3), "CV Canadien ATS", undefined, true, false);
+function buildCanada(category: "CANADA" | "CANADA_ATS", namePrefix: string): CvTemplateMeta[] {
+  return CANADA_MODELS.filter((m) => m.category === category).map((m) => {
+    const slug = m.id.toLowerCase();
+    return {
+      id: slug,
+      slug,
+      name: `${namePrefix} — ${m.name}`,
+      category,
+      priceFcfa: PRICE_FCFA[category],
+      layoutId: slug as CvLayoutId,
+      theme: {
+        key: slug,
+        name: m.name,
+        accent: m.colors.accent,
+        accentSoft: m.colors.tint,
+        text: m.colors.text,
+        textMuted: m.colors.muted,
+        headingFont: m.type.headingFont === "serif" ? "serif" : "sans",
+        bodyFont: "sans",
+      },
+      supportsPhoto: category === "CANADA",
+      group: CANADA_FAMILY_LABELS[m.family],
+    };
+  });
+}
+
+export const canadaCvCatalog = buildCanada("CANADA", "CV Canadien");
+export const canadaAtsCvCatalog = buildCanada("CANADA_ATS", "CV Canadien ATS");
 
 export const allCvTemplates: CvTemplateMeta[] = [
   ...standardCvCatalog,
