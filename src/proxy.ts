@@ -57,8 +57,14 @@ export async function proxy(request: NextRequest) {
   // mémorisés 30 jours dans un cookie illisible par le navigateur (le premier
   // lien suivi compte), puis la personne arrive sur la page adaptée au
   // domaine. Le code n'est vérifié qu'à l'inscription (src/lib/referral).
+  // Exception : la page de retour de paiement reçoit aussi un paramètre
+  // `ref` (référence du paiement, voir le `callback` de notchpay.ts). Sans
+  // cette exception, chaque retour de Notch Pay était détourné vers la page
+  // de recommandation dès que le parrainage était activé, sans vérification
+  // du paiement au retour.
   const ref = request.nextUrl.searchParams.get("ref");
-  if (ref !== null && isReferralEnabled()) {
+  const isPaymentReturn = /^\/(?:(?:fr|en)\/)?paiement\/retour\/?$/.test(pathname);
+  if (ref !== null && isReferralEnabled() && !isPaymentReturn) {
     const code = ref.trim().toUpperCase();
     const domain = domainSlug(request.nextUrl.searchParams.get("domain"));
     const url = request.nextUrl.clone();
