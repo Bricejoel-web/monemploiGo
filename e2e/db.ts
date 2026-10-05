@@ -46,7 +46,17 @@ export const testEmail = (label: string) => `${label}-${Date.now()}-${Math.floor
 
 export async function deleteTestUsers() {
   if (!dbWritesAllowed) return;
-  await testDb().user.deleteMany({ where: { email: { endsWith: `@${TEST_EMAIL_DOMAIN}`, mode: "insensitive" } } });
+  const db = testDb();
+  const where = { email: { endsWith: `@${TEST_EMAIL_DOMAIN}`, mode: "insensitive" as const } };
+  const ids = (await db.user.findMany({ where, select: { id: true } })).map((u) => u.id);
+  // Écritures de parrainage créées par les tests d'abord : supprimer en une
+  // seule fois des comptes liés entre eux (parrain + personne recommandée)
+  // heurte les contraintes de la base (une suppression de compte réelle,
+  // elle, ne concerne qu'un compte à la fois et conserve ces écritures).
+  await db.referralAuditLog.deleteMany({ where: { adminEmail: { endsWith: `@${TEST_EMAIL_DOMAIN}` } } });
+  await db.referralCommission.deleteMany({ where: { OR: [{ referrerId: { in: ids } }, { referredUserId: { in: ids } }] } });
+  await db.withdrawalRequest.deleteMany({ where: { userId: { in: ids } } });
+  await db.user.deleteMany({ where });
 }
 
 /** E-mails « envoyés » pendant les tests (voir E2E_EMAIL_OUTBOX, mailer.ts). */

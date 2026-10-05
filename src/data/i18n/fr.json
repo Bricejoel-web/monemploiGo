@@ -171,6 +171,8 @@
     "continueDocument": "Continuer / Payer",
     "deleteAccount": "Supprimer mon compte",
     "deleteAccountConfirm": "Cette action est définitive et supprimera toutes vos créations. Confirmer ?",
+    "deleteBlockedPendingWithdrawal": "Votre demande de retrait est actuellement en cours de traitement. Vous ne pouvez pas supprimer votre compte tant que cette demande n'a pas été traitée.",
+    "deleteReferralWarning": "Vous avez actuellement {amount} FCFA de gains disponibles. Si vous supprimez votre compte sans les retirer, ces gains pourront être perdus.",
     "createdOn": "Créé le",
     "statTotal": "Créations",
     "statPaid": "Payées",

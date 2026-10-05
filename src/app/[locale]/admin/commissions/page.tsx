@@ -41,7 +41,7 @@ export default async function AdminCommissionsPage({ searchParams }: PageProps<"
         {commissions.map((c) => (
           <li key={c.id} className="rounded-2xl border border-black/10 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">
             <p className="font-semibold">
-              {c.amountFcfa} FCFA · {documentLabel(c.documentType, null)} · parrain {c.referrer.referralCode ?? "—"} · {c.status === "VALID" ? "Valide" : "Annulée"}
+              {c.amountFcfa} FCFA · {documentLabel(c.documentType, null)} · parrain {c.referrer?.referralCode ?? "compte supprimé"} · {c.status === "VALID" ? "Valide" : "Annulée"}
             </p>
             <p className="text-xs text-black/55 dark:text-white/55">
               {formatLongDate(c.createdAt, "fr")} · paiement {c.payment?.providerRef ?? c.payment?.id ?? "supprimé"}

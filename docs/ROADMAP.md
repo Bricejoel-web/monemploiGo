@@ -1140,3 +1140,36 @@ Constaté en bac à sable : l'annulation (`DELETE /payments/{ref}`) exige la cl�
 Vérifié (navigateur, mode simulé) : 6/6 — compte à rebours, attente à 3 min sans nouveau paiement possible, déblocage à 11 min, ancien paiement toujours suivi, cas « refusé » → « rien n'a été débité » + Payer.
 
 Constat sur les échecs « service de paiement indisponible » : ils ont lieu sur la page de Notch Pay (les paiements ont bien leur référence Notch Pay) ; 1 seul paiement réel réussi sur la journée. À faire par l'utilisateur : support Notch Pay (références transmises), vérifier les canaux Orange/MTN en Live et la vérification du compte.
+
+## Parrainage « Parrainer & gagner » (2026-10-06)
+
+Décisions de l'utilisateur : français uniquement ; derrière l'interrupteur
+`REFERRAL_ENABLED` (invisible en production tant que les textes ne sont pas
+validés) ; administrateurs = e-mails de `ADMIN_EMAILS` ; 200 FCFA fixes par
+CV, lettre de motivation ou Bewerbungsbrief payé (abonnement Pro exclu),
+sans limite d'achats ; domaines Cameroun / Allemagne / général (pas de
+Canada) ; aucun émoji en guise d'icône ; retraits manuels, minimum 500
+FCFA, frais Mobile Money à la charge de MonEmploiGo, délai annoncé « jusqu'à
+72 heures, week-end compris » (signalé en rouge dans l'administration
+après 48 h).
+
+- Attribution : cookie httpOnly 30 jours posé par le proxy (premier lien
+  suivi), rattachement définitif à l'inscription (`User.referredById`,
+  `referralDomain`), refusé pour un code inconnu, la même adresse e-mail
+  (variantes Gmail comprises) ou un parrain connecté dans le navigateur.
+  Jamais d'adresse IP.
+- Commission créée dans la transaction PENDING → SUCCESS de `settlePayment`
+  (et du paiement immédiat du mode démo), une seule par paiement (unique
+  en base) : webhook rejoué = aucune commission en plus.
+- Solde calculé (jamais stocké) ; retrait réservé sous verrou du compte ;
+  administration `/fr/admin/retraits` (payé / refusé) et
+  `/fr/admin/commissions` (annulation après remboursement), journal
+  d'audit.
+- Suppression du compte refusée côté serveur tant qu'un retrait est en
+  attente ; avertissement si des gains disponibles ne sont pas retirés ;
+  commissions et retraits conservés, détachés du compte.
+- Migrations `20261006090000_referral_program` et
+  `20261006120000_referral_keep_financial_traces` : dev uniquement.
+- Reste avant mise en ligne : conditions du programme, ajout à la politique
+  de confidentialité et à la politique de cookies (cookie
+  `monemploigo_ref`), à faire valider par l'utilisateur.

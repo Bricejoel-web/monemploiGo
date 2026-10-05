@@ -109,10 +109,11 @@ enum ReferralCommissionStatus {
 // créée dans la même transaction que la confirmation du paiement, une
 // confirmation répétée (webhook rejoué…) n'en crée jamais une deuxième.
 // Les liens deviennent nuls si un compte ou un paiement disparaît : la
-// trace financière (montant, type, dates) est conservée.
+// trace financière (montant, type, dates) est conservée, y compris quand le
+// parrain supprime son compte (décision de l'utilisateur du 2026-10-06).
 model ReferralCommission {
   id             String                   @id @default(cuid())
-  referrerId     String
+  referrerId     String?
   referredUserId String?
   paymentId      String?                  @unique
   documentType   DocumentType
@@ -122,7 +123,7 @@ model ReferralCommission {
   cancelReason   String?
   createdAt      DateTime                 @default(now())
 
-  referrer     User     @relation("CommissionReferrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referrer     User?    @relation("CommissionReferrer", fields: [referrerId], references: [id], onDelete: SetNull)
   referredUser User?    @relation("CommissionReferred", fields: [referredUserId], references: [id], onDelete: SetNull)
   payment      Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
   auditLogs    ReferralAuditLog[]
@@ -144,10 +145,14 @@ enum WithdrawalStatus {
 // Demande de retrait des gains (minimum 500 FCFA), payée À LA MAIN par
 // l'administrateur via Mobile Money : aucun paiement automatique. Le
 // montant est réservé dès la demande (solde disponible = commissions
-// valides − retraits en attente ou payés), sous verrou du compte.
+// valides − retraits en attente ou payés), sous verrou du compte. Le compte
+// ne peut pas être supprimé tant qu'une demande est en attente ; les
+// demandes traitées sont conservées (détachées) après sa suppression.
 model WithdrawalRequest {
   id            String           @id @default(cuid())
-  userId        String
+  userId        String?
+  // Code de parrainage du bénéficiaire au moment de la demande (historique).
+  userCode      String?
   amountFcfa    Int
   method        WithdrawalMethod
   phoneNumber   String
@@ -156,7 +161,7 @@ model WithdrawalRequest {
   processedAt   DateTime?
   processedById String?
 
-  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
   auditLogs ReferralAuditLog[]
 
   @@index([userId, status])

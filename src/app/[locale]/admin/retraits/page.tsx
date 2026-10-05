@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { requireAdmin } from "@/lib/referral/admin";
+import { WITHDRAWAL_OVERDUE_HOURS } from "@/lib/referral/config";
 import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
 
@@ -8,6 +9,9 @@ export const metadata = pageMetadata({ locale: "fr", path: "/admin/retraits", ti
 
 const METHOD = { MTN_MOMO: "MTN Mobile Money", ORANGE_MONEY: "Orange Money" } as const;
 const STATUS = { PENDING: "En attente", PAID: "Payé", REJECTED: "Refusé" } as const;
+
+/** Demande en attente depuis plus de 48 h : à traiter en priorité (délai annoncé : 72 h). */
+const isOverdue = (status: string, createdAt: Date) => status === "PENDING" && Date.now() - createdAt.getTime() > WITHDRAWAL_OVERDUE_HOURS * 3_600_000;
 
 export default async function AdminWithdrawalsPage({ searchParams }: PageProps<"/[locale]/admin/retraits">) {
   await requireAdmin();
@@ -57,16 +61,19 @@ export default async function AdminWithdrawalsPage({ searchParams }: PageProps<"
             </thead>
             <tbody className="divide-y divide-black/5 dark:divide-white/10">
               {withdrawals.map((w) => (
-                <tr key={w.id}>
+                <tr key={w.id} className={isOverdue(w.status, w.createdAt) ? "bg-red-50 dark:bg-red-950/30" : undefined}>
                   <td className="px-3 py-2">
-                    {w.user.referralCode ?? "—"}
-                    <span className="block text-xs text-black/55 dark:text-white/55">{w.user.email}</span>
+                    {w.userCode ?? w.user?.referralCode ?? "—"}
+                    <span className="block text-xs text-black/55 dark:text-white/55">{w.user?.email ?? "compte supprimé"}</span>
                   </td>
                   <td className="px-3 py-2 font-semibold">{w.amountFcfa} FCFA</td>
                   <td className="px-3 py-2">{METHOD[w.method]}</td>
                   <td className="px-3 py-2 font-mono">{w.phoneNumber}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{formatLongDate(w.createdAt, "fr")}</td>
-                  <td className="px-3 py-2">{STATUS[w.status]}</td>
+                  <td className="px-3 py-2">
+                    {STATUS[w.status]}
+                    {isOverdue(w.status, w.createdAt) && <span className="block text-xs font-semibold text-red-700 dark:text-red-300">+ de {WITHDRAWAL_OVERDUE_HOURS} h</span>}
+                  </td>
                   <td className="px-3 py-2">
                     <Link href={`/fr/admin/retraits/${w.id}`} className="font-semibold text-[#c94f30] hover:underline">
                       Ouvrir

@@ -171,6 +171,8 @@
     "continueDocument": "Continue / Pay",
     "deleteAccount": "Delete my account",
     "deleteAccountConfirm": "This action is permanent and will delete all your creations. Confirm?",
+    "deleteBlockedPendingWithdrawal": "Your withdrawal request is being processed. You cannot delete your account until this request has been processed.",
+    "deleteReferralWarning": "You currently have {amount} FCFA of available earnings. If you delete your account without withdrawing them, these earnings may be lost.",
     "createdOn": "Created on",
     "statTotal": "Creations",
     "statPaid": "Paid",

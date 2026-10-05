@@ -47,8 +47,9 @@ export async function requestWithdrawal(_state: WithdrawalFormState, formData: F
       await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${session.userId} FOR UPDATE`;
       const { rawAvailable } = await getReferralBalance(session.userId, tx);
       if (amount > rawAvailable) return false;
+      const { referralCode } = await tx.user.findUniqueOrThrow({ where: { id: session.userId }, select: { referralCode: true } });
       await tx.withdrawalRequest.create({
-        data: { userId: session.userId, amountFcfa: amount, method, phoneNumber: phone.startsWith("+") ? phone : `+237${phone.replace(/^237/, "")}` },
+        data: { userId: session.userId, userCode: referralCode, amountFcfa: amount, method, phoneNumber: phone.startsWith("+") ? phone : `+237${phone.replace(/^237/, "")}` },
       });
       return true;
     },

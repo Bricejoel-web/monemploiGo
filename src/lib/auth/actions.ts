@@ -12,6 +12,7 @@ import { rateLimit } from "@/lib/security/rate-limit";
 import { TERMS_VERSION } from "@/data/legal/legal-config";
 import { after } from "next/server";
 import { defaultLocale, isLocale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/dictionaries";
 import { sendWelcomeEmail } from "@/lib/email/welcome-email";
 import { clearReferralCookie, referralForNewAccount } from "@/lib/referral/attribution";
 
@@ -149,11 +150,31 @@ export async function logout(locale: string) {
   redirect(`/${locale}`);
 }
 
-export async function deleteAccount(locale: string) {
+/**
+ * Suppression du compte. Refusée tant qu'une demande de retrait de
+ * parrainage est en attente (vérifié sous verrou du compte : une demande
+ * ne peut pas se glisser entre la vérification et la suppression). Les
+ * traces financières du parrainage (commissions, retraits traités, journal)
+ * sont conservées, détachées du compte (voir schema.prisma).
+ */
+export async function deleteAccount(locale: string): Promise<{ error?: string } | undefined> {
   const session = await verifySession();
   if (!session) redirect(`/${locale}/connexion`);
 
-  await prisma.user.delete({ where: { id: session.userId } });
+  const deleted = await prisma.$transaction(
+    async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${session.userId} FOR UPDATE`;
+      const pending = await tx.withdrawalRequest.count({ where: { userId: session.userId, status: "PENDING" } });
+      if (pending > 0) return false;
+      await tx.user.delete({ where: { id: session.userId } });
+      return true;
+    },
+    { maxWait: 10_000, timeout: 20_000 },
+  );
+  if (!deleted) {
+    const dict = await getDictionary(isLocale(locale) ? locale : defaultLocale);
+    return { error: dict.dashboard.deleteBlockedPendingWithdrawal };
+  }
   await deleteSession();
   redirect(`/${locale}`);
 }

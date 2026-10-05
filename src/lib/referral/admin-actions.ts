@@ -14,7 +14,7 @@ async function decideWithdrawal(withdrawalId: string, newStatus: "PAID" | "REJEC
   const done = await prisma.$transaction(async (tx) => {
     const withdrawal = await tx.withdrawalRequest.findUnique({
       where: { id: withdrawalId },
-      select: { id: true, amountFcfa: true, status: true, user: { select: { referralCode: true } } },
+      select: { id: true, amountFcfa: true, status: true, userCode: true, user: { select: { referralCode: true } } },
     });
     if (!withdrawal) return false;
     const { count } = await tx.withdrawalRequest.updateMany({
@@ -31,7 +31,7 @@ async function decideWithdrawal(withdrawalId: string, newStatus: "PAID" | "REJEC
         oldStatus: "PENDING",
         newStatus,
         amountFcfa: withdrawal.amountFcfa,
-        userCode: withdrawal.user.referralCode,
+        userCode: withdrawal.userCode ?? withdrawal.user?.referralCode ?? null,
       },
     });
     return true;
@@ -75,7 +75,7 @@ export async function cancelCommission(commissionId: string, formData: FormData)
         oldStatus: "VALID",
         newStatus: "CANCELLED",
         amountFcfa: commission.amountFcfa,
-        userCode: commission.referrer.referralCode,
+        userCode: commission.referrer?.referralCode ?? null,
       },
     });
   });

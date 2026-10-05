@@ -39,3 +39,8 @@ export function parseReferralCookie(value: string | undefined): { code: string; 
   const [code, domain] = value.split(":");
   return code && REFERRAL_CODE_PATTERN.test(code) ? { code, domain: domainSlug(domain) } : null;
 }
+
+/** Délai annoncé (décision de l'utilisateur du 2026-10-06 : 72 h, week-end compris). */
+export const WITHDRAWAL_DELAY_TEXT = "Les demandes de retrait sont traitées manuellement dans un délai pouvant aller jusqu'à 72 heures, week-end compris.";
+/** Dans l'administration, une demande en attente depuis plus longtemps est signalée en rouge. */
+export const WITHDRAWAL_OVERDUE_HOURS = 48;

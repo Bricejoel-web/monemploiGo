@@ -264,3 +264,39 @@ test("TEST 12 : achat remboursé → commission annulée, historique conservé",
   await expect(value("Total gagné")).toContainText("600 FCFA");
   await expect(page.getByText("Annulé (achat remboursé)")).toBeVisible();
 });
+
+test("suppression du compte : refusée si retrait en attente, avertissement si gains, traces conservées", async ({ page, context }) => {
+  const user = await createUser("Supprime Test");
+  await testDb().user.update({ where: { id: user.userId }, data: { referralCode: `SUPP${Date.now() % 100000}` } });
+  const commission = await testDb().referralCommission.create({ data: { referrerId: user.userId, documentType: "CV", amountFcfa: 800 } });
+  const withdrawal = await testDb().withdrawalRequest.create({ data: { userId: user.userId, userCode: "SUPPTEST", amountFcfa: 500, method: "MTN_MOMO", phoneNumber: "+237677000001" } });
+  await loginAs(context, user.userId, BASE_URL);
+
+  // 1. Retrait en attente : refus décidé par le serveur, message affiché.
+  const dialogs: string[] = [];
+  page.on("dialog", (d) => {
+    dialogs.push(d.message());
+    void d.accept();
+  });
+  await gotoReady(page, "/fr/tableau-de-bord");
+  await page.getByRole("button", { name: "Supprimer mon compte" }).click();
+  await expect(page.getByText("Votre demande de retrait est actuellement en cours de traitement.", { exact: false })).toBeVisible();
+  expect(await testDb().user.count({ where: { id: user.userId } })).toBe(1);
+
+  // 2. Retrait payé, 300 FCFA encore disponibles : avertissement, puis suppression.
+  await testDb().withdrawalRequest.update({ where: { id: withdrawal.id }, data: { status: "PAID", processedAt: new Date() } });
+  await gotoReady(page, "/fr/tableau-de-bord");
+  await page.getByRole("button", { name: "Supprimer mon compte" }).click();
+  await expect(page).toHaveURL(/\/fr$/);
+  expect(dialogs.at(-1)).toContain("Vous avez actuellement 300 FCFA de gains disponibles.");
+  expect(await testDb().user.count({ where: { id: user.userId } })).toBe(0);
+
+  // 3. Traces financières conservées, détachées du compte.
+  const kept = await testDb().withdrawalRequest.findUniqueOrThrow({ where: { id: withdrawal.id } });
+  expect(kept.userId).toBeNull();
+  expect(kept.userCode).toBe("SUPPTEST");
+  expect(kept.status).toBe("PAID");
+  expect((await testDb().referralCommission.findUniqueOrThrow({ where: { id: commission.id } })).referrerId).toBeNull();
+  await testDb().withdrawalRequest.delete({ where: { id: withdrawal.id } });
+  await testDb().referralCommission.delete({ where: { id: commission.id } });
+});

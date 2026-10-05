@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/client";
 import { requireSession } from "@/lib/auth/dal";
-import { MIN_WITHDRAWAL_FCFA, REFERRAL_COMMISSION_FCFA, isReferralEnabled } from "@/lib/referral/config";
+import { MIN_WITHDRAWAL_FCFA, REFERRAL_COMMISSION_FCFA, WITHDRAWAL_DELAY_TEXT, isReferralEnabled } from "@/lib/referral/config";
 import { anonymousNumber, getOrCreateReferralCode, getReferralBalance } from "@/lib/referral/balance";
 import { documentLabel } from "@/lib/pro/document-kinds";
 import { formatLongDate } from "@/lib/format-date";
@@ -141,8 +141,9 @@ export default async function ReferralPage({ searchParams }: PageProps<"/[locale
           <h2 className="text-lg font-semibold">Retirer mes gains</h2>
           <p className="mt-1 mb-4 text-sm text-black/65 dark:text-white/65">
             Solde disponible : <strong>{fcfa(balance.available)}</strong> · Minimum de retrait : {fcfa(MIN_WITHDRAWAL_FCFA)}. Le paiement est envoyé à la main par MonEmploiGo sur votre
-            numéro Mobile Money.
+            numéro Mobile Money, sans frais pour vous : vous recevez le montant demandé.
           </p>
+          <p className="-mt-2 mb-4 text-sm font-medium">{WITHDRAWAL_DELAY_TEXT}</p>
           <WithdrawalForm available={balance.available} minimum={MIN_WITHDRAWAL_FCFA} />
           {withdrawals.length > 0 && (
             <ul className="mt-6 divide-y divide-black/5 text-sm dark:divide-white/10">

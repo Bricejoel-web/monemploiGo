@@ -15,6 +15,7 @@ import { MailIcon } from "@/components/home/icons";
 import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 import type { ComponentType } from "react";
 import { isReferralEnabled } from "@/lib/referral/config";
+import { getReferralBalance } from "@/lib/referral/balance";
 import { GiftIcon } from "@/components/referral/icons";
 
 function StatCard({
@@ -57,6 +58,8 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
   // Un client qui a payé sans repasser par la page de retour (session
   // expirée, autre navigateur...) retrouve ici son document débloqué.
   await refreshPendingPayments({ userId: session.userId });
+  // Gains de parrainage non retirés : signalés avant une suppression du compte.
+  const referralBalance = await getReferralBalance(session.userId);
 
   const documents = await prisma.document.findMany({
     // Espace particulier : jamais les documents de l'espace Pro.
@@ -220,7 +223,7 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
           <h2 className="text-sm font-semibold text-red-700 dark:text-red-400">{dict.dashboard.dangerZoneTitle}</h2>
           <p className="mt-1 text-xs text-black/50 dark:text-white/50">{dict.dashboard.dangerZoneText}</p>
           <div className="mt-3">
-            <DeleteAccountButton locale={locale as Locale} dict={dict} />
+            <DeleteAccountButton locale={locale as Locale} dict={dict} referralAvailable={referralBalance.available} />
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ export default async function AdminWithdrawalPage({ params, searchParams }: Page
     include: { user: { select: { id: true, email: true, referralCode: true } }, auditLogs: { orderBy: { createdAt: "asc" } } },
   });
   if (!withdrawal) notFound();
-  const balance = await getReferralBalance(withdrawal.user.id);
+  const balance = withdrawal.user ? await getReferralBalance(withdrawal.user.id) : null;
   const notice = query.paye ? "Retrait marqué comme payé." : query.refuse ? "Retrait refusé : le montant est de nouveau disponible pour l'utilisateur." : query.deja ? "Cette demande a déjà été traitée." : null;
 
   return (
@@ -33,14 +33,14 @@ export default async function AdminWithdrawalPage({ params, searchParams }: Page
       {notice && <p className="rounded-xl bg-black/[0.04] p-3 text-sm dark:bg-white/10">{notice}</p>}
       <dl className="grid grid-cols-1 gap-3 rounded-2xl border border-black/10 bg-white p-5 text-sm sm:grid-cols-2 dark:border-white/10 dark:bg-white/5">
         {[
-          ["Utilisateur", `${withdrawal.user.referralCode ?? "—"} (${withdrawal.user.email})`],
+          ["Utilisateur", withdrawal.user ? `${withdrawal.userCode ?? withdrawal.user.referralCode ?? "—"} (${withdrawal.user.email})` : `${withdrawal.userCode ?? "—"} (compte supprimé)`],
           ["Montant", `${withdrawal.amountFcfa} FCFA`],
           ["Méthode", METHOD[withdrawal.method]],
           ["Numéro Mobile Money", withdrawal.phoneNumber],
           ["Date de la demande", formatLongDate(withdrawal.createdAt, "fr")],
           ["Statut", STATUS[withdrawal.status]],
-          ["Total gagné par l'utilisateur", `${balance.totalEarned} FCFA`],
-          ["Déjà payé", `${balance.paidOut} FCFA`],
+          ["Total gagné par l'utilisateur", balance ? `${balance.totalEarned} FCFA` : "—"],
+          ["Déjà payé", balance ? `${balance.paidOut} FCFA` : "—"],
         ].map(([label, value]) => (
           <div key={label}>
             <dt className="text-black/55 dark:text-white/55">{label}</dt>
