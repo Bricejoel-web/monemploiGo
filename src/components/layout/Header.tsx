@@ -11,14 +11,14 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
   const session = await verifySession();
 
   const navLinkClass =
-    "rounded-full px-3 py-2 text-foreground/70 transition-colors hover:bg-black/[0.05] hover:text-foreground dark:hover:bg-white/[0.08]";
+    "rounded-full px-3 py-2 text-foreground transition-colors hover:bg-[#f2994a]/15 hover:text-[#c94f30] dark:hover:bg-white/[0.08] dark:hover:text-[#f2994a]";
 
   return (
     <header className="print-hide sticky top-0 z-50 border-b border-black/[0.06] bg-background/75 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 dark:border-white/10">
       <div className="relative mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-3.5">
         <div className="flex items-center gap-8">
           <Logo locale={locale} siteName={dict.site.name} />
-          <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
+          <nav className="hidden items-center gap-1 text-[15px] font-semibold md:flex">
             <Link href={`/${locale}/cv`} className={navLinkClass}>
               {dict.nav.cvs}
             </Link>
