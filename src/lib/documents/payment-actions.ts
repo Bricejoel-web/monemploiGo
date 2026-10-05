@@ -6,6 +6,7 @@ import { getGateway } from "@/lib/payment";
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA, BEWERBUNGSBRIEF_PRICE_FCFA } from "@/lib/cv/catalog";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { markDocumentPaid } from "@/lib/documents/retention";
+import { recordReferralCommission } from "@/lib/referral/commissions";
 import { ABANDON_MIN_AGE_MS, STALE_PROCESSING_MS, refreshPendingPayments, settlePayment } from "@/lib/payment/settle";
 
 export interface PaymentActionResult {
@@ -91,10 +92,13 @@ export async function initiatePaymentAction(documentId: string): Promise<Payment
   });
 
   if (result.status === "success") {
-    await prisma.$transaction([
-      prisma.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS", providerRef: result.providerRef } }),
-      markDocumentPaid(document.id),
-    ]);
+    // Passerelle qui confirme sur-le-champ (mode démo) : mêmes effets que
+    // settlePayment, y compris la commission de parrainage.
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.update({ where: { id: payment.id }, data: { status: "SUCCESS", providerRef: result.providerRef } });
+      await markDocumentPaid(document.id, tx);
+      await recordReferralCommission(tx, payment.id);
+    });
     return { status: "success", paymentId: payment.id };
   }
 

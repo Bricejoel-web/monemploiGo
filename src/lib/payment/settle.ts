@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db/client";
 import { markDocumentPaid } from "@/lib/documents/retention";
+import { recordReferralCommission } from "@/lib/referral/commissions";
 import { getGateway } from "./index";
 import type { CheckPaymentStatusResult } from "./types";
 
@@ -48,6 +49,8 @@ export async function settlePayment(
       const { count } = await tx.payment.updateMany({ where: { id: payment.id, status: "PENDING" }, data: { status: "SUCCESS" } });
       if (count === 0) return false;
       if (payment.documentId) await markDocumentPaid(payment.documentId, tx);
+      // Parrainage : dans la MÊME transaction, donc une seule fois par paiement.
+      await recordReferralCommission(tx, payment.id);
       return true;
     });
     return paid ? "paid" : "unchanged";

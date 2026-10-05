@@ -13,6 +13,7 @@ import { TERMS_VERSION } from "@/data/legal/legal-config";
 import { after } from "next/server";
 import { defaultLocale, isLocale } from "@/i18n/config";
 import { sendWelcomeEmail } from "@/lib/email/welcome-email";
+import { clearReferralCookie, referralForNewAccount } from "@/lib/referral/attribution";
 
 export type AuthFormState =
   | {
@@ -86,8 +87,11 @@ export async function signup(locale: string, _state: AuthFormState, formData: Fo
   }
 
   const passwordHash = await hashPassword(password);
+  // Parrainage : parrain vérifié côté serveur, fixé une fois pour toutes.
+  const referral = await referralForNewAccount(email);
   const user = await prisma.user.create({
     data: {
+      ...referral,
       name,
       email,
       passwordHash,
@@ -101,6 +105,7 @@ export async function signup(locale: string, _state: AuthFormState, formData: Fo
     select: { id: true },
   });
 
+  await clearReferralCookie();
   await createSession(user.id);
   // Envoyé après la réponse : l'inscription n'attend jamais le serveur de
   // messagerie, et un échec d'envoi ne la fait jamais échouer.

@@ -50,6 +50,12 @@ export default defineConfig({
     timeout: 10 * 60_000,
     reuseExistingServer: true,
     // E-mails écrits dans e2e/.outbox au lieu d'être envoyés (voir mailer.ts).
-    env: { PRO_ENABLED, PAYMENT_MODE: "mock", E2E_EMAIL_OUTBOX: path.join(__dirname, "e2e", ".outbox", "emails.jsonl") },
+    env: {
+      PRO_ENABLED,
+      REFERRAL_ENABLED: process.env.REFERRAL_ENABLED ?? "true",
+      ADMIN_EMAILS: "admin-e2e@e2e.monemploigo.test",
+      PAYMENT_MODE: "mock",
+      E2E_EMAIL_OUTBOX: path.join(__dirname, "e2e", ".outbox", "emails.jsonl"),
+    },
   },
 });

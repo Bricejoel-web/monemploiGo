@@ -62,6 +62,14 @@ model User {
   // savoir quelle version un utilisateur a acceptée si les CGU évoluent.
   termsVersion     String?
   termsAcceptedAt  DateTime?
+  // Parrainage (voir src/lib/referral) : code personnel stable, créé à la
+  // première visite de la page « Parrainer & gagner » ; et, pour une
+  // personne recommandée, son parrain et le domaine du lien, fixés une fois
+  // pour toutes à l'inscription (jamais modifiables ensuite).
+  referralCode     String?          @unique
+  referredById     String?
+  referralDomain   ReferralDomain?
+  referredAt       DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -74,6 +82,108 @@ model User {
   // compte supprime l'espace Pro (décision du 2026-09-30).
   professionalAccount ProfessionalAccount?
   passwordResetTokens PasswordResetToken[]
+
+  referredBy          User?                @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referredUsers       User[]               @relation("Referrals")
+  commissionsEarned   ReferralCommission[] @relation("CommissionReferrer")
+  commissionsCaused   ReferralCommission[] @relation("CommissionReferred")
+  withdrawalRequests  WithdrawalRequest[]
+
+  @@index([referredById])
+}
+
+enum ReferralDomain {
+  CAMEROUN
+  ALLEMAGNE
+  GENERAL
+}
+
+enum ReferralCommissionStatus {
+  VALID
+  // Annulée (remboursement…) : conservée pour l'historique, plus comptée.
+  CANCELLED
+}
+
+// Commission de parrainage : 200 FCFA fixes par document éligible payé par
+// une personne recommandée. UNE seule par paiement (paymentId unique) :
+// créée dans la même transaction que la confirmation du paiement, une
+// confirmation répétée (webhook rejoué…) n'en crée jamais une deuxième.
+// Les liens deviennent nuls si un compte ou un paiement disparaît : la
+// trace financière (montant, type, dates) est conservée.
+model ReferralCommission {
+  id             String                   @id @default(cuid())
+  referrerId     String
+  referredUserId String?
+  paymentId      String?                  @unique
+  documentType   DocumentType
+  amountFcfa     Int
+  status         ReferralCommissionStatus @default(VALID)
+  cancelledAt    DateTime?
+  cancelReason   String?
+  createdAt      DateTime                 @default(now())
+
+  referrer     User     @relation("CommissionReferrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUser User?    @relation("CommissionReferred", fields: [referredUserId], references: [id], onDelete: SetNull)
+  payment      Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  auditLogs    ReferralAuditLog[]
+
+  @@index([referrerId, status])
+}
+
+enum WithdrawalMethod {
+  MTN_MOMO
+  ORANGE_MONEY
+}
+
+enum WithdrawalStatus {
+  PENDING
+  PAID
+  REJECTED
+}
+
+// Demande de retrait des gains (minimum 500 FCFA), payée À LA MAIN par
+// l'administrateur via Mobile Money : aucun paiement automatique. Le
+// montant est réservé dès la demande (solde disponible = commissions
+// valides − retraits en attente ou payés), sous verrou du compte.
+model WithdrawalRequest {
+  id            String           @id @default(cuid())
+  userId        String
+  amountFcfa    Int
+  method        WithdrawalMethod
+  phoneNumber   String
+  status        WithdrawalStatus @default(PENDING)
+  createdAt     DateTime         @default(now())
+  processedAt   DateTime?
+  processedById String?
+
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  auditLogs ReferralAuditLog[]
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+// Journal des décisions de l'administrateur (retrait payé ou refusé,
+// commission annulée) : qui, quoi, avant/après, quand. Conservé même si la
+// demande ou la commission disparaît.
+model ReferralAuditLog {
+  id           String   @id @default(cuid())
+  withdrawalId String?
+  commissionId String?
+  adminId      String
+  adminEmail   String
+  action       String
+  oldStatus    String
+  newStatus    String
+  amountFcfa   Int
+  // Code de parrainage du bénéficiaire, pour l'historique.
+  userCode     String?
+  createdAt    DateTime @default(now())
+
+  withdrawal WithdrawalRequest?  @relation(fields: [withdrawalId], references: [id], onDelete: SetNull)
+  commission ReferralCommission? @relation(fields: [commissionId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
 }
 
 enum ProfessionalAccountStatus {
@@ -268,6 +378,8 @@ model Payment {
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  referralCommission ReferralCommission?
 
   @@index([userId])
   @@index([documentId])

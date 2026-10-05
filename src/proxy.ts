@@ -5,9 +5,14 @@ import { SESSION_COOKIE, decryptSessionToken } from "@/lib/auth/session";
 import { isCategorySlug } from "@/lib/cv/category-routes";
 import { isProEnabled } from "@/lib/pro/flag";
 import { PRO_PRIVATE_SEGMENTS } from "@/lib/pro/navigation";
+import { REFERRAL_CODE_PATTERN, REFERRAL_COOKIE, REFERRAL_COOKIE_MAX_AGE, domainSlug, isReferralEnabled } from "@/lib/referral/config";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
-const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document"];
+const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document", "parrainage", "admin"];
+// Parrainage (français uniquement) : introuvable tant que REFERRAL_ENABLED
+// n'est pas activé. « admin » ne contient pour l'instant que les retraits
+// de parrainage (accès réservé aux e-mails de ADMIN_EMAILS, vérifié par la page).
+const REFERRAL_SEGMENTS = ["parrainage", "recommandation", "admin"];
 const AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS = ["connexion", "inscription"];
 // Éditeurs de modèles (/cv/modele/…, /lettres-de-motivation/modele/…,
 // /bewerbungsbrief/modele/…) : réservés aux utilisateurs connectés.
@@ -15,7 +20,7 @@ const EDITOR_PATH = /^\/(fr|en)\/(cv|lettres-de-motivation|bewerbungsbrief)\/mod
 // Mot de passe oublié : accessible connecté ou non, jamais indexé.
 const PASSWORD_RESET_SEGMENTS = ["mot-de-passe-oublie", "reinitialiser-mot-de-passe"];
 // Pages sans valeur de recherche ou privées : jamais indexées.
-const NOINDEX_SEGMENTS = [...PROTECTED_SEGMENTS, ...AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS, ...PASSWORD_RESET_SEGMENTS];
+const NOINDEX_SEGMENTS = [...PROTECTED_SEGMENTS, ...AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS, ...PASSWORD_RESET_SEGMENTS, "recommandation"];
 // Espace Pro (/fr/pro/…) : pages privées (connexion obligatoire) et pages
 // publiques indexables ; tout le reste (connexion, inscription) : noindex.
 
@@ -47,6 +52,30 @@ function detectLocale(request: NextRequest): string {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Lien de recommandation (?ref=CODE&domain=…) : le code et le domaine sont
+  // mémorisés 30 jours dans un cookie illisible par le navigateur (le premier
+  // lien suivi compte), puis la personne arrive sur la page adaptée au
+  // domaine. Le code n'est vérifié qu'à l'inscription (src/lib/referral).
+  const ref = request.nextUrl.searchParams.get("ref");
+  if (ref !== null && isReferralEnabled()) {
+    const code = ref.trim().toUpperCase();
+    const domain = domainSlug(request.nextUrl.searchParams.get("domain"));
+    const url = request.nextUrl.clone();
+    url.pathname = "/fr/recommandation";
+    url.search = `?domaine=${domain}`;
+    const response = NextResponse.redirect(url);
+    if (REFERRAL_CODE_PATTERN.test(code) && !request.cookies.get(REFERRAL_COOKIE)) {
+      response.cookies.set(REFERRAL_COOKIE, `${code}:${domain}`, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: REFERRAL_COOKIE_MAX_AGE,
+        path: "/",
+      });
+    }
+    return response;
+  }
 
   const hasLocale = locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
@@ -82,6 +111,15 @@ export async function proxy(request: NextRequest) {
 
   // MonEmploiGo Pro : introuvable (vraie 404) tant qu'il n'est pas activé,
   // et en français uniquement (/en/pro/… → /fr/pro/…). Voir src/lib/pro/flag.ts.
+  if (REFERRAL_SEGMENTS.includes(segment)) {
+    if (!isReferralEnabled()) return NextResponse.rewrite(new URL(`/${locale}/404`, request.url));
+    if (locale !== "fr") {
+      const url = request.nextUrl.clone();
+      url.pathname = `/fr/${rest.join("/")}`;
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (segment === "pro") {
     if (!isProEnabled()) return NextResponse.rewrite(new URL(`/${locale}/404`, request.url));
     if (locale !== "fr") {

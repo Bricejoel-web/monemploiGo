@@ -16,7 +16,7 @@ import ws from "ws";
 const PRODUCTION_DB_HOSTS = ["ep-floral-king-b5t4r9ak"];
 
 /** Variable telle que la voit `next start` : .env.local prime sur .env. */
-function effectiveEnv(name: string): string | undefined {
+export function effectiveEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
   for (const file of [".env.local", ".env"]) {
     const full = path.join(process.cwd(), file);
@@ -96,4 +96,14 @@ export async function loginAs(context: import("@playwright/test").BrowserContext
     .setExpirationTime("1h")
     .sign(new TextEncoder().encode(secret));
   await context.addCookies([{ name: "monemploigo_session", value: token, url: baseURL, httpOnly: true, sameSite: "Lax" }]);
+}
+
+/** Compte particulier de test, créé directement en base (base de développement uniquement). */
+export async function createUser(name: string, email = testEmail("particulier")) {
+  const { hash } = await import("bcryptjs");
+  const user = await testDb().user.create({
+    data: { email, name, passwordHash: await hash("Pro-Test#2026", 10), termsVersion: "test", termsAcceptedAt: new Date() },
+    select: { id: true, email: true },
+  });
+  return { userId: user.id, email: user.email };
 }

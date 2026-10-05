@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -13,6 +14,8 @@ import { isEmailEnabled } from "@/lib/email/mailer";
 import { MailIcon } from "@/components/home/icons";
 import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 import type { ComponentType } from "react";
+import { isReferralEnabled } from "@/lib/referral/config";
+import { GiftIcon } from "@/components/referral/icons";
 
 function StatCard({
   icon: Icon,
@@ -186,6 +189,22 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
             <p className="mt-1 text-sky-900/80 dark:text-sky-100/80">{dict.retention.noticeDraft}</p>
           </div>
         </section>
+
+        {/* Parrainage : français uniquement, visible seulement si activé. */}
+        {locale === "fr" && isReferralEnabled() && (
+          <Link
+            href="/fr/parrainage"
+            className="flex items-center gap-3 rounded-2xl border border-[#f2994a]/40 bg-[#fbfaf8] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-[#f2994a]/30 dark:bg-white/[0.06]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#f2994a] to-[#eb5757] text-white">
+              <GiftIcon className="h-5 w-5" />
+            </span>
+            <span>
+              <span className="block font-semibold">Parrainer &amp; gagner</span>
+              <span className="block text-sm text-black/60 dark:text-white/60">Recommandez MonEmploiGo et gagnez 200 FCFA par document éligible acheté.</span>
+            </span>
+          </Link>
+        )}
 
         <div
           className="animate-fade-in-up rounded-2xl border border-black/10 bg-[#fbfaf8] p-6 shadow-sm dark:border-white/10 dark:bg-white/[0.06]"

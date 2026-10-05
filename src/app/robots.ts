@@ -29,6 +29,9 @@ export default function robots(): MetadataRoute.Robots {
         "/*/pro/abonnement",
         "/*/pro/parametres",
         "/*/pro/aide",
+        // Parrainage (page personnelle) et administration.
+        "/*/parrainage",
+        "/*/admin",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

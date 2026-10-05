@@ -6,6 +6,6 @@ import { spawnSync } from "node:child_process";
 const result = spawnSync("npx", ["playwright", "test", ...process.argv.slice(2)], {
   stdio: "inherit",
   shell: true,
-  env: { ...process.env, PRO_ENABLED: "false" },
+  env: { ...process.env, PRO_ENABLED: "false", REFERRAL_ENABLED: "false" },
 });
 process.exit(result.status ?? 1);
