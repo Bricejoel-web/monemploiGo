@@ -2,6 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { purgeExpiredDocuments } from "@/lib/documents/retention";
 import { refreshPendingPayments } from "@/lib/payment/settle";
+import { isProEnabled } from "@/lib/pro/flag";
+import { runProLifecycle } from "@/lib/pro/lifecycle";
 
 /**
  * Purge quotidienne des documents arrivés à échéance (voir retention.ts),
@@ -36,6 +38,9 @@ export async function GET(request: Request) {
   await refreshPendingPayments({ limit: 50 });
 
   const result = await purgeExpiredDocuments();
-  console.info("[cron] purge-documents", result);
-  return NextResponse.json({ ok: true, ...result });
+  // Espace Pro : avertissements d'expiration et suppression au terme des
+  // 90 jours de lecture seule (un seul cron : offre Vercel gratuite).
+  const pro = isProEnabled() ? await runProLifecycle() : {};
+  console.info("[cron] purge-documents", result, pro);
+  return NextResponse.json({ ok: true, ...result, ...pro });
 }

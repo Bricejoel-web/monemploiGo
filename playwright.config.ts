@@ -56,6 +56,9 @@ export default defineConfig({
       ADMIN_EMAILS: "admin-e2e@e2e.monemploigo.test",
       PAYMENT_MODE: "mock",
       E2E_EMAIL_OUTBOX: path.join(__dirname, "e2e", ".outbox", "emails.jsonl"),
+      // Valeur de test (serveur local uniquement) : permet aux tests
+      // d'appeler la tâche quotidienne, qui refuse de tourner sans secret.
+      CRON_SECRET: "e2e-cron-secret",
     },
   },
 });
