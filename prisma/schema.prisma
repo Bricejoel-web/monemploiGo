@@ -57,6 +57,9 @@ enum PaymentKind {
 
 model User {
   id               String          @id @default(cuid())
+  // Incrémentée à chaque réinitialisation du mot de passe : les sessions
+  // émises avec une version antérieure (autres appareils) sont refusées.
+  sessionVersion   Int             @default(0)
   email            String          @unique
   passwordHash     String
   name             String?

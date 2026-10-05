@@ -159,14 +159,14 @@ export async function loginPro(_state: ProFormState, formData: FormData): Promis
 
   const user = await prisma.user.findFirst({
     where: { email: { equals: validated.data.email, mode: "insensitive" } },
-    select: { id: true, passwordHash: true, professionalAccount: { select: { id: true } } },
+    select: { id: true, passwordHash: true, sessionVersion: true, professionalAccount: { select: { id: true } } },
   });
   // Même message dans les deux cas : ne révèle pas si l'adresse est inscrite.
   const genericError = { message: "E-mail ou mot de passe incorrect." };
   if (!user) return genericError;
   if (!(await verifyPassword(validated.data.password, user.passwordHash))) return genericError;
 
-  await createSession(user.id);
+  await createSession(user.id, user.sessionVersion);
   // Compte sans espace Pro (particulier) : proposer de le créer.
   redirect(user.professionalAccount ? "/fr/pro/dashboard" : "/fr/pro/inscription");
 }

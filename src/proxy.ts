@@ -145,9 +145,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}/connexion`, request.url));
   }
 
-  if (AUTH_ONLY_WHEN_LOGGED_OUT_SEGMENTS.includes(segment) && session?.userId) {
-    return NextResponse.redirect(new URL(`/${locale}/tableau-de-bord`, request.url));
-  }
+  // Connexion / inscription quand on est déjà connecté : la redirection vers
+  // le tableau de bord est faite par ces pages, après vérification de la
+  // session en base (verifySession). Le proxy ne voit que le cookie : un
+  // cookie signé mais révoqué (mot de passe réinitialisé, compte supprimé)
+  // créait ici une boucle infinie tableau de bord ⇄ connexion.
 
   const response = NextResponse.next();
   if (NOINDEX_SEGMENTS.includes(segment) || isEditor) {

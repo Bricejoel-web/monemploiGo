@@ -141,7 +141,7 @@ export async function login(locale: string, _state: AuthFormState, formData: For
   const passwordOk = await verifyPassword(password, user.passwordHash);
   if (!passwordOk) return genericError;
 
-  await createSession(user.id);
+  await createSession(user.id, user.sessionVersion);
   redirect(`/${locale}/tableau-de-bord`);
 }
 

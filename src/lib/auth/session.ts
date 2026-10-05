@@ -11,6 +11,8 @@ const encodedKey = new TextEncoder().encode(secretKey);
 
 export interface SessionPayload {
   userId: string;
+  /** Version de session du compte à l'émission (absente = 0, anciens cookies). */
+  v?: number;
   [key: string]: unknown;
 }
 
@@ -32,9 +34,9 @@ export async function decryptSessionToken(token: string | undefined): Promise<Se
   }
 }
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, sessionVersion = 0) {
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  const session = await encrypt({ userId });
+  const session = await encrypt({ userId, v: sessionVersion });
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, session, {
     httpOnly: true,

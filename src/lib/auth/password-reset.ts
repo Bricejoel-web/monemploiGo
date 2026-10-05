@@ -54,7 +54,9 @@ export async function resetPasswordWithToken(token: string, newPassword: string)
       data: { usedAt: now },
     });
     if (count === 0) return false;
-    await tx.user.update({ where: { id: found.userId }, data: { passwordHash } });
+    // Nouvelle version de session : les sessions déjà ouvertes (autres
+    // appareils, éventuel intrus) sont fermées.
+    await tx.user.update({ where: { id: found.userId }, data: { passwordHash, sessionVersion: { increment: 1 } } });
     // Tout autre lien encore valable pour ce compte devient inutilisable.
     await tx.passwordResetToken.updateMany({ where: { userId: found.userId, usedAt: null }, data: { usedAt: now } });
     return true;
