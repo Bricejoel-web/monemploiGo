@@ -12,6 +12,7 @@ import { rateLimit } from "@/lib/security/rate-limit";
 import { clientKey } from "@/lib/security/client-key";
 import { PRO_TERMS_VERSION, TERMS_VERSION } from "@/data/legal/legal-config";
 import { isProEnabled } from "./flag";
+import { structureFields } from "./space-fields";
 
 // Espace MonEmploiGo Pro : même système de connexion que les particuliers
 // (même `User`, même cookie de session, mêmes mots de passe hachés), aucune
@@ -30,21 +31,7 @@ export type ProFormState =
 const DISABLED: ProFormState = { message: "MonEmploiGo Pro n'est pas encore disponible." };
 
 const spaceFields = {
-  companyName: z
-    .string()
-    .trim()
-    .min(2, { error: "Le nom de la structure doit contenir au moins 2 caractères." })
-    .max(120, { error: "Le nom de la structure est trop long (120 caractères au maximum)." }),
-  managerName: z
-    .string()
-    .trim()
-    .min(2, { error: "Le nom du responsable doit contenir au moins 2 caractères." })
-    .max(120, { error: "Le nom du responsable est trop long (120 caractères au maximum)." }),
-  email: z.email({ error: "Adresse e-mail invalide." }).trim(),
-  phone: z
-    .string()
-    .trim()
-    .regex(/^\+?[0-9][0-9 .-]{7,19}$/, { error: "Numéro de téléphone invalide (chiffres, espaces et « + » uniquement)." }),
+  ...structureFields,
   terms: z.literal("on", {
     error: "Merci d'accepter les Conditions générales d'utilisation et les Conditions d'utilisation de MonEmploiGo Pro.",
   }),

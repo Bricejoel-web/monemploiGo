@@ -10,7 +10,7 @@ export const PRO_NAV = [
   { href: "/fr/pro/documents", label: "Documents", icon: "document", available: true },
   { href: "/fr/pro/candidats/nouveau", label: "Nouveau candidat", icon: "plus", available: true },
   { href: "/fr/pro/abonnement", label: "Mon abonnement", icon: "card", available: true },
-  { href: "/fr/pro/parametres", label: "Paramètres", icon: "settings", available: false },
+  { href: "/fr/pro/parametres", label: "Paramètres", icon: "settings", available: true },
   { href: "/fr/pro/aide", label: "Aide", icon: "help", available: true },
 ] as const;
 

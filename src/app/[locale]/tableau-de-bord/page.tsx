@@ -48,8 +48,10 @@ function StatCard({
   );
 }
 
-export default async function DashboardPage({ params }: PageProps<"/[locale]/tableau-de-bord">) {
+export default async function DashboardPage({ params, searchParams }: PageProps<"/[locale]/tableau-de-bord">) {
   const { locale } = await params;
+  // Retour après « Supprimer mon espace professionnel » (français seul).
+  const proSpaceDeleted = locale === "fr" && (await searchParams)["espace-pro"] === "supprime";
   if (!isLocale(locale)) notFound();
 
   const session = await requireSession(locale);
@@ -150,6 +152,12 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
             </p>
           </div>
         </div>
+
+        {proSpaceDeleted && (
+          <p role="status" className="rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 text-sm text-emerald-950 shadow-sm dark:border-emerald-700/50 dark:bg-emerald-950/30 dark:text-emerald-100">
+            Votre espace professionnel a été supprimé. Votre compte particulier et vos documents sont conservés.
+          </p>
+        )}
 
         {showWelcomeEmailHint && (
           <p className="animate-fade-in-up flex items-start gap-3 rounded-2xl border border-emerald-300/60 bg-emerald-50 p-4 text-sm text-emerald-950 shadow-sm dark:border-emerald-700/50 dark:bg-emerald-950/30 dark:text-emerald-100">

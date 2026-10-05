@@ -129,7 +129,7 @@ test("isolation : chaque structure ne voit que ses propres chiffres", async ({ b
   await contextB.close();
 });
 
-test("navigation : rubriques pas encore construites grisées, menu mobile", async ({ page, context, isMobile }) => {
+test("navigation : toutes les rubriques accessibles, menu mobile", async ({ page, context, isMobile }) => {
   const pro = await createProUser("Structure Navigation");
   await loginAs(context, pro.userId, BASE_URL);
   await page.goto("/fr/pro/dashboard");
@@ -144,9 +144,9 @@ test("navigation : rubriques pas encore construites grisées, menu mobile", asyn
   await expect(nav.getByRole("link", { name: "Nouveau candidat" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Documents" })).toBeVisible();
   await expect(nav.getByRole("link", { name: "Mon abonnement" })).toBeVisible();
-  // Rubrique pas encore construite : grisée, sans lien.
-  await expect(nav.getByRole("link", { name: "Paramètres" })).toHaveCount(0);
-  await expect(nav.getByText("Paramètres", { exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Paramètres" })).toBeVisible();
+  // Toutes les rubriques existent : plus aucune n'est grisée « Bientôt ».
+  await expect(nav.getByText("Bientôt")).toHaveCount(0);
   await nav.getByRole("link", { name: "Aide" }).click();
   await expect(page).toHaveURL(/\/fr\/pro\/aide$/);
   await expect(page.getByRole("heading", { name: "Aide" })).toBeVisible();
