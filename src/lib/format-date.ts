@@ -1,8 +1,9 @@
 import type { Locale } from "@/i18n/config";
 
-/** "18 octobre 2026" / "October 18, 2026" */
+/** "18 octobre 2026" / "October 18, 2026" ; en français, "1er novembre 2026". */
 export function formatLongDate(date: Date | string, locale: Locale): string {
-  return new Date(date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
+  const formatted = new Date(date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
+  return locale === "fr" ? formatted.replace(/^1 /, "1er ") : formatted;
 }
 
 /** Nombre de jours calendaires restants avant `date` (0 = aujourd'hui). */

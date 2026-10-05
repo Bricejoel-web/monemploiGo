@@ -117,7 +117,7 @@ export function ProSubscriptionPayment({
   return (
     <form action={pay} className="mt-4 flex flex-col gap-3">
       <p className="rounded-md border border-sky-300/60 bg-sky-50 p-3 text-xs text-sky-950 dark:border-sky-700/50 dark:bg-sky-950/30 dark:text-sky-100">
-        Pour le moment, le paiement fonctionne uniquement avec un compte Mobile Money du Cameroun (MTN, Orange). Sur la page de paiement, gardez le pays « Cameroon ».
+        Pour le moment, le paiement fonctionne uniquement avec un compte Mobile Money du Cameroun (MTN, Orange). Sur la page de paiement, gardez le pays « Cameroon ».
       </p>
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" name="recap" required className="mt-1 h-4 w-4 shrink-0" />
