@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { expect, test } from "@playwright/test";
 import { expectNoHorizontalScroll, proEnabled } from "./helpers";
 import { DB_WRITES_SKIP_REASON, createProUser, dbWritesAllowed, deleteTestUsers, loginAs, testDb } from "./db";
@@ -89,4 +90,53 @@ test("suppression de l'espace : confirmation exigée, bloquée pendant un paieme
   // L'espace Pro n'existe plus : retour à la création d'espace.
   await page.goto("/fr/pro/dashboard");
   await expect(page).toHaveURL(/\/fr\/pro\/inscription$/);
+});
+
+// Vraie image PNG du site (icône), pour l'envoi du logo.
+const ICON_PNG = fs.readFileSync("src/app/apple-icon.png");
+
+test("logo de la structure : ajout, affichage dans l'espace Pro, retrait ; faux fichiers refusés", async ({ page, context, isMobile }) => {
+  test.skip(isMobile, "parcours joué une fois, sur ordinateur");
+  const pro = await createProUser("Agence Logo");
+  await loginAs(context, pro.userId, BASE_URL);
+  await page.goto("/fr/pro/parametres");
+  const section = page.getByRole("region", { name: "Logo de la structure" });
+  await expect(section.getByText("jamais sur les documents de vos candidats", { exact: false })).toBeVisible();
+
+  // Faux PNG (du texte) : refusé dès le navigateur, rien n'est enregistré.
+  await section.locator("#pro-logo").setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: Buffer.from("pas une image") });
+  await expect(section.getByText("Cette image n'a pas pu être lue.", { exact: false })).toBeVisible();
+  // SVG : refusé (peut contenir du code).
+  await section.locator("#pro-logo").setInputFiles({ name: "logo.svg", mimeType: "image/svg+xml", buffer: Buffer.from("<svg xmlns='http://www.w3.org/2000/svg'/>") });
+  await expect(section.getByText("Format non accepté", { exact: false })).toBeVisible();
+  expect((await testDb().professionalAccount.findUniqueOrThrow({ where: { id: pro.accountId } })).logoDataUrl).toBeNull();
+
+  await section.locator("#pro-logo").setInputFiles({ name: "logo.png", mimeType: "image/png", buffer: ICON_PNG });
+  await expect(section.getByText("Modification enregistrée.")).toBeVisible();
+  const saved = (await testDb().professionalAccount.findUniqueOrThrow({ where: { id: pro.accountId } })).logoDataUrl;
+  expect(saved).toMatch(/^data:image\/(webp|png|jpeg);base64,/);
+  await expect(page.getByRole("img", { name: "Logo de Agence Logo" }).first()).toBeVisible();
+
+  await page.goto("/fr/pro/dashboard");
+  await expect(page.getByRole("img", { name: "Logo de Agence Logo" }).first()).toBeVisible();
+
+  await page.goto("/fr/pro/parametres");
+  await page.getByRole("button", { name: "Retirer le logo" }).click();
+  await expect(page.getByRole("button", { name: "Ajouter un logo" })).toBeVisible();
+  expect((await testDb().professionalAccount.findUniqueOrThrow({ where: { id: pro.accountId } })).logoDataUrl).toBeNull();
+  await expect(page.getByRole("img", { name: "Logo de Agence Logo" })).toHaveCount(0);
+});
+
+test("logo : le serveur n'accepte que du PNG, JPEG ou WebP réel et léger", async () => {
+  const { parseLogoDataUrl, LOGO_MAX_BYTES } = await import("../src/lib/pro/logo");
+  const png = `data:image/png;base64,${ICON_PNG.toString("base64")}`;
+  expect(parseLogoDataUrl(png)).toBe(png);
+  // Type annoncé différent du contenu réel.
+  expect(parseLogoDataUrl(`data:image/jpeg;base64,${ICON_PNG.toString("base64")}`)).toBeNull();
+  expect(parseLogoDataUrl(`data:image/svg+xml;base64,${Buffer.from("<svg/>").toString("base64")}`)).toBeNull();
+  expect(parseLogoDataUrl(`data:image/png;base64,${Buffer.from("texte").toString("base64")}`)).toBeNull();
+  const heavy = Buffer.concat([ICON_PNG, Buffer.alloc(LOGO_MAX_BYTES)]);
+  expect(parseLogoDataUrl(`data:image/png;base64,${heavy.toString("base64")}`)).toBeNull();
+  expect(parseLogoDataUrl("https://exemple.com/logo.png")).toBeNull();
+  expect(parseLogoDataUrl(42)).toBeNull();
 });

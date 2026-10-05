@@ -5,6 +5,7 @@ import { PRO_STARTER, QUOTA_WARNING_RATIO } from "@/lib/pro/plans";
 import { proNavItem } from "@/lib/pro/navigation";
 import { daysUntil, formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
+import { ProLogo } from "@/components/pro/ProLogo";
 import { Notice, ProButton, ProPageHeader, StatCard, StatusBadge, type StatusTone } from "@/components/pro/DashboardParts";
 
 export const metadata = pageMetadata({
@@ -44,7 +45,10 @@ export default async function ProDashboardPage() {
       <ProPageHeader
         title={
           <>
-            <h1 className="text-2xl font-bold break-words">Bonjour, {account.companyName}</h1>
+            <div className="flex items-center gap-3">
+              <ProLogo companyName={account.companyName} logoDataUrl={account.logoDataUrl} size={48} />
+              <h1 className="min-w-0 text-2xl font-bold break-words">Bonjour, {account.companyName}</h1>
+            </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
               <span className="rounded-full bg-[#16324f] px-3 py-1 text-xs font-bold tracking-wide text-white dark:bg-white dark:text-[#16324f]">{PRO_STARTER.name}</span>
               <StatusBadge tone={status.tone} label={status.label} />

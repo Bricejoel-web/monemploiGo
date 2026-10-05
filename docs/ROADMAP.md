@@ -251,6 +251,16 @@ développement séparée (branche Neon) avant de continuer.
   refusée pendant un paiement d'abonnement, compte particulier et traces de
   paiement conservés). Plus aucune rubrique « Bientôt ». Typographie : « 1er
   novembre » partout en français.
+- Logo de la structure (2026-10-07, demande de l'utilisateur) : facultatif,
+  affiché **uniquement dans l'espace Pro** (barre latérale, tableau de bord,
+  paramètres), jamais sur les documents des candidats (choix validé). Réduit
+  à 256 px dans le navigateur, revérifié côté serveur (`src/lib/pro/logo.ts` :
+  PNG/JPEG/WebP seulement, signature réelle du fichier, 150 000 octets au
+  plus ; SVG refusé). Enregistré en base comme les photos de CV, sans
+  service externe. Textes intégrés directement (choix de l'utilisateur) :
+  confidentialité 8 bis et 17 (FR/EN), CGU Pro article 3 (droits sur le
+  logo). Migration `20261007110000_pro_logo` (dev uniquement) — la liste de
+  mise en production passe à 10 migrations.
 - Interprétation retenue (à confirmer par l'utilisateur) : les
   informations de la structure restent modifiables en lecture seule — ce ne
   sont pas des données de candidats, et l'e-mail reçoit les avertissements
@@ -259,7 +269,7 @@ développement séparée (branche Neon) avant de continuer.
 ### Phase 12 : mise en production groupée — à faire avec l'accord de l'utilisateur
 
 Ordre impératif :
-1. Appliquer en production, **avant** le déploiement, les 9 migrations
+1. Appliquer en production, **avant** le déploiement, les 10 migrations
    absentes de `main` : `20260930120000_pro_accounts_and_password_reset`,
    `20260930150000_pro_subscriptions_and_candidates`,
    `20260930170000_pro_documents_link`,
@@ -267,7 +277,7 @@ Ordre impératif :
    `20261006090000_referral_program`,
    `20261006120000_referral_keep_financial_traces`,
    `20261006150000_canada_cv`, `20261007090000_pro_subscription_payments`,
-   `20261007100000_user_session_version` (le code de `dev` lit
+   `20261007100000_user_session_version`, `20261007110000_pro_logo` (le code de `dev` lit
    `User.sessionVersion` sur chaque page : sans la dernière, tout le site
    tombe).
 2. Variables Production réglées par l'utilisateur : `PRO_ENABLED`,

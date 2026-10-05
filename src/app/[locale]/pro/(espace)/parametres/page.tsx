@@ -4,6 +4,7 @@ import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
 import { ProPageHeader } from "@/components/pro/DashboardParts";
 import { ProSettingsForm } from "@/components/pro/ProSettingsForm";
+import { ProLogoField } from "@/components/pro/ProLogoField";
 
 export const metadata = pageMetadata({
   locale: "fr",
@@ -22,6 +23,11 @@ export default async function ProSettingsPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
       <ProPageHeader title={<h1 className="text-2xl font-bold">Paramètres</h1>} />
+
+      <section aria-label="Logo de la structure" className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
+        <h2 className="mb-4 text-lg font-semibold">Logo de la structure</h2>
+        <ProLogoField companyName={account.companyName} logoDataUrl={account.logoDataUrl} />
+      </section>
 
       <section aria-label="Informations de la structure" className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
         <h2 className="mb-4 text-lg font-semibold">Informations de la structure</h2>

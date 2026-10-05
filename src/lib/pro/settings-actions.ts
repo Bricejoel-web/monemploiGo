@@ -8,6 +8,7 @@ import { refreshPendingPayments } from "@/lib/payment/settle";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { requireProAccount } from "./dal";
 import { structureFields } from "./space-fields";
+import { parseLogoDataUrl } from "./logo";
 
 export type ProSettingsState =
   | { errors?: Partial<Record<"companyName" | "managerName" | "email" | "phone", string[]>>; message?: string; saved?: boolean }
@@ -35,6 +36,28 @@ export async function updateProSettings(_state: ProSettingsState, formData: Form
   if (!validated.success) return { errors: z.flattenError(validated.error).fieldErrors };
 
   await prisma.professionalAccount.update({ where: { id: account.id }, data: validated.data });
+  revalidatePath("/fr/pro", "layout");
+  return { saved: true };
+}
+
+export type ProLogoState = { error?: string; saved?: boolean } | undefined;
+
+/**
+ * Logo de la structure (facultatif, espace Pro uniquement). Comme les
+ * informations de la structure, modifiable même en lecture seule.
+ */
+export async function updateProLogo(_state: ProLogoState, formData: FormData): Promise<ProLogoState> {
+  const account = await requireProAccount();
+  if (!rateLimit(`pro-logo:${account.id}`, 20, 15 * 60 * 1000).allowed) {
+    return { error: "Trop de modifications en peu de temps. Réessayez dans quelques minutes." };
+  }
+  if (formData.get("remove") === "1") {
+    await prisma.professionalAccount.update({ where: { id: account.id }, data: { logoDataUrl: null } });
+  } else {
+    const logo = parseLogoDataUrl(formData.get("logo"));
+    if (!logo) return { error: "Image refusée : choisissez un logo au format PNG, JPEG ou WebP." };
+    await prisma.professionalAccount.update({ where: { id: account.id }, data: { logoDataUrl: logo } });
+  }
   revalidatePath("/fr/pro", "layout");
   return { saved: true };
 }

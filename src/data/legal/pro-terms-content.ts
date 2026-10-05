@@ -62,6 +62,7 @@ export const PRO_TERMS_CONTENT: LegalDocument = {
         list([
           "qu'il agit dans le cadre d'une activité professionnelle ;",
           "que les informations relatives à sa structure sont exactes ;",
+          "qu'il dispose des droits nécessaires sur le logo qu'il ajoute, le cas échéant, à son espace Pro (ce logo est facultatif et n'apparaît que dans l'espace Pro, jamais sur les documents des candidats) ;",
           "qu'il dispose, le cas échéant, des autorisations exigées par la réglementation pour exercer son activité.",
         ]),
         p("Un espace Pro correspond à une seule structure ou à un seul professionnel. Le titulaire est responsable de toute action réalisée avec ses identifiants."),

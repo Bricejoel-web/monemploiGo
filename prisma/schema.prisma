@@ -220,6 +220,10 @@ model ProfessionalAccount {
   managerName     String
   email           String
   phone           String
+  // Logo facultatif (photo de profil de la structure), affiché uniquement
+  // dans l'espace Pro, jamais sur les documents des candidats. Image
+  // PNG, JPEG ou WebP réduite à 256 px, revérifiée côté serveur.
+  logoDataUrl     String?
   status          ProfessionalAccountStatus @default(ACTIVE)
   // Versions des CGU générales et des CGU Pro acceptées à la création de
   // l'espace (case obligatoire), et date de cette acceptation.

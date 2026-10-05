@@ -7,6 +7,7 @@ import { LogoMark } from "@/components/layout/Logo";
 import { logoutPro } from "@/lib/pro/account-actions";
 import { PRO_NAV } from "@/lib/pro/navigation";
 import { CloseIcon, LogoutIcon, MenuIcon, NAV_ICONS } from "./icons";
+import { ProLogo } from "./ProLogo";
 
 function Brand({ id }: { id: string }) {
   return (
@@ -70,7 +71,7 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 /** Mise en page de l'espace Pro : barre latérale (ordinateur) ou menu (mobile). */
-export function ProShell({ companyName, children }: { companyName: string; children: ReactNode }) {
+export function ProShell({ companyName, logoDataUrl, children }: { companyName: string; logoDataUrl: string | null; children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -92,7 +93,10 @@ export function ProShell({ companyName, children }: { companyName: string; child
         </div>
         {open && (
           <div id="pro-mobile-nav" className="border-t border-black/10 px-4 py-3 dark:border-white/10">
-            <p className="mb-2 truncate px-3 text-xs font-semibold text-black/50 dark:text-white/50">{companyName}</p>
+            <div className="mb-2 flex items-center gap-2 px-3">
+              <ProLogo companyName={companyName} logoDataUrl={logoDataUrl} size={32} />
+              <p className="truncate text-xs font-semibold text-black/50 dark:text-white/50">{companyName}</p>
+            </div>
             <Nav onNavigate={() => setOpen(false)} />
           </div>
         )}
@@ -102,9 +106,12 @@ export function ProShell({ companyName, children }: { companyName: string; child
       <aside className="hidden w-64 shrink-0 flex-col gap-6 border-r border-black/10 bg-white px-4 py-6 lg:flex dark:border-white/10 dark:bg-white/[0.03]">
         <div className="px-2">
           <Brand id="sidebar" />
-          <p className="mt-3 truncate text-xs font-semibold text-black/50 dark:text-white/50" title={companyName}>
-            {companyName}
-          </p>
+          <div className="mt-4 flex items-center gap-2.5">
+            <ProLogo companyName={companyName} logoDataUrl={logoDataUrl} size={36} />
+            <p className="min-w-0 truncate text-xs font-semibold text-black/60 dark:text-white/60" title={companyName}>
+              {companyName}
+            </p>
+          </div>
         </div>
         <Nav />
       </aside>

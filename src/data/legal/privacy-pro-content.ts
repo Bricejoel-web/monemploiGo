@@ -27,6 +27,7 @@ const ADDITIONS: Record<"fr" | "en", ProPrivacyAdditions> = {
         p("Pour l'espace Pro, MonEmploiGo traite :"),
         list([
           "le nom de la structure et le nom du responsable ;",
+          "le logo de la structure, s'il est ajouté (facultatif, affiché uniquement dans l'espace Pro) ;",
           "l'adresse e-mail et le numéro de téléphone professionnels ;",
           "la version des Conditions d'utilisation de MonEmploiGo Pro acceptée et la date de cette acceptation ;",
           "l'historique des abonnements et des paiements ;",
@@ -77,6 +78,7 @@ const ADDITIONS: Record<"fr" | "en", ProPrivacyAdditions> = {
           "Après 90 jours sans renouvellement : les candidats, les brouillons et les documents de l'espace Pro sont supprimés définitivement. Les informations de la structure sont conservées tant que le compte existe, sans aucune donnée de candidat.",
           "Suppression d'un candidat par le professionnel : le candidat et ses documents sont supprimés immédiatement et définitivement.",
           "Suppression de l'espace Pro : les informations de la structure, les candidats et leurs documents sont supprimés immédiatement et définitivement.",
+          "Logo de la structure : conservé tant que le professionnel ne le retire pas ; supprimé immédiatement s'il est retiré depuis les paramètres ou à la suppression de l'espace Pro.",
           "Traces de paiement Pro (référence, montant, devise, date, statut, offre et nom de la structure) : conservées, séparément des données de candidature et sans aucune donnée de candidat, pendant la durée imposée par les obligations comptables, fiscales et légales applicables, y compris après la suppression de l'espace Pro ou du compte, puis supprimées.",
         ]),
       ],
@@ -96,6 +98,7 @@ const ADDITIONS: Record<"fr" | "en", ProPrivacyAdditions> = {
         p("For the Pro space, MonEmploiGo processes:"),
         list([
           "the organisation's name and the manager's name;",
+          "the organisation's logo, if added (optional, shown only in the Pro space);",
           "the professional email address and phone number;",
           "the version of the MonEmploiGo Pro Terms of Use accepted and the date of acceptance;",
           "the history of subscriptions and payments;",
@@ -146,6 +149,7 @@ const ADDITIONS: Record<"fr" | "en", ProPrivacyAdditions> = {
           "After 90 days without renewal: the Pro space's candidates, drafts and documents are permanently deleted. The organisation's details are kept for as long as the account exists, without any candidate data.",
           "Deletion of a candidate by the professional: the candidate and their documents are deleted immediately and permanently.",
           "Deletion of the Pro space: the organisation's details, the candidates and their documents are deleted immediately and permanently.",
+          "Organisation logo: kept until the professional removes it; deleted immediately when removed from the settings or when the Pro space is deleted.",
           "Pro payment records (reference, amount, currency, date, status, plan and organisation name): kept separately from application data and without any candidate data, for the period required by applicable accounting, tax and legal obligations, including after the Pro space or the account is deleted, then deleted.",
         ]),
       ],
