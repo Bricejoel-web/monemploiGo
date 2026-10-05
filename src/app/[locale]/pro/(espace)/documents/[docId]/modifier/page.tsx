@@ -59,7 +59,7 @@ export default async function EditProDocumentPage({ params }: PageProps<"/[local
         </div>
       ) : loaded.kind === "CV" ? (
         <ProDocumentEditor kind="CV" templateSlug={document.templateSlug} candidateId={candidate.id} documentId={document.id} data={loaded.data} includePhoto={document.includePhoto} />
-      ) : loaded.kind === "COVER_LETTER" ? (
+      ) : loaded.kind === "CANADA_LETTER" ? null : loaded.kind === "COVER_LETTER" ? (
         <ProDocumentEditor kind="COVER_LETTER" templateSlug={document.templateSlug} candidateId={candidate.id} documentId={document.id} data={loaded.data} />
       ) : (
         <ProDocumentEditor kind="BEWERBUNGSBRIEF" templateSlug={document.templateSlug} candidateId={candidate.id} documentId={document.id} data={loaded.data} />

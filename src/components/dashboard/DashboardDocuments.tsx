@@ -165,9 +165,13 @@ export function DashboardDocuments({
                       </Link>
                     ) : (
                       <Link
-                        href={`/${locale}/${
-                          doc.type === "COVER_LETTER" ? "lettres-de-motivation" : doc.type === "BEWERBUNGSBRIEF" ? "bewerbungsbrief" : "cv"
-                        }/modele/${doc.templateSlug}?documentId=${doc.id}`}
+                        href={
+                          doc.templateSlug.startsWith("letter-can-")
+                            ? `/${locale}/lettre-canada?documentId=${doc.id}`
+                            : `/${locale}/${
+                                doc.type === "COVER_LETTER" ? "lettres-de-motivation" : doc.type === "BEWERBUNGSBRIEF" ? "bewerbungsbrief" : "cv"
+                              }/modele/${doc.templateSlug}?documentId=${doc.id}`
+                        }
                         className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-3 py-1.5 text-xs font-semibold text-white shadow-sm shadow-[#eb5757]/20 transition-transform hover:scale-[1.04]"
                       >
                         <PencilIcon className="h-3.5 w-3.5" />

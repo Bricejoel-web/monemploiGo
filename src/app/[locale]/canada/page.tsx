@@ -2,15 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { PRICE_FCFA } from "@/lib/cv/catalog";
+import { COVER_LETTER_PRICE_FCFA, PRICE_FCFA } from "@/lib/cv/catalog";
 import { CATEGORY_SLUGS } from "@/lib/cv/category-routes";
 import { seoMetadata } from "@/lib/seo-pages";
 import { FlagCanada } from "@/components/referral/icons";
 import { CheckIcon } from "@/components/home/icons";
 
 // Présentation du domaine Canada : uniquement des documents de candidature
-// (CV Canadien, CV Canadien ATS), jamais de document d'immigration. Les
-// produits renvoient aux catalogues existants (/cv/canada, /cv/canada-ats).
+// (CV Canadien, CV Canadien ATS, lettre de présentation), jamais de
+// document d'immigration.
 export async function generateMetadata({ params }: PageProps<"/[locale]/canada">) {
   const { locale } = await params;
   return seoMetadata(locale, "canadaPage", "/canada");
@@ -25,6 +25,7 @@ export default async function CanadaPage({ params }: PageProps<"/[locale]/canada
   const products = [
     { title: t.canadaTitle, text: t.canadaText, href: `/${locale}/cv/${CATEGORY_SLUGS.CANADA}`, price: PRICE_FCFA.CANADA },
     { title: t.canadaAtsTitle, text: t.canadaAtsText, href: `/${locale}/cv/${CATEGORY_SLUGS.CANADA_ATS}`, price: PRICE_FCFA.CANADA_ATS },
+    { title: t.letterTitle, text: t.letterText, href: `/${locale}/lettre-canada`, price: COVER_LETTER_PRICE_FCFA },
   ];
 
   return (
@@ -42,6 +43,9 @@ export default async function CanadaPage({ params }: PageProps<"/[locale]/canada
             className="mt-6 inline-flex rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#eb5757]/30"
           >
             {t.cta}
+          </Link>
+          <Link href={`/${locale}/lettre-canada`} className="mt-6 ml-3 inline-flex rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10">
+            {t.ctaLetter}
           </Link>
         </section>
 

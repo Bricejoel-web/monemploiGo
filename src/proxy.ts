@@ -8,7 +8,7 @@ import { PRO_PRIVATE_SEGMENTS } from "@/lib/pro/navigation";
 import { REFERRAL_CODE_PATTERN, REFERRAL_COOKIE, REFERRAL_COOKIE_MAX_AGE, domainSlug, isReferralEnabled } from "@/lib/referral/config";
 
 const LOCALE_COOKIE = "NEXT_LOCALE";
-const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document", "parrainage", "admin"];
+const PROTECTED_SEGMENTS = ["tableau-de-bord", "paiement", "document", "parrainage", "admin", "lettre-canada"];
 // Parrainage (français uniquement) : introuvable tant que REFERRAL_ENABLED
 // n'est pas activé. « admin » ne contient pour l'instant que les retraits
 // de parrainage (accès réservé aux e-mails de ADMIN_EMAILS, vérifié par la page).

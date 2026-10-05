@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db/client";
 import { getCvTemplateBySlug, getCoverLetterBySlug, getBewerbungsbriefBySlug } from "@/lib/cv/catalog";
 import type { CvData, CoverLetterData, BewerbungsbriefData } from "@/lib/cv/types";
 import { getProAccess } from "@/lib/pro/subscription";
+import { letterModelBySlug } from "@/lib/letters/canada/models";
+import type { CanadaLetterContent } from "@/lib/letters/canada/profile";
 import { retentionCutoff } from "./retention";
 
 /** Modèle + contenu d'un document enregistré, prêts à être affichés. */
@@ -21,6 +23,13 @@ export function parseDocument(document: Document) {
     if (!template) return null;
     const data = JSON.parse(document.contentJson) as BewerbungsbriefData;
     return { document, kind: "BEWERBUNGSBRIEF" as const, template, data };
+  }
+
+  // Lettre de présentation Canada : type COVER_LETTER (même prix, même
+  // paiement), modèle et contenu propres.
+  const letterModel = letterModelBySlug(document.templateSlug);
+  if (letterModel) {
+    return { document, kind: "CANADA_LETTER" as const, template: letterModel, data: JSON.parse(document.contentJson) as CanadaLetterContent };
   }
 
   const template = getCoverLetterBySlug(document.templateSlug);

@@ -42,6 +42,7 @@ const CONTENT: Record<ReferralDomainSlug, { flag: ReactNode; title: string; subt
     services: [
       "CV Canadien : présentez votre parcours de manière professionnelle pour vos candidatures au Canada.",
       "CV Canadien ATS : un modèle structuré pour les candidatures en ligne et une lecture claire par les systèmes ATS.",
+      "Lettre de motivation Canada : accompagnez votre candidature avec une lettre claire et professionnelle.",
       "En français ou en anglais, au choix.",
     ],
     note: "MonEmploiGo est un service de préparation de documents de candidature. Nos documents ne sont pas des documents officiels délivrés par les autorités canadiennes et ne garantissent ni emploi, ni admission, ni visa, ni permis.",

@@ -9,6 +9,7 @@ import { expiresAt } from "@/lib/documents/retention";
 import { formatLongDate } from "@/lib/format-date";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { CoverLetterRenderer } from "@/components/cv/CoverLetterRenderer";
+import { CanadaLetterView } from "@/components/letters/CanadaLetterView";
 import { BewerbungsbriefRenderer } from "@/components/cv/BewerbungsbriefRenderer";
 import { DocumentDownload } from "@/components/cv/DocumentDownload";
 import { DocumentPreviewFit } from "@/components/cv/DocumentPreviewFit";
@@ -66,6 +67,8 @@ export default async function DocumentPreviewPage({ params, searchParams }: Page
         />
       ) : loaded.kind === "BEWERBUNGSBRIEF" ? (
         <BewerbungsbriefRenderer data={loaded.data} layoutId={loaded.template.layoutId} theme={loaded.template.theme} locale={locale as Locale} />
+      ) : loaded.kind === "CANADA_LETTER" ? (
+        <CanadaLetterView content={loaded.data} model={loaded.template} />
       ) : (
         <CoverLetterRenderer data={loaded.data} layout={loaded.template.layout} theme={loaded.template.theme} locale={locale as Locale} />
       )}

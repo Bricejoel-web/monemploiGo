@@ -16,7 +16,7 @@ import { ReviewPrompt } from "@/components/review/ReviewPrompt";
 import type { ComponentType } from "react";
 import { isReferralEnabled } from "@/lib/referral/config";
 import { getReferralBalance } from "@/lib/referral/balance";
-import { GiftIcon } from "@/components/referral/icons";
+import { FlagCanada, GiftIcon } from "@/components/referral/icons";
 
 function StatCard({
   icon: Icon,
@@ -192,6 +192,18 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/tab
             <p className="mt-1 text-sky-900/80 dark:text-sky-100/80">{dict.retention.noticeDraft}</p>
           </div>
         </section>
+
+        {/* Lettre de présentation Canada : utilisable sans CV MonEmploiGo. */}
+        <Link
+          href={`/${locale}/lettre-canada`}
+          className="flex items-center gap-3 rounded-2xl border border-black/10 bg-[#fbfaf8] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/[0.06]"
+        >
+          <FlagCanada className="h-7 w-14" />
+          <span>
+            <span className="block font-semibold">{dict.canadaLetter.entry}</span>
+            <span className="block text-sm text-black/60 dark:text-white/60">{dict.canadaLetter.entryHint}</span>
+          </span>
+        </Link>
 
         {/* Parrainage : français uniquement, visible seulement si activé. */}
         {locale === "fr" && isReferralEnabled() && (

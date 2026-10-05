@@ -1213,3 +1213,24 @@ CV Canadien ATS 1 500 FCFA (la lettre Canada, 1 500 FCFA, reste à faire).
   d'emploi, d'admission, de visa ou de permis) ; domaine « canada » dans le
   parrainage. Migration `20261006150000_canada_cv` (ajouts d'enum) : dev
   uniquement, à appliquer en production avant le déploiement.
+
+### Lettre de présentation Canada (2026-10-06)
+
+- Produit distinct à 1 500 FCFA (type COVER_LETTER : paiement et parrainage
+  existants inchangés), utilisable sans CV MonEmploiGo. Parcours
+  /lettre-canada : source du profil (CV MonEmploiGo, CV PDF importé, saisie
+  manuelle) → vérification → candidature → options → aperçu avec retouche.
+- Les trois sources produisent une structure commune (`CandidateProfile`,
+  src/lib/letters/canada/profile.ts). Import PDF : lu en mémoire puis
+  oublié, jamais stocké ; extraction par règles, jamais tenue pour fiable
+  (détail des expériences « à vérifier », rien de deviné). `unpdf` passe en
+  dépendance de production (validé par l'utilisateur) ; pas de Word (le
+  candidat l'enregistre en PDF).
+- Générateur par règles (src/lib/letters/canada/generate.ts) : uniquement
+  les informations réelles ; offre d'emploi utilisée seulement pour mettre
+  en avant des compétences déjà présentes ; mobilité vers le Canada
+  seulement si choisie ; jamais d'immigration, de visa ou d'autorisation de
+  travail. Français sans accord de genre (genre inconnu), élision « d' »,
+  pas de préposition devant un nom d'entreprise (article impossible à
+  deviner). Le candidat saisit ses informations dans la langue de la lettre.
+- 6 modèles (LETTER-CAN-01 à 06), validés un par un ; une page A4.

@@ -52,6 +52,7 @@ export default async function ProDocumentPage({ params, searchParams }: PageProp
   const canDownload = finalized && (overview.access.state === "active" || overview.access.state === "readonly");
   const error = typeof query.erreur === "string" ? ERRORS[query.erreur] : undefined;
 
+  if (loaded.kind === "CANADA_LETTER") notFound();
   const view =
     loaded.kind === "CV" ? (
       <CvRenderer data={loaded.data} layoutId={loaded.template.layoutId} theme={loaded.template.theme} includePhoto={document.includePhoto} locale="fr" />

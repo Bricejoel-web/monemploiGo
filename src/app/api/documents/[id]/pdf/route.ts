@@ -65,8 +65,12 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/api/document
     return backWithError(reason);
   }
 
-  const name = asciiSlug(loaded.data.fullName || "") || "monemploiGo";
-  const filename = `${FILE_PREFIX[loaded.kind]}-${name}.pdf`;
+  const fullName =
+    loaded.kind === "CANADA_LETTER"
+      ? [loaded.data.profile.personalInfo.firstName, loaded.data.profile.personalInfo.lastName].filter(Boolean).join(" ")
+      : loaded.data.fullName;
+  const name = asciiSlug(fullName || "") || "monemploiGo";
+  const filename = `${FILE_PREFIX[loaded.kind === "CANADA_LETTER" ? "COVER_LETTER" : loaded.kind]}-${name}.pdf`;
   const response = new NextResponse(Buffer.from(pdf), {
     headers: {
       "Content-Type": "application/pdf",
