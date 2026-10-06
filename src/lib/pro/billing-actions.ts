@@ -35,7 +35,7 @@ export async function initiateProSubscriptionAction(formData: FormData): Promise
   if (formData.get("recap") !== "on") {
     return { status: "failed", message: "Cochez la case pour confirmer avoir lu le récapitulatif et la règle de remboursement." };
   }
-  if (!rateLimit(`pro-pay:${account.id}`, 10, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`pro-pay:${account.id}`, 10, 15 * 60 * 1000)).allowed) {
     return { status: "failed", message: "Trop de tentatives de paiement. Réessayez dans quelques minutes." };
   }
 

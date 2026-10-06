@@ -4,6 +4,7 @@ import { purgeExpiredDocuments } from "@/lib/documents/retention";
 import { refreshPendingPayments } from "@/lib/payment/settle";
 import { isProEnabled } from "@/lib/pro/flag";
 import { runProLifecycle } from "@/lib/pro/lifecycle";
+import { purgeExpiredRateLimits } from "@/lib/security/rate-limit";
 
 /**
  * Purge quotidienne des documents arrivés à échéance (voir retention.ts),
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
   // Espace Pro : avertissements d'expiration et suppression au terme des
   // 90 jours de lecture seule (un seul cron : offre Vercel gratuite).
   const pro = isProEnabled() ? await runProLifecycle() : {};
-  console.info("[cron] purge-documents", result, pro);
-  return NextResponse.json({ ok: true, ...result, ...pro });
+  const rateLimitsPurged = await purgeExpiredRateLimits();
+  console.info("[cron] purge-documents", result, pro, { rateLimitsPurged });
+  return NextResponse.json({ ok: true, ...result, ...pro, rateLimitsPurged });
 }

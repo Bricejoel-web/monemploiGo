@@ -60,6 +60,10 @@ model User {
   // Incrémentée à chaque réinitialisation du mot de passe : les sessions
   // émises avec une version antérieure (autres appareils) sont refusées.
   sessionVersion   Int             @default(0)
+  // Adresse e-mail prouvée (lien reçu et ouvert). Exigée pour l'accès
+  // administrateur : sinon n'importe qui inscrit avec l'adresse d'un
+  // administrateur obtiendrait ses droits.
+  emailVerifiedAt  DateTime?
   email            String          @unique
   passwordHash     String
   name             String?
@@ -95,11 +99,12 @@ model User {
   professionalAccount ProfessionalAccount?
   passwordResetTokens PasswordResetToken[]
 
-  referredBy         User?                @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
-  referredUsers      User[]               @relation("Referrals")
-  commissionsEarned  ReferralCommission[] @relation("CommissionReferrer")
-  commissionsCaused  ReferralCommission[] @relation("CommissionReferred")
-  withdrawalRequests WithdrawalRequest[]
+  referredBy              User?                    @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referredUsers           User[]                   @relation("Referrals")
+  commissionsEarned       ReferralCommission[]     @relation("CommissionReferrer")
+  commissionsCaused       ReferralCommission[]     @relation("CommissionReferred")
+  withdrawalRequests      WithdrawalRequest[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([referredById])
 }
@@ -455,4 +460,31 @@ model ProExpiryNotice {
   professionalAccount ProfessionalAccount @relation(fields: [professionalAccountId], references: [id], onDelete: Cascade)
 
   @@unique([professionalAccountId, kind, expiredAt])
+}
+
+// Compteurs des limites de tentatives (connexion, inscription, paiement…),
+// partagés par toutes les instances du site. La clé est une empreinte
+// SHA-256 : ni adresse IP ni e-mail en clair. Lignes expirées supprimées par
+// la tâche quotidienne.
+model RateLimitBucket {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+// Liens de vérification d'adresse e-mail : seule l'empreinte SHA-256 du
+// jeton est stockée ; 1 heure, usage unique, lié au compte connecté.
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

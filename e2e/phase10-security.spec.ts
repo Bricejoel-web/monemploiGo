@@ -117,3 +117,41 @@ test("en-tête : une seule ligne à 1 280 px, menu « Mon compte » pour une per
   await menu.getByRole("button", { name: "Déconnexion" }).click();
   await expect(header.getByRole("link", { name: "Connexion" })).toBeVisible();
 });
+
+test("connexion : 8 essais ratés puis blocage, compteurs en base aux clés hachées", async ({ page }) => {
+  const user = await createUser("Cible Force Brute");
+  await testDb().rateLimitBucket.deleteMany({});
+  for (let attempt = 1; attempt <= 9; attempt++) {
+    await gotoReady(page, "/fr/connexion");
+    await page.getByLabel("E-mail").fill(user.email);
+    await page.getByLabel("Mot de passe", { exact: true }).fill(`Mauvais-${attempt}#2026`);
+    await page.getByRole("button", { name: "Se connecter" }).click();
+    const expected = attempt <= 8 ? "E-mail ou mot de passe incorrect." : "Trop de tentatives. Réessayez dans quelques minutes.";
+    await expect(page.getByText(expected)).toBeVisible();
+  }
+  // Même le bon mot de passe est refusé pendant le blocage.
+  await page.getByLabel("Mot de passe", { exact: true }).fill("Pro-Test#2026");
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await expect(page.getByText("Trop de tentatives. Réessayez dans quelques minutes.")).toBeVisible();
+
+  const keys = (await testDb().rateLimitBucket.findMany({ select: { key: true } })).map((b) => b.key);
+  expect(keys.length).toBeGreaterThan(0);
+  for (const key of keys) expect(key).toMatch(/^[0-9a-f]{64}$/);
+});
+
+test("photo de CV : seul un vrai PNG, JPEG ou WebP est conservé ; en-tête X-Powered-By absent", async ({ request }) => {
+  const { cleanCvData } = await import("../src/lib/cv/clean-data");
+  const base = { fullName: "Test", jobTitle: "", email: "", phone: "", summary: "", experience: [], education: [], skills: [], languages: [] };
+  const png = `data:image/png;base64,${(await import("node:fs")).readFileSync("src/app/apple-icon.png").toString("base64")}`;
+  expect(cleanCvData({ ...base, photoDataUrl: png }).photoDataUrl).toBe(png);
+  for (const bad of [
+    `data:image/svg+xml;base64,${Buffer.from("<svg onload='alert(1)'/>").toString("base64")}`,
+    `data:image/png;base64,${Buffer.from("<script>alert(1)</script>").toString("base64")}`,
+    "https://exemple.com/traceur.png",
+    "javascript:alert(1)",
+  ]) {
+    expect(cleanCvData({ ...base, photoDataUrl: bad }).photoDataUrl, bad.slice(0, 30)).toBeNull();
+  }
+  const response = await request.get("/fr");
+  expect(response.headers()["x-powered-by"]).toBeUndefined();
+});

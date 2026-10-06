@@ -62,7 +62,7 @@ const LoginSchema = z.object({
 
 export async function signup(locale: string, _state: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const key = await clientKey("signup");
-  if (!rateLimit(key, 5, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(key, 5, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
   }
 
@@ -79,10 +79,15 @@ export async function signup(locale: string, _state: AuthFormState, formData: Fo
     return { errors: z.flattenError(validated.error).fieldErrors };
   }
 
-  const { firstName, lastName, email, password, marketingConsent } = validated.data;
+  const { firstName, lastName, password, marketingConsent } = validated.data;
+  // Adresse enregistrée en minuscules, et refusée si elle existe déjà sous
+  // une autre casse : sinon « Nom@x.com » et « nom@x.com » seraient deux
+  // comptes, et un imposteur pourrait obtenir les droits d'administration
+  // attachés à une adresse (voir src/lib/referral/admin.ts).
+  const email = validated.data.email.toLowerCase();
   const name = `${firstName} ${lastName}`.trim();
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } });
   if (existing) {
     return { errors: { email: ["Un compte existe déjà avec cet e-mail."] } };
   }
@@ -118,7 +123,7 @@ export async function signup(locale: string, _state: AuthFormState, formData: Fo
 
 export async function login(locale: string, _state: AuthFormState, formData: FormData): Promise<AuthFormState> {
   const key = await clientKey("login");
-  if (!rateLimit(key, 8, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(key, 8, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
   }
 
@@ -131,7 +136,14 @@ export async function login(locale: string, _state: AuthFormState, formData: For
   }
 
   const { email, password } = validated.data;
-  const user = await prisma.user.findUnique({ where: { email } });
+  // Seconde limite, par compte : une attaque répartie sur de nombreuses
+  // adresses IP ne peut pas essayer indéfiniment des mots de passe sur un
+  // même compte. Message identique : ne révèle pas si le compte existe.
+  if (!(await rateLimit(`login-account:${email.toLowerCase()}`, 20, 60 * 60 * 1000)).allowed) {
+    return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
+  }
+  // Insensible à la casse, comme l'inscription.
+  const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
 
   // Message volontairement identique dans les deux cas pour ne pas révéler
   // si l'e-mail existe (limite les attaques d'énumération de comptes).

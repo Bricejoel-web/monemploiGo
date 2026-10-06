@@ -52,7 +52,7 @@ export async function initiatePaymentAction(documentId: string): Promise<Payment
   const session = await verifySession();
   if (!session) return { status: "failed", message: "Session expirée, reconnectez-vous." };
 
-  if (!rateLimit(`pay:${session.userId}`, 10, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`pay:${session.userId}`, 10, 15 * 60 * 1000)).allowed) {
     return { status: "failed", message: "Trop de tentatives de paiement. Réessayez dans quelques minutes." };
   }
 

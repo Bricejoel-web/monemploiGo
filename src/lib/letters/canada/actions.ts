@@ -17,7 +17,7 @@ const MAX_IMPORT_BYTES = 4 * 1024 * 1024;
 export async function importCvPdfAction(formData: FormData): Promise<ImportResult | { error: "auth" | "limit" | "format" | "size" | "unreadable" }> {
   const session = await verifySession();
   if (!session) return { error: "auth" };
-  if (!rateLimit(`cv-import:${session.userId}`, 10, 15 * 60 * 1000).allowed) return { error: "limit" };
+  if (!(await rateLimit(`cv-import:${session.userId}`, 10, 15 * 60 * 1000)).allowed) return { error: "limit" };
 
   const file = formData.get("cv");
   if (!(file instanceof File) || file.size === 0) return { error: "format" };

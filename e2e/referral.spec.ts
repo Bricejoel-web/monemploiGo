@@ -1,7 +1,7 @@
 import { createHmac } from "node:crypto";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { gotoReady, expectNoHorizontalScroll } from "./helpers";
-import { DB_WRITES_SKIP_REASON, createUser, dbWritesAllowed, deleteTestUsers, effectiveEnv, loginAs, testDb, testEmail } from "./db";
+import { DB_WRITES_SKIP_REASON, createUser, dbWritesAllowed, deleteTestUsers, effectiveEnv, lastEmailTo, loginAs, testDb, testEmail } from "./db";
 
 // Parrainage « Parrainer & gagner » : les 12 scénarios demandés, de bout en
 // bout (lien, page d'arrivée, inscription, achats, webhook rejoué, retraits,
@@ -194,6 +194,8 @@ test("TEST 9 & 10 : l'administrateur paie un retrait, puis en refuse un autre (m
   // Nombreux allers-retours vers la base de dev distante : plus de temps.
   test.slow();
   const admin = await createUser("Admin Test", ADMIN_EMAIL);
+  // Adresse administrateur déjà prouvée (parcours de vérification testé à part).
+  await testDb().user.update({ where: { id: admin.userId }, data: { emailVerifiedAt: new Date() } });
   // Un compte non administrateur n'a pas accès à l'administration.
   await loginAs(context, referrer.userId, BASE_URL);
   await page.goto("/fr/admin/retraits");
@@ -247,7 +249,8 @@ test("TEST 11 : auto-parrainage (même adresse, variante) → aucune attribution
   await page.locator('input[name="terms"]').check();
   await page.getByRole("button", { name: "Créer mon compte" }).click();
   await expect(page).toHaveURL(/\/fr\/tableau-de-bord$/);
-  expect((await testDb().user.findFirstOrThrow({ where: { email: variant } })).referredById).toBeNull();
+  // Adresse enregistrée en minuscules (normalisation à l'inscription).
+  expect((await testDb().user.findFirstOrThrow({ where: { email: variant.toLowerCase() } })).referredById).toBeNull();
   await self.close();
 });
 
@@ -393,4 +396,48 @@ test("retour de paiement Notch Pay (?ref=…) : jamais pris pour un lien de parr
   await expect(page).toHaveURL(new RegExp(`/(fr|en)/paiement/${doc.id}$`));
   expect((await testDb().payment.findUniqueOrThrow({ where: { id: payment.id } })).status).toBe("SUCCESS");
   expect((await context.cookies()).some((c) => c.name === "monemploigo_ref")).toBe(false);
+});
+
+test("administration : adresse prouvée par lien e-mail avant tout accès ; casse différente refusée à l'inscription", async ({ browser, page, context }) => {
+  await testDb().user.deleteMany({ where: { email: ADMIN_EMAIL } });
+  const admin = await createUser("Admin À Vérifier", ADMIN_EMAIL);
+  await loginAs(context, admin.userId, BASE_URL);
+  await page.goto("/fr/admin/retraits");
+  await expect(page).toHaveURL(/\/fr\/admin\/verification$/);
+  await page.getByRole("button", { name: "Recevoir le lien de vérification" }).click();
+  await expect(page.getByText("Lien envoyé.", { exact: false })).toBeVisible();
+  await expect.poll(() => lastEmailTo(ADMIN_EMAIL)?.subject).toBe("Confirmez votre adresse e-mail monemploiGo");
+  const link = lastEmailTo(ADMIN_EMAIL)!.text.match(/https?:\/\/\S+admin\/verification\?jeton=\S+/)![0];
+  const path = new URL(link).pathname + new URL(link).search;
+
+  // Ouvert sans être connecté (copie interceptée, analyse de messagerie) : rien n'est vérifié.
+  const stranger = await browser.newContext();
+  const strangerPage = await stranger.newPage();
+  await strangerPage.goto(path);
+  await expect(strangerPage).toHaveURL(/\/fr\/connexion$/);
+  await stranger.close();
+  expect((await testDb().user.findUniqueOrThrow({ where: { id: admin.userId } })).emailVerifiedAt).toBeNull();
+
+  await page.goto(path);
+  await expect(page).toHaveURL(/\/fr\/admin\/retraits$/);
+  expect((await testDb().user.findUniqueOrThrow({ where: { id: admin.userId } })).emailVerifiedAt).not.toBeNull();
+  // Lien à usage unique.
+  await testDb().user.update({ where: { id: admin.userId }, data: { emailVerifiedAt: null } });
+  await page.goto(path);
+  await expect(page.getByText("Ce lien n'est plus valable.", { exact: false })).toBeVisible();
+
+  // Imposteur : même adresse en majuscules → inscription refusée.
+  const impostor = await browser.newContext();
+  const impostorPage = await impostor.newPage();
+  await gotoReady(impostorPage, "/fr/inscription");
+  await impostorPage.locator("#firstName").fill("Faux");
+  await impostorPage.locator("#lastName").fill("Admin");
+  await impostorPage.locator("#email").fill(ADMIN_EMAIL.toUpperCase());
+  await impostorPage.locator("#password").fill("Imposteur#2026");
+  await impostorPage.locator("#confirmPassword").fill("Imposteur#2026");
+  await impostorPage.locator("input[name=terms]").check();
+  await impostorPage.locator("form button[type=submit]").click();
+  await expect(impostorPage.getByText("Un compte existe déjà avec cet e-mail.")).toBeVisible();
+  expect(await testDb().user.count({ where: { email: { equals: ADMIN_EMAIL, mode: "insensitive" } } })).toBe(1);
+  await impostor.close();
 });

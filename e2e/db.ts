@@ -47,6 +47,9 @@ export const testEmail = (label: string) => `${label}-${Date.now()}-${Math.floor
 export async function deleteTestUsers() {
   if (!dbWritesAllowed) return;
   const db = testDb();
+  // Limites de tentatives (désormais en base, voir rate-limit.ts) : remises
+  // à zéro entre deux fichiers de tests, base de développement uniquement.
+  await db.rateLimitBucket.deleteMany({});
   const where = { email: { endsWith: `@${TEST_EMAIL_DOMAIN}`, mode: "insensitive" as const } };
   const ids = (await db.user.findMany({ where, select: { id: true } })).map((u) => u.id);
   // Écritures de parrainage créées par les tests d'abord : supprimer en une

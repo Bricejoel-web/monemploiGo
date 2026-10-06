@@ -24,7 +24,7 @@ const SettingsSchema = z.object(structureFields);
  */
 export async function updateProSettings(_state: ProSettingsState, formData: FormData): Promise<ProSettingsState> {
   const account = await requireProAccount();
-  if (!rateLimit(`pro-settings:${account.id}`, 20, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`pro-settings:${account.id}`, 20, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de modifications en peu de temps. Réessayez dans quelques minutes." };
   }
   const validated = SettingsSchema.safeParse({
@@ -48,7 +48,7 @@ export type ProLogoState = { error?: string; saved?: boolean } | undefined;
  */
 export async function updateProLogo(_state: ProLogoState, formData: FormData): Promise<ProLogoState> {
   const account = await requireProAccount();
-  if (!rateLimit(`pro-logo:${account.id}`, 20, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`pro-logo:${account.id}`, 20, 15 * 60 * 1000)).allowed) {
     return { error: "Trop de modifications en peu de temps. Réessayez dans quelques minutes." };
   }
   if (formData.get("remove") === "1") {

@@ -26,6 +26,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Ne pas annoncer la technologie du site (en-tête X-Powered-By).
+  poweredByHeader: false,
   turbopack: {
     root: path.join(__dirname),
   },

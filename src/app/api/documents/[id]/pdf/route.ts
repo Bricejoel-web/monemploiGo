@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/api/document
   // Document Pro : en cas d'échec, retour sur sa page dans l'espace Pro.
   if (loaded.pro) previewPage.pathname = `/fr/pro/documents/${id}`;
 
-  if (!rateLimit(`pdf:${session.userId}`, 15, 15 * 60 * 1000).allowed) return backWithError();
+  if (!(await rateLimit(`pdf:${session.userId}`, 15, 15 * 60 * 1000)).allowed) return backWithError();
 
   const renderUrl = new URL(`/${loaded.pro ? "fr" : locale}/document/${id}/apercu`, request.nextUrl.origin);
   renderUrl.searchParams.set("rendu", "pdf");

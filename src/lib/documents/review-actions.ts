@@ -31,7 +31,7 @@ export async function submitReviewAction(input: {
   const session = await verifySession();
   if (!session) return { ok: false, error: "session" };
 
-  if (!rateLimit(`review:${session.userId}`, 10, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`review:${session.userId}`, 10, 15 * 60 * 1000)).allowed) {
     return { ok: false, error: "rateLimited" };
   }
 

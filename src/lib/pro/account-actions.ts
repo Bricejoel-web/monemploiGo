@@ -77,7 +77,7 @@ const emailTaken = (email: string) =>
 /** Nouveau compte MonEmploiGo + espace Pro, en une seule opération. */
 export async function signupPro(_state: ProFormState, formData: FormData): Promise<ProFormState> {
   if (!isProEnabled()) return DISABLED;
-  if (!rateLimit(await clientKey("pro-signup"), 5, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(await clientKey("pro-signup"), 5, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
   }
 
@@ -103,7 +103,8 @@ export async function signupPro(_state: ProFormState, formData: FormData): Promi
     const user = await prisma.user.create({
       data: {
         name: data.managerName,
-        email: data.email,
+        // En minuscules, comme l'inscription des particuliers.
+        email: data.email.toLowerCase(),
         passwordHash: await hashPassword(data.password),
         termsVersion: TERMS_VERSION,
         termsAcceptedAt: now,
@@ -127,7 +128,7 @@ export async function createProSpace(_state: ProFormState, formData: FormData): 
   const session = await verifySession();
   if (!session) redirect("/fr/pro/connexion");
 
-  if (!rateLimit(`pro-space:${session.userId}`, 10, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`pro-space:${session.userId}`, 10, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
   }
 
@@ -150,13 +151,17 @@ const LoginSchema = z.object({
 
 export async function loginPro(_state: ProFormState, formData: FormData): Promise<ProFormState> {
   if (!isProEnabled()) return DISABLED;
-  if (!rateLimit(await clientKey("login"), 8, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(await clientKey("login"), 8, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
   }
 
   const validated = LoginSchema.safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!validated.success) return { errors: z.flattenError(validated.error).fieldErrors };
 
+  // Seconde limite, par compte (voir login dans src/lib/auth/actions.ts).
+  if (!(await rateLimit(`login-account:${validated.data.email.toLowerCase()}`, 20, 60 * 60 * 1000)).allowed) {
+    return { message: "Trop de tentatives. Réessayez dans quelques minutes." };
+  }
   const user = await prisma.user.findFirst({
     where: { email: { equals: validated.data.email, mode: "insensitive" } },
     select: { id: true, passwordHash: true, sessionVersion: true, professionalAccount: { select: { id: true } } },

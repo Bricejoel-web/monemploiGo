@@ -77,7 +77,7 @@ export async function createCandidate(_state: CandidateFormState, formData: Form
   if ((await getProAccess(account.id)).state !== "active") {
     return { message: "Votre abonnement Pro Starter n'est pas actif : la création de candidats est indisponible." };
   }
-  if (!rateLimit(`pro-candidate:${account.id}`, 30, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(`pro-candidate:${account.id}`, 30, 15 * 60 * 1000)).allowed) {
     return { message: "Trop de créations en peu de temps. Réessayez dans quelques minutes." };
   }
 

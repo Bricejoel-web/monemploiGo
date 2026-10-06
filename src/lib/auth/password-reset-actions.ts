@@ -38,7 +38,7 @@ export async function requestPasswordReset(
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const t = (await getDictionary(locale)).passwordReset;
 
-  if (!rateLimit(await clientKey("pwreset"), 5, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(await clientKey("pwreset"), 5, 15 * 60 * 1000)).allowed) {
     return { message: t.tooMany };
   }
 
@@ -47,7 +47,7 @@ export async function requestPasswordReset(
   const email = parsed.data;
 
   // Au plus 3 liens par adresse et par heure, sans le signaler (même réponse).
-  if (rateLimit(`pwreset-email:${email.toLowerCase()}`, 3, 60 * 60 * 1000).allowed) {
+  if ((await rateLimit(`pwreset-email:${email.toLowerCase()}`, 3, 60 * 60 * 1000)).allowed) {
     const user = await prisma.user.findFirst({
       where: { email: { equals: email, mode: "insensitive" } },
       select: { id: true, email: true },
@@ -80,7 +80,7 @@ export async function resetPassword(
   const locale = isLocale(rawLocale) ? rawLocale : defaultLocale;
   const t = (await getDictionary(locale)).passwordReset;
 
-  if (!rateLimit(await clientKey("pwreset-submit"), 10, 15 * 60 * 1000).allowed) {
+  if (!(await rateLimit(await clientKey("pwreset-submit"), 10, 15 * 60 * 1000)).allowed) {
     return { message: t.tooMany };
   }
 

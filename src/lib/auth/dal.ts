@@ -34,7 +34,7 @@ export const getCurrentUser = cache(async () => {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, email: true, name: true, createdAt: true },
+    select: { id: true, email: true, name: true, createdAt: true, emailVerifiedAt: true },
   });
   return user;
 });

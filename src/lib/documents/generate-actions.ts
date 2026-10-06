@@ -30,7 +30,7 @@ export async function generateBewerbungsbriefBodyAction(
   const session = await verifySession();
   if (!session) return { error: "Session expirée, reconnectez-vous." };
 
-  if (!rateLimit(`generate:${session.userId}`, GENERATE_LIMIT, GENERATE_WINDOW_MS).allowed) {
+  if (!(await rateLimit(`generate:${session.userId}`, GENERATE_LIMIT, GENERATE_WINDOW_MS)).allowed) {
     return { error: "Trop de générations. Réessayez dans quelques minutes." };
   }
 
@@ -54,7 +54,7 @@ export async function generateCoverLetterBodyAction(
   const session = await verifySession();
   if (!session) return { error: "Session expirée, reconnectez-vous." };
 
-  if (!rateLimit(`generate:${session.userId}`, GENERATE_LIMIT, GENERATE_WINDOW_MS).allowed) {
+  if (!(await rateLimit(`generate:${session.userId}`, GENERATE_LIMIT, GENERATE_WINDOW_MS)).allowed) {
     return { error: "Trop de générations. Réessayez dans quelques minutes." };
   }
 
