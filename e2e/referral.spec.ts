@@ -218,7 +218,8 @@ test("TEST 9 & 10 : l'administrateur paie un retrait, puis en refuse un autre (m
   await expect(value("Total gagné")).toContainText("800 FCFA");
 
   // Nouvelle demande de 300, refusée : les 300 redeviennent disponibles.
-  await expect(page.getByText("Disponible dès 500 FCFA de solde.")).toBeVisible();
+  await expect(page.getByText("Le retrait s'ouvre dès que votre solde atteint", { exact: false })).toBeVisible();
+  await expect(page.locator("#method")).toBeDisabled();
   await testDb().withdrawalRequest.create({ data: { userId: referrer.userId, amountFcfa: 300, method: "ORANGE_MONEY", phoneNumber: "+237690000000" } });
   ({ value } = await stats(page));
   await expect(value("Solde disponible")).toContainText("0 FCFA");
