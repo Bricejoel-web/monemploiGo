@@ -50,7 +50,13 @@ export default async function CandidatesPage({ searchParams }: PageProps<"/[loca
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold">Mes candidats</h1>
-        <ProButton href="/fr/pro/candidats/nouveau" label="+ Nouveau candidat" available={canCreate} primary />
+        <ProButton
+          href="/fr/pro/candidats/nouveau"
+          label="+ Nouveau candidat"
+          available={canCreate}
+          lockedReason={overview.access.state !== "active" ? "Abonnement requis" : "Limite atteinte"}
+          primary
+        />
       </div>
 
       {params.supprime === "1" && (

@@ -20,7 +20,7 @@ const buttonBase = "inline-flex items-center gap-2 rounded-full px-4 py-2 text-s
  * raison (« Bientôt » si elle n'existe pas encore, sinon `lockedReason`,
  * par exemple quand l'abonnement n'est pas actif).
  */
-export function ProButton({ href, label, available, primary = false, lockedReason = "Bientôt" }: { href: string; label: string; available: boolean; primary?: boolean; lockedReason?: string }) {
+export function ProButton({ href, label, available, primary = false, lockedReason }: { href: string; label: string; available: boolean; primary?: boolean; lockedReason: string }) {
   if (!available) {
     return (
       <span aria-disabled="true" className={`${buttonBase} cursor-not-allowed border border-black/10 text-black/35 dark:border-white/15 dark:text-white/35`}>

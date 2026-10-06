@@ -46,6 +46,11 @@ test("sans abonnement : « Non activé », aucun chiffre inventé", async ({ pag
   await expect(card(page, "Abonnement")).toContainText("5 000 FCFA / 30 jours");
   await expect(page.getByText("/ mois")).toHaveCount(0);
   await expect(page.getByText("Abonnement requis")).toBeVisible();
+  // Même raison sur la liste des candidats : jamais « Bientôt ».
+  await page.goto("/fr/pro/candidats");
+  await expect(page.locator("main").getByText("Abonnement requis").first()).toBeVisible();
+  await expect(page.locator("main").getByText("Bientôt")).toHaveCount(0);
+  await page.goto("/fr/pro/dashboard");
   // L'en-tête et le pied de page du site particulier ne sont pas affichés.
   await expect(page.locator("footer")).toHaveCount(0);
   await expectNoHorizontalScroll(page);

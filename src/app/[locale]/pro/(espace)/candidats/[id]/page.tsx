@@ -119,7 +119,11 @@ export default async function CandidatePage({ params, searchParams }: PageProps<
       <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">Documents</h2>
-          <ProButton href={`/fr/pro/candidats/${candidate.id}/document`} label="Créer un document" available={canCreateDocument} primary />
+          <ProButton href={`/fr/pro/candidats/${candidate.id}/document`} label="Créer un document"
+            available={canCreateDocument}
+            lockedReason={access.state !== "active" ? "Abonnement requis" : "Candidat archivé"}
+            primary
+          />
         </div>
         {documents.length === 0 ? (
           <p className="mt-3 text-sm text-black/60 dark:text-white/60">Aucun document pour ce candidat.</p>

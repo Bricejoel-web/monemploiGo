@@ -68,7 +68,7 @@ export default async function ProDashboardPage() {
           lockedReason={newCandidate.available ? "Abonnement requis" : "Bientôt"}
           primary
         />
-        <ProButton href={subscription.href} label="Mon abonnement" available={subscription.available} />
+        <ProButton href={subscription.href} label="Mon abonnement" available={subscription.available} lockedReason="Indisponible" />
       </ProPageHeader>
 
       {access.state === "none" && (
