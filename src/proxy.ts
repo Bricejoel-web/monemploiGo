@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { defaultLocale, isLocale, locales } from "@/i18n/config";
 import { SESSION_COOKIE, decryptSessionToken } from "@/lib/auth/session";
 import { SESSION_HINT_COOKIE } from "@/lib/auth/session-hint";
+import { maintenanceResponse } from "@/lib/maintenance";
 import { isCategorySlug } from "@/lib/cv/category-routes";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { isProEnabled } from "@/lib/pro/flag";
@@ -60,6 +61,12 @@ function detectLocale(request: NextRequest): string {
  * /api/session l'efface si la session n'est en réalité plus valable.
  */
 export async function proxy(request: NextRequest) {
+  // Mode maintenance d'abord : il coupe tout, API comprises (voir maintenance.ts).
+  const maintenance = await maintenanceResponse(request);
+  if (maintenance) return maintenance;
+  // Les API ne passent ici que pour la maintenance : rien d'autre ne les concerne.
+  if (request.nextUrl.pathname.startsWith("/api/")) return NextResponse.next();
+
   const response = await handle(request);
   if (request.cookies.get(SESSION_COOKIE) && !request.cookies.get(SESSION_HINT_COOKIE)) {
     const session = await decryptSessionToken(request.cookies.get(SESSION_COOKIE)?.value);
@@ -189,5 +196,6 @@ async function handle(request: NextRequest): Promise<NextResponse> {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api|.*\\..*).*)"],
+  // API comprises, pour le mode maintenance uniquement (voir proxy ci-dessus).
+  matcher: ["/((?!_next|.*\\..*).*)"],
 };

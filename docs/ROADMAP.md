@@ -289,6 +289,15 @@ impossible de nous pirater ») :
   selon la casse. Sauvegarde Neon `sauvegarde-avant-mise-en-ligne` créée par
   l'utilisateur (sans expiration) avant les migrations.
 
+### Mode maintenance (2026-10-06)
+
+`MAINTENANCE_MODE=true` dans Vercel (Production) puis redéploiement : tout le
+site répond par une page autonome en 503 (FR/EN, contact), pages, actions,
+API, webhooks et tâche quotidienne compris (`src/lib/maintenance.ts`, appelé
+en premier par le proxy, dont le filtre inclut désormais les API). Accès
+réservé : `?acces-maintenance=<MAINTENANCE_BYPASS>` pose un cookie (empreinte
+SHA-256, 12 h). Tests : `node e2e/maintenance.mjs`.
+
 ### Phase 12 : mise en production groupée — à faire avec l'accord de l'utilisateur
 
 Ordre impératif :

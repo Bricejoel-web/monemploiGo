@@ -46,7 +46,8 @@ export default defineConfig({
   ],
   webServer: {
     command: `npm run build && npx next start -p ${PORT}`,
-    url: `http://localhost:${PORT}/fr`,
+    // Fichier statique : prêt même en mode maintenance (les pages y répondent 503).
+    url: `http://localhost:${PORT}/robots.txt`,
     timeout: 10 * 60_000,
     reuseExistingServer: true,
     // E-mails écrits dans e2e/.outbox au lieu d'être envoyés (voir mailer.ts).
@@ -59,6 +60,9 @@ export default defineConfig({
       // Valeur de test (serveur local uniquement) : permet aux tests
       // d'appeler la tâche quotidienne, qui refuse de tourner sans secret.
       CRON_SECRET: "e2e-cron-secret",
+      // Mode maintenance : allumé seulement par e2e/maintenance.mjs.
+      MAINTENANCE_MODE: process.env.MAINTENANCE_MODE ?? "false",
+      MAINTENANCE_BYPASS: "e2e-maintenance-secret",
     },
   },
 });
