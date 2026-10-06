@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import type { Locale } from "@/i18n/config";
+import { useSessionInfo } from "./session-client";
 
 // Sur mobile, les liens de navigation principaux (dont "Tableau de bord")
 // étaient entièrement masqués (`hidden md:flex`) sans aucun menu de
@@ -21,10 +22,8 @@ export function MobileNav({
   loginLabel,
   signupLabel,
   logoutLabel,
-  isLoggedIn,
   showReferral,
   showPro,
-  showAdmin,
 }: {
   locale: Locale;
   cvLabel: string;
@@ -34,12 +33,15 @@ export function MobileNav({
   loginLabel: string;
   signupLabel: string;
   logoutLabel: string;
-  isLoggedIn: boolean;
   showReferral: boolean;
   showPro: boolean;
-  showAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  // Groupes « connecté » / « visiteur » choisis par l'indicateur de session
+  // (.si-connecte / .si-deconnecte) ; le lien d'administration attend la
+  // réponse de /api/session.
+  const info = useSessionInfo();
+  const showAdmin = Boolean(info?.loggedIn && info.isAdmin);
 
   const linkClass =
     "block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.08]";
@@ -54,12 +56,32 @@ export function MobileNav({
         className="flex h-9 w-9 items-center justify-center rounded-full text-foreground/70 transition-colors hover:bg-black/[0.05] dark:hover:bg-white/[0.08]"
       >
         {open ? (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-5 w-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
           </svg>
         ) : (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-5 w-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         )}
       </button>
@@ -67,50 +89,79 @@ export function MobileNav({
       {open && (
         <div className="absolute inset-x-0 top-full border-b border-black/[0.06] bg-background/95 backdrop-blur-md px-4 py-3 shadow-md dark:border-white/10">
           <nav className="flex flex-col gap-1">
-            <Link href={`/${locale}/cv`} className={linkClass} onClick={() => setOpen(false)}>
+            <Link
+              href={`/${locale}/cv`}
+              className={linkClass}
+              onClick={() => setOpen(false)}
+            >
               {cvLabel}
             </Link>
-            <Link href={`/${locale}/lettres-de-motivation`} className={linkClass} onClick={() => setOpen(false)}>
+            <Link
+              href={`/${locale}/lettres-de-motivation`}
+              className={linkClass}
+              onClick={() => setOpen(false)}
+            >
               {coverLettersLabel}
             </Link>
-            <Link href={`/${locale}/etranger`} className={linkClass} onClick={() => setOpen(false)}>
+            <Link
+              href={`/${locale}/etranger`}
+              className={linkClass}
+              onClick={() => setOpen(false)}
+            >
               {abroadLabel}
             </Link>
-            {isLoggedIn ? (
-              <>
-                <Link href={`/${locale}/tableau-de-bord`} className={linkClass} onClick={() => setOpen(false)}>
-                  {dashboardLabel}
-                </Link>
-                {showReferral && (
-                  <Link href="/fr/parrainage" className={linkClass} onClick={() => setOpen(false)}>
-                    Parrainer & gagner
-                  </Link>
-                )}
-                {showAdmin && (
-                  <Link href="/fr/admin/retraits" className={linkClass} onClick={() => setOpen(false)}>
-                    Administration
-                  </Link>
-                )}
-                <div className="border-t border-black/[0.06] pt-1 dark:border-white/10">
-                  <LogoutButton locale={locale} label={logoutLabel} />
-                </div>
-              </>
-            ) : (
-              <div className="mt-1 flex flex-col gap-1 border-t border-black/[0.06] pt-2 dark:border-white/10">
-                <Link href={`/${locale}/connexion`} className={linkClass} onClick={() => setOpen(false)}>
-                  {loginLabel}
-                </Link>
+            <div className="si-connecte flex flex-col gap-1">
+              <Link
+                href={`/${locale}/tableau-de-bord`}
+                className={linkClass}
+                onClick={() => setOpen(false)}
+              >
+                {dashboardLabel}
+              </Link>
+              {showReferral && (
                 <Link
-                  href={`/${locale}/inscription`}
-                  className="rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-3 py-2.5 text-center text-sm font-semibold text-white"
+                  href="/fr/parrainage"
+                  className={linkClass}
                   onClick={() => setOpen(false)}
                 >
-                  {signupLabel}
+                  Parrainer & gagner
                 </Link>
+              )}
+              {showAdmin && (
+                <Link
+                  href="/fr/admin/retraits"
+                  className={linkClass}
+                  onClick={() => setOpen(false)}
+                >
+                  Administration
+                </Link>
+              )}
+              <div className="border-t border-black/[0.06] pt-1 dark:border-white/10">
+                <LogoutButton locale={locale} label={logoutLabel} />
               </div>
-            )}
+            </div>
+            <div className="si-deconnecte mt-1 flex flex-col gap-1 border-t border-black/[0.06] pt-2 dark:border-white/10">
+              <Link
+                href={`/${locale}/connexion`}
+                className={linkClass}
+                onClick={() => setOpen(false)}
+              >
+                {loginLabel}
+              </Link>
+              <Link
+                href={`/${locale}/inscription`}
+                className="rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-3 py-2.5 text-center text-sm font-semibold text-white"
+                onClick={() => setOpen(false)}
+              >
+                {signupLabel}
+              </Link>
+            </div>
             {showPro && (
-              <Link href="/fr/pro/connexion" className={`${linkClass} mt-1 border-t border-black/[0.06] pt-3 dark:border-white/10`} onClick={() => setOpen(false)}>
+              <Link
+                href="/fr/pro/connexion"
+                className={`${linkClass} mt-1 border-t border-black/[0.06] pt-3 dark:border-white/10`}
+                onClick={() => setOpen(false)}
+              >
                 Espace Pro
               </Link>
             )}

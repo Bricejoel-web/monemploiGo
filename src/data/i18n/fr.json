@@ -84,6 +84,7 @@
       "intro": "MonEmploiGo utilise uniquement des cookies strictement nécessaires au fonctionnement du site :",
       "items": [
         "« monemploigo_session » : vous garde connecté à votre compte de façon sécurisée (30 jours) ;",
+        "« monemploigo_connecte » : indique seulement que vous êtes connecté (valeur « 1 »), pour afficher immédiatement le bon menu ; il ne contient aucune donnée personnelle et ne donne aucun accès à votre compte (30 jours) ;",
         "« NEXT_LOCALE » : mémorise la langue choisie, français ou anglais (1 an)."
       ],
       "paragraphs": [

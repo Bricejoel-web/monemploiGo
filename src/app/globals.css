@@ -379,3 +379,13 @@ input[type="range"] {
     min-height: 297mm;
   }
 }
+
+/* En-tête des pages statiques (voir src/lib/auth/session-hint.ts) : liens
+   réservés aux personnes connectées ou aux visiteurs, choisis avant le
+   premier affichage par l'attribut data-connecte. */
+html:not([data-connecte="1"]) .si-connecte {
+  display: none !important;
+}
+html[data-connecte="1"] .si-deconnecte {
+  display: none !important;
+}

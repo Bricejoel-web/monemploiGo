@@ -112,7 +112,11 @@ export async function loginAs(context: import("@playwright/test").BrowserContext
     .setIssuedAt()
     .setExpirationTime("1h")
     .sign(new TextEncoder().encode(secret));
-  await context.addCookies([{ name: "monemploigo_session", value: token, url: baseURL, httpOnly: true, sameSite: "Lax" }]);
+  await context.addCookies([
+    { name: "monemploigo_session", value: token, url: baseURL, httpOnly: true, sameSite: "Lax" },
+    // Indicateur « connecté » posé par le site à la connexion (session-hint.ts).
+    { name: "monemploigo_connecte", value: "1", url: baseURL, sameSite: "Lax" },
+  ]);
 }
 
 /** Compte particulier de test, créé directement en base (base de développement uniquement). */

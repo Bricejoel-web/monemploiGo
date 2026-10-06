@@ -13,6 +13,11 @@ const NEW_PASSWORD = "Nouveau-Mdp#2026";
 test.skip(!dbWritesAllowed, DB_WRITES_SKIP_REASON);
 test.skip(({ isMobile }) => isMobile, "joué une fois, sur ordinateur");
 test.afterAll(deleteTestUsers);
+// Compteurs de tentatives laissés par d'autres fichiers (essais ratés exprès) :
+// remis à zéro, sinon la première connexion de ce fichier serait bloquée.
+test.beforeAll(async () => {
+  if (dbWritesAllowed) await testDb().rateLimitBucket.deleteMany({});
+});
 test.slow();
 
 test("réinitialisation du mot de passe : les sessions des autres appareils sont fermées", async ({ browser }) => {
@@ -137,6 +142,8 @@ test("connexion : 8 essais ratés puis blocage, compteurs en base aux clés hach
   const keys = (await testDb().rateLimitBucket.findMany({ select: { key: true } })).map((b) => b.key);
   expect(keys.length).toBeGreaterThan(0);
   for (const key of keys) expect(key).toMatch(/^[0-9a-f]{64}$/);
+  // Compteurs remis à zéro : les tests suivants se connectent depuis la même adresse.
+  await testDb().rateLimitBucket.deleteMany({});
 });
 
 test("photo de CV : seul un vrai PNG, JPEG ou WebP est conservé ; en-tête X-Powered-By absent", async ({ request }) => {

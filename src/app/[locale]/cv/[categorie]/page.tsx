@@ -4,7 +4,7 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getCvTemplatesByCategory, LAYOUT_LABELS, PRICE_FCFA } from "@/lib/cv/catalog";
 import { seoMetadata } from "@/lib/seo-pages";
-import { CATEGORY_LABEL_KEYS, SLUG_TO_CATEGORY } from "@/lib/cv/category-routes";
+import { CATEGORY_LABEL_KEYS, CATEGORY_SLUGS, SLUG_TO_CATEGORY } from "@/lib/cv/category-routes";
 import { CvRenderer } from "@/components/cv/CvRenderer";
 import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
 import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
@@ -65,6 +65,13 @@ function TemplateCard({
       </span>
     </Link>
   );
+}
+
+// Les 6 catégories sont préparées à la construction (pages statiques) :
+// leur contenu ne dépend ni du visiteur ni du hasard (photos d'exemple
+// choisies à partir du nom du modèle).
+export function generateStaticParams() {
+  return Object.values(CATEGORY_SLUGS).map((categorie) => ({ categorie }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/cv/[categorie]">) {

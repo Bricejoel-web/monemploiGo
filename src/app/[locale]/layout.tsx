@@ -11,6 +11,7 @@ import { InfoTicker, type TickerItem } from "@/components/layout/InfoTicker";
 import { HideInProSpace } from "@/components/layout/HideInProSpace";
 import { SITE_NAME, SITE_URL, organizationJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { SESSION_HINT_SCRIPT } from "@/lib/auth/session-hint";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,7 +60,14 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      // data-connecte est posé par le script ci-dessous avant l'hydratation.
+      suppressHydrationWarning
     >
+      <head>
+        {/* Avant le premier affichage : en-tête « connecté » ou non, sans
+            clignotement, sur des pages restées statiques (session-hint.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: SESSION_HINT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         {/* Les polices des CV ne sont plus chargées ici mais seulement sur
             les pages qui affichent des documents : voir CvFonts. */}

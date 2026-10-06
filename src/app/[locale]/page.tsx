@@ -19,7 +19,6 @@ import {
 import { PRICE_FCFA, COVER_LETTER_PRICE_FCFA } from "@/lib/cv/catalog";
 import { FlatPriceBadge } from "@/components/cv/FlatPriceBadge";
 import { CATEGORY_LABEL_KEYS, CATEGORY_SLUGS } from "@/lib/cv/category-routes";
-import { verifySession } from "@/lib/auth/dal";
 import { getPortraitById, unsplashProfileLink, unsplashSrcSet } from "@/lib/photos/unsplash";
 import type { CvCategory } from "@/lib/cv/types";
 import { seoMetadata } from "@/lib/seo-pages";
@@ -53,7 +52,9 @@ export default async function HomePage({
   if (!isLocale(locale)) notFound();
 
   const dict = await getDictionary(locale as Locale);
-  const session = await verifySession();
+  // Page statique : les deux variantes des boutons (visiteur / connecté) sont
+  // rendues, la bonne est montrée par l'indicateur de session (.si-connecte /
+  // .si-deconnecte, voir src/lib/auth/session-hint.ts).
 
   const advantages = [
     { icon: BoltIcon, title: dict.home.advantage1Title, text: dict.home.advantage1Text },
@@ -131,10 +132,16 @@ export default async function HomePage({
               </p>
               <div className="animate-fade-in-up mt-8 flex flex-wrap items-center gap-5" style={{ animationDelay: "0.24s" }}>
                 <Link
-                  href={`/${locale}/${session ? "tableau-de-bord" : "inscription"}`}
-                  className="btn-shine inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#eb5757]/30 transition-all hover:scale-[1.04] hover:shadow-xl hover:shadow-[#eb5757]/40"
+                  href={`/${locale}/inscription`}
+                  className="si-deconnecte btn-shine inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#eb5757]/30 transition-all hover:scale-[1.04] hover:shadow-xl hover:shadow-[#eb5757]/40"
                 >
-                  {session ? dict.home.heroCtaLoggedIn : dict.home.heroCtaPrimary}
+                  {dict.home.heroCtaPrimary}
+                </Link>
+                <Link
+                  href={`/${locale}/tableau-de-bord`}
+                  className="si-connecte btn-shine inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#f2994a] to-[#eb5757] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#eb5757]/30 transition-all hover:scale-[1.04] hover:shadow-xl hover:shadow-[#eb5757]/40"
+                >
+                  {dict.home.heroCtaLoggedIn}
                 </Link>
                 <Link href={`/${locale}/cv`} className="group inline-flex items-center gap-3 text-sm font-semibold text-white">
                   <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm transition-colors group-hover:bg-white/25">
@@ -283,11 +290,11 @@ export default async function HomePage({
           <div className="pointer-events-none absolute -top-16 -right-16 h-56 w-56 rounded-full bg-gradient-to-br from-[#f2994a] to-[#eb5757] opacity-25 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-gradient-to-br from-[#f2994a] to-[#eb5757] opacity-15 blur-3xl" />
           <h2 className="relative text-2xl font-bold text-white sm:text-3xl">{dict.home.ctaBandTitle}</h2>
-          <Link
-            href={`/${locale}/${session ? "tableau-de-bord" : "inscription"}`}
-            className="relative mt-6 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#171512] transition-transform hover:scale-[1.03]"
-          >
-            {session ? dict.home.heroCtaLoggedIn : dict.home.ctaBandButton}
+          <Link href={`/${locale}/inscription`} className="si-deconnecte relative mt-6 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#171512] transition-transform hover:scale-[1.03]">
+            {dict.home.ctaBandButton}
+          </Link>
+          <Link href={`/${locale}/tableau-de-bord`} className="si-connecte relative mt-6 inline-block rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#171512] transition-transform hover:scale-[1.03]">
+            {dict.home.heroCtaLoggedIn}
           </Link>
         </div>
       </section>

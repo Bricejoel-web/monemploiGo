@@ -84,6 +84,7 @@
       "intro": "MonEmploiGo only uses cookies that are strictly necessary for the site to work:",
       "items": [
         "\"monemploigo_session\": keeps you securely logged in to your account (30 days);",
+        "\"monemploigo_connecte\": only indicates that you are logged in (value \"1\"), so the right menu is shown immediately; it contains no personal data and gives no access to your account (30 days);",
         "\"NEXT_LOCALE\": remembers the language you chose, French or English (1 year)."
       ],
       "paragraphs": [

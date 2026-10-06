@@ -1,6 +1,7 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { SESSION_HINT_COOKIE } from "./session-hint";
 
 export const SESSION_COOKIE = "monemploigo_session";
 const secretKey = process.env.SESSION_SECRET;
@@ -45,6 +46,14 @@ export async function createSession(userId: string, sessionVersion = 0) {
     sameSite: "lax",
     path: "/",
   });
+  // Indicateur « connecté » lisible par le navigateur (voir session-hint.ts) :
+  // aucune donnée, aucun accès, seulement l'affichage de l'en-tête.
+  cookieStore.set(SESSION_HINT_COOKIE, "1", {
+    secure: process.env.NODE_ENV === "production",
+    expires: expiresAt,
+    sameSite: "lax",
+    path: "/",
+  });
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
@@ -56,4 +65,5 @@ export async function getSession(): Promise<SessionPayload | null> {
 export async function deleteSession() {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
+  cookieStore.delete(SESSION_HINT_COOKIE);
 }
