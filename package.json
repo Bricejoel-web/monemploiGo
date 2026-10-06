@@ -21,7 +21,7 @@
     "dictionary-en": "^4.0.0",
     "dictionary-fr": "^3.0.0",
     "jose": "^6.2.12",
-    "next": "16.3.5",
+    "next": "16.3.8",
     "nodemailer": "10.0.10",
     "nspell": "^2.1.5",
     "prisma": "7.10.0",
@@ -42,7 +42,7 @@
     "@types/react-dom": "^19",
     "@types/ws": "^8.5.13",
     "eslint": "^9",
-    "eslint-config-next": "16.3.5",
+    "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
