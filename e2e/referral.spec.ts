@@ -177,12 +177,15 @@ test("TEST 8 : retrait de 500 sur 800 → 300 disponibles, 500 en attente ; doub
       await p.getByLabel("Montant du retrait (FCFA)").fill("500");
       await p.getByLabel("Paiement sur").selectOption("MTN_MOMO");
       await p.getByLabel("Numéro Mobile Money").fill("677 00 00 00");
+      await p.getByLabel("Mot de passe (confirmation)").fill("Pro-Test#2026");
       return p;
     }),
   );
   await Promise.all(pages.map((p) => p.getByRole("button", { name: "Demander le paiement" }).click()));
   await Promise.all(pages.map((p) => expect(p.getByText(/Votre demande de paiement est enregistrée|Montant supérieur à votre solde disponible/)).toBeVisible()));
   expect(await testDb().withdrawalRequest.count({ where: { userId: referrer.userId } })).toBe(1);
+  // Le parrain est alerté par e-mail (fin du numéro seulement).
+  await expect.poll(() => lastEmailTo(referrer.email)?.subject).toBe("Demande de retrait enregistrée — monemploiGo");
 
   const { value } = await stats(pages[0]);
   await expect(value("Solde disponible")).toContainText("300 FCFA");

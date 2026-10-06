@@ -51,6 +51,13 @@ export function WithdrawalForm({ available, minimum }: { available: number; mini
           {state?.errors?.phone && <p className="text-xs text-red-600">{state.errors.phone[0]}</p>}
         </div>
       </div>
+      <div className="flex flex-col gap-1.5 sm:max-w-xs">
+        <label htmlFor="withdraw-password" className="text-sm font-medium">
+          Mot de passe (confirmation)
+        </label>
+        <input id="withdraw-password" name="password" type="password" autoComplete="current-password" required disabled={disabled} className={inputClass} />
+        {state?.errors?.password && <p className="text-xs text-red-600">{state.errors.password[0]}</p>}
+      </div>
       {state?.message && (
         <p role="alert" className="text-sm text-red-700 dark:text-red-300">
           {state.message}

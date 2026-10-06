@@ -1,14 +1,17 @@
 "use server";
 
 import { z } from "zod";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
+import { verifyPassword } from "@/lib/auth/password";
+import { sendEmail } from "@/lib/email/mailer";
 import { prisma } from "@/lib/db/client";
 import { verifySession } from "@/lib/auth/dal";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { getReferralBalance } from "./balance";
 import { MIN_WITHDRAWAL_FCFA, isReferralEnabled } from "./config";
 
-export type WithdrawalFormState = { message?: string; errors?: Partial<Record<"amount" | "method" | "phone", string[]>> } | undefined;
+export type WithdrawalFormState = { message?: string; errors?: Partial<Record<"amount" | "method" | "phone" | "password", string[]>> } | undefined;
 
 const WithdrawalSchema = z.object({
   amount: z.coerce
@@ -44,6 +47,13 @@ export async function requestWithdrawal(_state: WithdrawalFormState, formData: F
   if (!parsed.success) return { errors: z.flattenError(parsed.error).fieldErrors };
   const { amount, method, phone } = parsed.data;
 
+  // Mot de passe redemandé : une session volée (ordinateur partagé, cookie
+  // dérobé) ne suffit pas à envoyer les gains vers un autre numéro.
+  const owner = await prisma.user.findUniqueOrThrow({ where: { id: session.userId }, select: { passwordHash: true, email: true } });
+  if (!(await verifyPassword(String(formData.get("password") ?? ""), owner.passwordHash))) {
+    return { errors: { password: ["Mot de passe incorrect."] } };
+  }
+
   const created = await prisma.$transaction(
     async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${session.userId} FOR UPDATE`;
@@ -58,5 +68,13 @@ export async function requestWithdrawal(_state: WithdrawalFormState, formData: F
     { maxWait: 10_000, timeout: 20_000 },
   );
   if (!created) return { message: "Montant supérieur à votre solde disponible." };
+  // Alerte au parrain : s'il n'est pas l'auteur de la demande, il le sait
+  // tout de suite (le paiement est fait à la main, sous 72 h, et peut être refusé).
+  const last = phone.replace(/\D/g, "").slice(-2);
+  const lines = [
+    `Une demande de retrait de ${amount} FCFA vers le numéro se terminant par ${last} a été enregistrée sur votre compte monemploiGo.`,
+    "Si vous n'êtes pas à l'origine de cette demande, répondez immédiatement à cet e-mail ou écrivez à monemploigo.contact@gmail.com, et changez votre mot de passe.",
+  ];
+  after(() => sendEmail({ to: owner.email, subject: "Demande de retrait enregistrée — monemploiGo", text: lines.join("\n\n"), html: lines.map((l) => `<p>${l}</p>`).join("") }));
   redirect("/fr/parrainage?retrait=1");
 }
