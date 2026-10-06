@@ -266,10 +266,33 @@ développement séparée (branche Neon) avant de continuer.
   sont pas des données de candidats, et l'e-mail reçoit les avertissements
   d'expiration.
 
+### Durcissement de sécurité avant la mise en ligne (2026-10-06)
+
+État des lieux puis corrections, à la demande de l'utilisateur (« pratiquement
+impossible de nous pirater ») :
+- Next.js 16.3.5 → **16.3.8** : faille critique d'exécution de code à distance
+  dans `next/og` (utilisé par `opengraph-image.tsx`).
+- Limites de tentatives : compteurs en base (`RateLimitBucket`, upsert
+  atomique, clés SHA-256) au lieu de la mémoire de chaque instance ; limite
+  par compte à la connexion (20 / heure) ; IP lue dans `x-real-ip`.
+- Administration : adresse prouvée par lien e-mail (usage unique, lié au
+  compte connecté) ; e-mails enregistrés en minuscules et comparés sans
+  casse (un imposteur « Admin@… » ne peut plus hériter des droits).
+- Photos de CV revérifiées côté serveur (PNG/JPEG/WebP réels, 1,5 Mo) ;
+  en-tête `X-Powered-By` retiré.
+- Accepté : alertes `npm audit` sur la CLI Prisma (construction seulement ;
+  correctif uniquement en Prisma 8, encore en préversion) ; CSP avec
+  `unsafe-inline` (un nonce rendrait toutes les pages dynamiques).
+- Vérifié sans correction nécessaire : cookies, HSTS, signature du webhook,
+  secret du cron, PDF rendus via le site (CSP), aucune clé côté navigateur.
+- Production vérifiée en lecture seule : 8 comptes, aucun doublon d'adresse
+  selon la casse. Sauvegarde Neon `sauvegarde-avant-mise-en-ligne` créée par
+  l'utilisateur (sans expiration) avant les migrations.
+
 ### Phase 12 : mise en production groupée — à faire avec l'accord de l'utilisateur
 
 Ordre impératif :
-1. Appliquer en production, **avant** le déploiement, les 10 migrations
+1. Appliquer en production, **avant** le déploiement, les 12 migrations
    absentes de `main` : `20260930120000_pro_accounts_and_password_reset`,
    `20260930150000_pro_subscriptions_and_candidates`,
    `20260930170000_pro_documents_link`,
@@ -277,7 +300,8 @@ Ordre impératif :
    `20261006090000_referral_program`,
    `20261006120000_referral_keep_financial_traces`,
    `20261006150000_canada_cv`, `20261007090000_pro_subscription_payments`,
-   `20261007100000_user_session_version`, `20261007110000_pro_logo` (le code de `dev` lit
+   `20261007100000_user_session_version`, `20261007110000_pro_logo`,
+   `20261007120000_rate_limit_buckets`, `20261007130000_email_verification` (le code de `dev` lit
    `User.sessionVersion` sur chaque page : sans la dernière, tout le site
    tombe).
 2. Variables Production réglées par l'utilisateur : `PRO_ENABLED`,
