@@ -34,8 +34,10 @@ export async function requestWithdrawal(_state: WithdrawalFormState, formData: F
   if (!isReferralEnabled()) return { message: "Le programme de parrainage n'est pas disponible." };
   const session = await verifySession();
   if (!session) redirect("/fr/connexion");
-  if (!(await rateLimit(`withdrawal:${session.userId}`, 5, 15 * 60 * 1000)).allowed) {
-    return { message: "Trop de demandes. Réessayez dans quelques minutes." };
+  // Protection du parrain : 5 tentatives par heure et par compte (compteur
+  // partagé en base), qu'elles aboutissent ou non.
+  if (!(await rateLimit(`withdrawal:${session.userId}`, 5, 60 * 60 * 1000)).allowed) {
+    return { message: "Trop de tentatives. Réessayez plus tard." };
   }
 
   const parsed = WithdrawalSchema.safeParse({ amount: formData.get("amount"), method: formData.get("method"), phone: formData.get("phone") ?? "" });
