@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { sendProWelcomeEmail } from "@/lib/email/pro-welcome-email";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/client";
 import { verifySession } from "@/lib/auth/dal";
@@ -119,6 +121,8 @@ export async function signupPro(_state: ProFormState, formData: FormData): Promi
   }
 
   await createSession(userId);
+  // Bienvenue Pro, envoyée après la réponse (n'attend ni ne bloque l'inscription).
+  after(() => sendProWelcomeEmail({ to: data.email, companyName: data.companyName, managerName: data.managerName }));
   redirect("/fr/pro/dashboard");
 }
 
@@ -137,8 +141,12 @@ export async function createProSpace(_state: ProFormState, formData: FormData): 
 
   try {
     await prisma.professionalAccount.create({ data: { userId: session.userId, ...accountData(validated.data) } });
+    // Espace ajouté à un compte existant : son propre e-mail de bienvenue Pro
+    // (le compte a déjà reçu celui de l'inscription particulière).
+    const { email, companyName, managerName } = validated.data;
+    after(() => sendProWelcomeEmail({ to: email, companyName, managerName }));
   } catch (error) {
-    // Espace déjà créé (double clic, autre onglet) : on y va simplement.
+    // Espace déjà créé (double clic, autre onglet) : on y va simplement, sans second e-mail.
     if (!isUniqueViolation(error)) throw error;
   }
   redirect("/fr/pro/dashboard");
