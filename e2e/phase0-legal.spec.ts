@@ -37,7 +37,7 @@ test.describe("pages légales existantes", () => {
 
   test("la date de la politique de confidentialité suit la version publiée", async ({ page }) => {
     await page.goto("/fr/confidentialite");
-    const date = referralEnabled ? "6 octobre 2026" : proEnabled ? "30 septembre 2026" : "29 septembre 2026";
+    const date = referralEnabled || proEnabled ? "6 octobre 2026" : "29 septembre 2026";
     // En haut de la page et dans « 29. Entrée en vigueur ».
     await expect(page.getByText(`Dernière mise à jour : ${date}`)).toHaveCount(2);
   });

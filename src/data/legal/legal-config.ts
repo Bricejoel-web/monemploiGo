@@ -21,13 +21,15 @@ export const LEGAL_CONFIG = {
   privacyLastUpdated: "29 septembre 2026",
   privacyLastUpdatedEn: "September 29, 2026",
   // MonEmploiGo Pro (affichés seulement quand PRO_ENABLED=true, voir
-  // src/lib/pro/flag.ts). À REMPLACER par la date réelle de mise en ligne de
-  // Pro le jour où l'interrupteur est activé en production.
-  proTermsLastUpdated: "30 septembre 2026",
-  privacyWithProLastUpdated: "30 septembre 2026",
-  privacyWithProLastUpdatedEn: "September 30, 2026",
-  // Parrainage (affichés seulement quand REFERRAL_ENABLED=true). À REMPLACER
-  // par la date réelle de lancement du programme.
+  // src/lib/pro/flag.ts). Date de mise en ligne du code (6 octobre 2026,
+  // choix de l'utilisateur), qui inclut la mention du logo. Si
+  // l'interrupteur n'est activé que bien plus tard, y inscrire la date
+  // d'activation.
+  proTermsLastUpdated: "6 octobre 2026",
+  privacyWithProLastUpdated: "6 octobre 2026",
+  privacyWithProLastUpdatedEn: "October 6, 2026",
+  // Parrainage (affichés seulement quand REFERRAL_ENABLED=true). Date de mise
+  // en ligne du code ; même remarque que pour Pro.
   referralTermsLastUpdated: "6 octobre 2026",
   privacyWithReferralLastUpdated: "6 octobre 2026",
   privacyWithReferralLastUpdatedEn: "October 6, 2026",
