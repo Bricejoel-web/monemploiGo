@@ -3,11 +3,9 @@ import { notFound } from "next/navigation";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { coverLetterCatalog, CL_LAYOUT_LABELS } from "@/lib/cv/catalog";
-import { CoverLetterRenderer } from "@/components/cv/CoverLetterRenderer";
-import { TemplateThumbnail } from "@/components/cv/TemplateThumbnail";
+import { LetterThumbnail } from "@/components/cv/LetterThumbnail";
 import { CatalogSection, CATALOG_CARD_CLASSES } from "@/components/cv/CatalogSection";
 import { FlagCanada, FlagGermany } from "@/components/referral/icons";
-import { getSampleCoverLetterData } from "@/lib/cv/sample-data";
 import type { CoverLetterTemplateMeta } from "@/lib/cv/types";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { seoMetadata } from "@/lib/seo-pages";
@@ -18,13 +16,11 @@ function TemplateCard({
   template,
   locale,
   dict,
-  sample,
   index,
 }: {
   template: CoverLetterTemplateMeta;
   locale: Locale;
   dict: Dictionary;
-  sample: ReturnType<typeof getSampleCoverLetterData>;
   index: number;
 }) {
   return (
@@ -36,9 +32,7 @@ function TemplateCard({
       <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#f2994a] to-[#eb5757]" />
       <div className="w-full overflow-hidden rounded-md">
         <div className="transition-transform duration-300 ease-out group-hover:scale-105">
-          <TemplateThumbnail>
-            <CoverLetterRenderer data={sample} layout={template.layout} theme={template.theme} locale={locale} />
-          </TemplateThumbnail>
+          <LetterThumbnail layout={template.layout} theme={template.theme} locale={locale} />
         </div>
       </div>
       <p className="text-sm font-semibold">{template.priceFcfa} FCFA</p>
@@ -59,7 +53,6 @@ export default async function CoverLetterCatalogPage({ params }: PageProps<"/[lo
   if (!isLocale(locale)) notFound();
 
   const dict = await getDictionary(locale as Locale);
-  const sample = getSampleCoverLetterData(locale as Locale);
 
   // Les modèles sont déjà regroupés par mise en page dans l'ordre du
   // catalogue (`coverLetterLayouts.flatMap(...)`) : ce regroupement se
@@ -109,7 +102,7 @@ export default async function CoverLetterCatalogPage({ params }: PageProps<"/[lo
           {[...groups.entries()].map(([layoutKey, templates]) => (
             <CatalogSection key={layoutKey} title={CL_LAYOUT_LABELS[layoutKey] ?? layoutKey}>
               {templates.map((template, index) => (
-                <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} sample={sample} index={index} />
+                <TemplateCard key={template.slug} template={template} locale={locale as Locale} dict={dict} index={index} />
               ))}
             </CatalogSection>
           ))}
