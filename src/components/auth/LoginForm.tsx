@@ -7,13 +7,15 @@ import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/components/home/icons";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 
-export function LoginForm({ locale, dict, passwordJustReset = false }: { locale: Locale; dict: Dictionary; passwordJustReset?: boolean }) {
+export function LoginForm({ locale, dict, passwordJustReset = false, next }: { locale: Locale; dict: Dictionary; passwordJustReset?: boolean; next?: string }) {
   const loginWithLocale = login.bind(null, locale);
   const [state, action, pending] = useActionState<AuthFormState, FormData>(loginWithLocale, undefined);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={action} className="flex flex-col gap-4">
+      {/* Page où revenir après la connexion (revérifiée côté serveur). */}
+      {next && <input type="hidden" name="suivant" value={next} />}
       {passwordJustReset && (
         <p role="status" className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-200">
           {dict.passwordReset.resetDone}

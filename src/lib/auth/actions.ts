@@ -9,6 +9,7 @@ import { hashPassword, verifyPassword } from "./password";
 import { createSession, deleteSession } from "./session";
 import { verifySession } from "./dal";
 import { rateLimit } from "@/lib/security/rate-limit";
+import { safeNextPath } from "./next-path";
 import { TERMS_VERSION } from "@/data/legal/legal-config";
 import { after } from "next/server";
 import { defaultLocale, isLocale } from "@/i18n/config";
@@ -154,7 +155,7 @@ export async function login(locale: string, _state: AuthFormState, formData: For
   if (!passwordOk) return genericError;
 
   await createSession(user.id, user.sessionVersion);
-  redirect(`/${locale}/tableau-de-bord`);
+  redirect(safeNextPath(formData.get("suivant")) ?? `/${locale}/tableau-de-bord`);
 }
 
 export async function logout(locale: string) {

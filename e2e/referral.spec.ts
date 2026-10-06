@@ -399,6 +399,8 @@ test("retour de paiement Notch Pay (?ref=…) : jamais pris pour un lien de parr
 });
 
 test("administration : adresse prouvée par lien e-mail avant tout accès ; casse différente refusée à l'inscription", async ({ browser, page, context }) => {
+  // Nombreux allers-retours vers la base de dev distante : plus de temps.
+  test.slow();
   await testDb().user.deleteMany({ where: { email: ADMIN_EMAIL } });
   const admin = await createUser("Admin À Vérifier", ADMIN_EMAIL);
   await loginAs(context, admin.userId, BASE_URL);
@@ -414,7 +416,7 @@ test("administration : adresse prouvée par lien e-mail avant tout accès ; cass
   const stranger = await browser.newContext();
   const strangerPage = await stranger.newPage();
   await strangerPage.goto(path);
-  await expect(strangerPage).toHaveURL(/\/fr\/connexion$/);
+  await expect(strangerPage).toHaveURL(/\/fr\/connexion\?suivant=%2Ffr%2Fadmin%2Fverification/);
   await stranger.close();
   expect((await testDb().user.findUniqueOrThrow({ where: { id: admin.userId } })).emailVerifiedAt).toBeNull();
 

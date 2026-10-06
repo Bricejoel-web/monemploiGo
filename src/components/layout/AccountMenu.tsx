@@ -17,6 +17,7 @@ export function AccountMenu({
   labels,
   showReferral,
   showPro,
+  showAdmin,
 }: {
   locale: Locale;
   name: string | null;
@@ -24,6 +25,7 @@ export function AccountMenu({
   labels: { account: string; dashboard: string; logout: string };
   showReferral: boolean;
   showPro: boolean;
+  showAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -84,6 +86,11 @@ export function AccountMenu({
             {showPro && (
               <Link role="menuitem" href="/fr/pro/connexion" className={itemClass}>
                 Espace Pro
+              </Link>
+            )}
+            {showAdmin && (
+              <Link role="menuitem" href="/fr/admin/retraits" className={itemClass}>
+                Administration
               </Link>
             )}
           </div>

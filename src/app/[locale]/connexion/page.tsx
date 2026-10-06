@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { notFound, redirect } from "next/navigation";
 import { verifySession } from "@/lib/auth/dal";
+import { safeNextPath } from "@/lib/auth/next-path";
 import { seoMetadata } from "@/lib/seo-pages";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/connexion">) {
@@ -14,14 +15,15 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/connexio
 export default async function LoginPage({ params, searchParams }: PageProps<"/[locale]/connexion">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  // Déjà connecté (session vérifiée en base) : directement au tableau de bord.
-  if (await verifySession()) redirect(`/${locale}/tableau-de-bord`);
+  const { reinitialise, suivant } = await searchParams;
+  const next = safeNextPath(suivant);
+  // Déjà connecté (session vérifiée en base) : page demandée ou tableau de bord.
+  if (await verifySession()) redirect(next ?? `/${locale}/tableau-de-bord`);
   const dict = await getDictionary(locale as Locale);
-  const { reinitialise } = await searchParams;
 
   return (
     <AuthLayout title={dict.auth.loginTitle} subtitle={dict.auth.loginSubtitle} dict={dict} variant="login">
-      <LoginForm locale={locale as Locale} dict={dict} passwordJustReset={reinitialise === "1"} />
+      <LoginForm locale={locale as Locale} dict={dict} passwordJustReset={reinitialise === "1"} next={next ?? undefined} />
     </AuthLayout>
   );
 }

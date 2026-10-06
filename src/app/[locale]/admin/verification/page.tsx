@@ -15,10 +15,24 @@ export default async function AdminVerificationPage({ searchParams }: PageProps<
   if (!isReferralEnabled()) notFound();
   const user = await getCurrentUser();
   if (!user) redirect("/fr/connexion");
-  if (!isAdminEmail(user.email)) notFound();
+  const { jeton, envoye, erreur } = await searchParams;
+  if (!isAdminEmail(user.email)) {
+    // Lien ouvert avec un autre compte connecté (souvent sur un autre
+    // appareil) : on l'explique au lieu d'une page introuvable. Sans lien,
+    // l'existence de l'administration n'est pas révélée.
+    if (typeof jeton !== "string" || !jeton) notFound();
+    return (
+      <div className="mx-auto flex max-w-xl flex-col gap-4 px-6 py-12">
+        <h1 className="text-2xl font-bold">Ce lien est destiné à un autre compte</h1>
+        <p className="text-sm text-black/70 dark:text-white/70">
+          Vous êtes connecté avec <strong>{user.email}</strong>. Ouvrez ce lien dans le navigateur où vous êtes connecté avec le compte qui l&apos;a reçu, ou
+          déconnectez-vous puis reconnectez-vous avec ce compte avant de rouvrir le lien.
+        </p>
+      </div>
+    );
+  }
   if (user.emailVerifiedAt) redirect("/fr/admin/retraits");
 
-  const { jeton, envoye, erreur } = await searchParams;
   let invalidLink = false;
   if (typeof jeton === "string" && jeton) {
     if (await consumeEmailVerificationToken(jeton, user.id)) redirect("/fr/admin/retraits");

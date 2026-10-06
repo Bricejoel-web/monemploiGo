@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { defaultLocale, isLocale, locales } from "@/i18n/config";
 import { SESSION_COOKIE, decryptSessionToken } from "@/lib/auth/session";
 import { isCategorySlug } from "@/lib/cv/category-routes";
+import { safeNextPath } from "@/lib/auth/next-path";
 import { isProEnabled } from "@/lib/pro/flag";
 import { PRO_PRIVATE_SEGMENTS } from "@/lib/pro/navigation";
 import { REFERRAL_CODE_PATTERN, REFERRAL_COOKIE, REFERRAL_COOKIE_MAX_AGE, domainSlug, isReferralEnabled } from "@/lib/referral/config";
@@ -142,7 +143,12 @@ export async function proxy(request: NextRequest) {
   }
 
   if ((PROTECTED_SEGMENTS.includes(segment) || isEditor) && !session?.userId) {
-    return NextResponse.redirect(new URL(`/${locale}/connexion`, request.url));
+    // Retour à la page demandée après la connexion (lien reçu par e-mail,
+    // éditeur, paiement…), seulement s'il s'agit d'un chemin interne sûr.
+    const loginUrl = new URL(`/${locale}/connexion`, request.url);
+    const next = safeNextPath(pathname + request.nextUrl.search);
+    if (next) loginUrl.searchParams.set("suivant", next);
+    return NextResponse.redirect(loginUrl);
   }
 
   // Connexion / inscription quand on est déjà connecté : la redirection vers

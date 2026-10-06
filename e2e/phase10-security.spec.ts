@@ -155,3 +155,39 @@ test("photo de CV : seul un vrai PNG, JPEG ou WebP est conservé ; en-tête X-Po
   const response = await request.get("/fr");
   expect(response.headers()["x-powered-by"]).toBeUndefined();
 });
+
+test("après la connexion, retour à la page demandée ; jamais vers un site extérieur", async ({ page }) => {
+  const { safeNextPath } = await import("../src/lib/auth/next-path");
+  expect(safeNextPath("/fr/tableau-de-bord?onglet=1")).toBe("/fr/tableau-de-bord?onglet=1");
+  for (const bad of ["//exemple.com", "https://exemple.com", "/\exemple.com", "/fr//exemple.com", "exemple.com", "/fr/connexion", "/de/x", 42]) {
+    expect(safeNextPath(bad), String(bad)).toBeNull();
+  }
+
+  const user = await createUser("Retour Après Connexion");
+  await page.goto("/fr/document/inexistant/apercu");
+  await expect(page).toHaveURL(/\/fr\/connexion\?suivant=%2Ffr%2Fdocument%2Finexistant%2Fapercu$/);
+  await page.getByLabel("E-mail").fill(user.email);
+  await page.getByLabel("Mot de passe", { exact: true }).fill("Pro-Test#2026");
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await expect(page).toHaveURL(/\/fr\/document\/inexistant\/apercu$/);
+
+  // Paramètre forgé vers un site extérieur : retour normal au tableau de bord.
+  await page.context().clearCookies();
+  await page.goto("/fr/connexion?suivant=" + encodeURIComponent("//exemple.com"));
+  await page.getByLabel("E-mail").fill(user.email);
+  await page.getByLabel("Mot de passe", { exact: true }).fill("Pro-Test#2026");
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await expect(page).toHaveURL(/\/fr\/tableau-de-bord$/);
+});
+
+test("lien de vérification ouvert avec un autre compte : explication, pas de page introuvable", async ({ page, context }) => {
+  test.skip(process.env.REFERRAL_ENABLED === "false", "parrainage désactivé");
+  const other = await createUser("Autre Compte");
+  await loginAs(context, other.userId, BASE_URL);
+  await page.goto("/fr/admin/verification?jeton=lien-recu-par-un-autre");
+  await expect(page.getByRole("heading", { name: "Ce lien est destiné à un autre compte" })).toBeVisible();
+  // Sans lien, l'administration reste invisible.
+  await page.goto("/fr/admin/verification");
+  await expect(page.getByRole("heading", { name: "Ce lien est destiné à un autre compte" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Confirmez votre adresse e-mail" })).toHaveCount(0);
+});

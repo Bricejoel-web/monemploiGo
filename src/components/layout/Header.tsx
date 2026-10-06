@@ -8,6 +8,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { isProEnabled } from "@/lib/pro/flag";
 import { isReferralEnabled } from "@/lib/referral/config";
+import { isAdminEmail } from "@/lib/referral/admin";
 
 export async function Header({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   const session = await verifySession();
@@ -17,6 +18,9 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
   // lien à part, à côté de la connexion, hors du menu des candidats.
   const showReferral = locale === "fr" && isReferralEnabled() && Boolean(session);
   const showPro = locale === "fr" && isProEnabled();
+  // Lien vers l'administration : seulement pour les adresses ADMIN_EMAILS
+  // (l'accès reste revérifié à chaque page, adresse prouvée comprise).
+  const showAdmin = isReferralEnabled() && Boolean(session && isAdminEmail(session.email));
 
   const navLinkClass =
     "rounded-full px-2.5 py-2 text-foreground transition-colors hover:bg-[#f2994a]/15 hover:text-[#c94f30] dark:hover:bg-white/[0.08] dark:hover:text-[#f2994a]";
@@ -67,6 +71,7 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
                 labels={{ account: dict.nav.account, dashboard: dict.nav.dashboard, logout: dict.nav.logout }}
                 showReferral={showReferral}
                 showPro={showPro}
+                showAdmin={showAdmin}
               />
             ) : (
               <>
@@ -94,6 +99,7 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
             isLoggedIn={Boolean(session)}
             showReferral={showReferral}
             showPro={showPro}
+            showAdmin={showAdmin}
           />
         </div>
       </div>

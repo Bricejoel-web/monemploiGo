@@ -24,6 +24,7 @@ export function MobileNav({
   isLoggedIn,
   showReferral,
   showPro,
+  showAdmin,
 }: {
   locale: Locale;
   cvLabel: string;
@@ -36,6 +37,7 @@ export function MobileNav({
   isLoggedIn: boolean;
   showReferral: boolean;
   showPro: boolean;
+  showAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -82,6 +84,11 @@ export function MobileNav({
                 {showReferral && (
                   <Link href="/fr/parrainage" className={linkClass} onClick={() => setOpen(false)}>
                     Parrainer & gagner
+                  </Link>
+                )}
+                {showAdmin && (
+                  <Link href="/fr/admin/retraits" className={linkClass} onClick={() => setOpen(false)}>
+                    Administration
                   </Link>
                 )}
                 <div className="border-t border-black/[0.06] pt-1 dark:border-white/10">
