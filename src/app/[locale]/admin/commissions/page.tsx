@@ -5,6 +5,8 @@ import { cancelCommission } from "@/lib/referral/admin-actions";
 import { documentLabel } from "@/lib/pro/document-kinds";
 import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
+import { ListCapNotice } from "@/components/ui/ListCapNotice";
+import { LIST_CAP } from "@/lib/list-cap";
 
 export const metadata = pageMetadata({ locale: "fr", path: "/admin/commissions", title: "Commissions de parrainage | Admin", description: "Administration.", noindex: true, frenchOnly: true });
 
@@ -14,12 +16,13 @@ export default async function AdminCommissionsPage({ searchParams }: PageProps<"
   await requireAdmin();
   const query = await searchParams;
   const ref = typeof query.paiement === "string" ? query.paiement.trim().slice(0, 100) : "";
-  const commissions = await prisma.referralCommission.findMany({
+  const commissionRows = await prisma.referralCommission.findMany({
     where: ref ? { payment: { OR: [{ id: ref }, { providerRef: ref }] } } : {},
     orderBy: { createdAt: "desc" },
-    take: 100,
+    take: LIST_CAP.commissions + 1,
     include: { referrer: { select: { referralCode: true } }, payment: { select: { id: true, providerRef: true, amountFcfa: true } } },
   });
+  const commissions = commissionRows.slice(0, LIST_CAP.commissions);
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-8 sm:px-6">
@@ -37,6 +40,7 @@ export default async function AdminCommissionsPage({ searchParams }: PageProps<"
           Rechercher
         </button>
       </form>
+      {commissionRows.length > LIST_CAP.commissions && <ListCapNotice cap={LIST_CAP.commissions} />}
       <ul className="flex flex-col gap-3">
         {commissions.map((c) => (
           <li key={c.id} className="rounded-2xl border border-black/10 bg-white p-4 text-sm dark:border-white/10 dark:bg-white/5">

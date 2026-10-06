@@ -4,6 +4,8 @@ import { requireAdmin } from "@/lib/referral/admin";
 import { WITHDRAWAL_OVERDUE_HOURS } from "@/lib/referral/config";
 import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
+import { ListCapNotice } from "@/components/ui/ListCapNotice";
+import { LIST_CAP } from "@/lib/list-cap";
 
 export const metadata = pageMetadata({ locale: "fr", path: "/admin/retraits", title: "Retraits de parrainage | Admin", description: "Administration.", noindex: true, frenchOnly: true });
 
@@ -17,12 +19,14 @@ export default async function AdminWithdrawalsPage({ searchParams }: PageProps<"
   await requireAdmin();
   const { statut } = await searchParams;
   const status = statut === "PAID" || statut === "REJECTED" ? statut : statut === "tous" ? undefined : "PENDING";
-  const withdrawals = await prisma.withdrawalRequest.findMany({
+  const withdrawalsRows = await prisma.withdrawalRequest.findMany({
     where: status ? { status } : {},
     orderBy: { createdAt: "desc" },
-    take: 200,
+    take: LIST_CAP.admin + 1,
     include: { user: { select: { email: true, referralCode: true } } },
   });
+  // Un élément de plus que le plafond : s'il existe, la liste est tronquée.
+  const withdrawals = withdrawalsRows.slice(0, LIST_CAP.admin);
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-8 sm:px-6">
@@ -43,6 +47,7 @@ export default async function AdminWithdrawalsPage({ searchParams }: PageProps<"
           </Link>
         ))}
       </nav>
+      {withdrawalsRows.length > LIST_CAP.admin && <ListCapNotice cap={LIST_CAP.admin} />}
       {withdrawals.length === 0 ? (
         <p className="text-sm text-black/60 dark:text-white/60">Aucune demande.</p>
       ) : (

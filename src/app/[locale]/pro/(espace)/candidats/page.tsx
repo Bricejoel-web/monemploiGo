@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireProAccount } from "@/lib/pro/dal";
 import { getProOverview } from "@/lib/pro/subscription";
 import { listCandidates, type CandidateFilter } from "@/lib/pro/candidates";
+import { ListCapNotice } from "@/components/ui/ListCapNotice";
+import { LIST_CAP } from "@/lib/list-cap";
 import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
 import { ProButton, StatCard } from "@/components/pro/DashboardParts";
@@ -38,7 +40,9 @@ export default async function CandidatesPage({ searchParams }: PageProps<"/[loca
   const query = typeof params.q === "string" ? params.q.slice(0, 100) : "";
   const filter: CandidateFilter = params.statut === "actifs" || params.statut === "archives" ? params.statut : "tous";
 
-  const [overview, candidates] = await Promise.all([getProOverview(account.id), listCandidates(account.id, { query, filter })]);
+  const [overview, candidateRows] = await Promise.all([getProOverview(account.id), listCandidates(account.id, { query, filter })]);
+  const capped = candidateRows.length > LIST_CAP.pro;
+  const candidates = candidateRows.slice(0, LIST_CAP.pro);
   const canCreate = overview.access.state === "active" && overview.activeCandidates < overview.maxActiveCandidates;
   const filterHref = (value: CandidateFilter) => `/fr/pro/candidats?${new URLSearchParams({ ...(query ? { q: query } : {}), ...(value !== "tous" ? { statut: value } : {}) })}`;
 
@@ -99,6 +103,7 @@ export default async function CandidatesPage({ searchParams }: PageProps<"/[loca
         </nav>
       </div>
 
+      {capped && <ListCapNotice cap={LIST_CAP.pro} />}
       {candidates.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-black/15 bg-white p-8 text-center text-sm text-black/60 dark:border-white/15 dark:bg-white/5 dark:text-white/60">
           {query ? `Aucun candidat ne correspond à « ${query} ».` : filter === "archives" ? "Aucun candidat archivé." : "Aucun candidat pour le moment."}

@@ -5,6 +5,8 @@ import { requireProAccount } from "@/lib/pro/dal";
 import { PRO_DOCUMENT_KINDS, documentLabel } from "@/lib/pro/document-kinds";
 import { formatLongDate } from "@/lib/format-date";
 import { pageMetadata } from "@/lib/seo";
+import { ListCapNotice } from "@/components/ui/ListCapNotice";
+import { LIST_CAP } from "@/lib/list-cap";
 
 export const metadata = pageMetadata({
   locale: "fr",
@@ -56,15 +58,17 @@ export default async function ProDocumentsPage({ searchParams }: PageProps<"/[lo
     })),
   };
 
-  const [documents, candidates] = await Promise.all([
+  const [documentRows, candidates] = await Promise.all([
     prisma.document.findMany({
       where,
       orderBy: { updatedAt: "desc" },
-      take: 200,
+      take: LIST_CAP.pro + 1,
       select: { id: true, type: true, category: true, status: true, updatedAt: true, finalizedAt: true, candidate: { select: { id: true, firstName: true, lastName: true } } },
     }),
     prisma.professionalCandidate.findMany({ where: { professionalAccountId: account.id }, orderBy: { lastName: "asc" }, select: { id: true, firstName: true, lastName: true } }),
   ]);
+
+  const documents = documentRows.slice(0, LIST_CAP.pro);
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
@@ -101,6 +105,7 @@ export default async function ProDocumentsPage({ searchParams }: PageProps<"/[lo
         </button>
       </form>
 
+      {documentRows.length > LIST_CAP.pro && <ListCapNotice cap={LIST_CAP.pro} />}
       {documents.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-black/15 bg-white p-8 text-center text-sm text-black/60 dark:border-white/15 dark:bg-white/5 dark:text-white/60">
           {query || kind || candidateId || period ? "Aucun document ne correspond à ces critères." : "Aucun document pour le moment. Créez-en un depuis le dossier d'un candidat."}

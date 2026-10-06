@@ -1,4 +1,5 @@
 import "server-only";
+import { LIST_CAP } from "@/lib/list-cap";
 import { prisma } from "@/lib/db/client";
 
 export type CandidateFilter = "tous" | "actifs" | "archives";
@@ -21,7 +22,7 @@ export function listCandidates(professionalAccountId: string, { query, filter }:
       })),
     },
     orderBy: { updatedAt: "desc" },
-    take: 200,
+    take: LIST_CAP.pro + 1,
     include: { _count: { select: { documents: true } } },
   });
 }

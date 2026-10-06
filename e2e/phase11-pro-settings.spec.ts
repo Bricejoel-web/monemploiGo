@@ -140,3 +140,16 @@ test("logo : le serveur n'accepte que du PNG, JPEG ou WebP réel et léger", asy
   expect(parseLogoDataUrl("https://exemple.com/logo.png")).toBeNull();
   expect(parseLogoDataUrl(42)).toBeNull();
 });
+
+test("liste plafonnée : avertissement au-delà de 200 candidats, aucun à 200", async ({ page, context, isMobile }) => {
+  test.skip(isMobile, "joué une fois, sur ordinateur");
+  const pro = await createProUser("Agence Volumineuse");
+  const rows = (n: number) => Array.from({ length: n }, (_, i) => ({ professionalAccountId: pro.accountId, firstName: `Archivé${i}`, lastName: "Test", status: "ARCHIVED" as const }));
+  await testDb().professionalCandidate.createMany({ data: rows(200) });
+  await loginAs(context, pro.userId, BASE_URL);
+  await page.goto("/fr/pro/candidats");
+  await expect(page.getByText("Affichage limité aux 200 éléments les plus récents", { exact: false })).toHaveCount(0);
+  await testDb().professionalCandidate.create({ data: { professionalAccountId: pro.accountId, firstName: "Dernier", lastName: "Test", status: "ARCHIVED" } });
+  await page.reload();
+  await expect(page.getByText("Affichage limité aux 200 éléments les plus récents", { exact: false })).toBeVisible();
+});
