@@ -198,3 +198,15 @@ test("lien de vérification ouvert avec un autre compte : explication, pas de pa
   await expect(page.getByRole("heading", { name: "Ce lien est destiné à un autre compte" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Confirmez votre adresse e-mail" })).toHaveCount(0);
 });
+
+test("session ouverte avant l'indicateur « connecté » : en-tête connecté dès la première visite", async ({ page, context }) => {
+  const user = await createUser("Ancienne Session");
+  await loginAs(context, user.userId, BASE_URL);
+  // Comme une session ouverte avant la mise en ligne de l'indicateur.
+  await context.clearCookies({ name: "monemploigo_connecte" });
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/fr/cv");
+  await expect(page.locator("header").getByRole("button", { name: "Mon compte" })).toBeVisible();
+  await expect(page.locator("header").getByRole("link", { name: "Connexion" })).toHaveCount(0);
+  expect((await context.cookies()).some((c) => c.name === "monemploigo_connecte" && c.value === "1")).toBe(true);
+});

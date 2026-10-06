@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { defaultLocale, isLocale, locales } from "@/i18n/config";
 import { SESSION_COOKIE, decryptSessionToken } from "@/lib/auth/session";
+import { SESSION_HINT_COOKIE } from "@/lib/auth/session-hint";
 import { isCategorySlug } from "@/lib/cv/category-routes";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { isProEnabled } from "@/lib/pro/flag";
@@ -51,7 +52,30 @@ function detectLocale(request: NextRequest): string {
   return match ?? defaultLocale;
 }
 
+/**
+ * Sessions ouvertes avant l'indicateur « connecté » (mise en ligne du
+ * 2026-10-06) : le cookie de session existe mais pas l'indicateur, et
+ * l'en-tête affichait la personne comme déconnectée. On le pose dès la
+ * première requête. Simple affichage, aucun accès (voir session-hint.ts) ;
+ * /api/session l'efface si la session n'est en réalité plus valable.
+ */
 export async function proxy(request: NextRequest) {
+  const response = await handle(request);
+  if (request.cookies.get(SESSION_COOKIE) && !request.cookies.get(SESSION_HINT_COOKIE)) {
+    const session = await decryptSessionToken(request.cookies.get(SESSION_COOKIE)?.value);
+    if (session?.userId) {
+      response.cookies.set(SESSION_HINT_COOKIE, "1", {
+        path: "/",
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 30 * 24 * 60 * 60,
+      });
+    }
+  }
+  return response;
+}
+
+async function handle(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // Lien de recommandation (?ref=CODE&domain=…) : le code et le domaine sont
